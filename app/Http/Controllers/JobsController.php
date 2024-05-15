@@ -1,0 +1,918 @@
+<?php
+
+namespace App\Http\Controllers;
+use App\Models\Job;
+use App\Models\JobsData;
+use App\Models\Production;
+use App\Models\Material;
+use App\Models\Equipment;
+use App\Models\Jobentry;
+use App\Models\JobNotes;
+use App\Models\Branch;
+use App\Models\PO;
+use Auth;
+use DB;
+use App\Models\File;
+use Illuminate\Http\Request;
+use App\Mail\JobCardRejectionNotification;
+use App\Mail\Share;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail; 
+
+class JobsController extends Controller
+{
+	
+    public function index()
+    {
+        $jobs = Job::where('status', '=', 'In progress')->orderBy("completion_date", "asc")->get();
+		$branch = Branch::get();
+        return view("jobs.index", compact("jobs","branch"));
+    }
+	
+	public function globalreview()
+    {
+
+			$jobentries = \DB::table('jobentries')
+            ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+            ->orderBy("jobentries.updated_at", "desc")
+            ->get();
+	
+		
+
+        return view("jobs.globalreview", compact("jobentries"));
+    }
+    public function review()
+    {
+		
+		if(in_array(Auth::user()->id,array(72,1022,1529))){
+			$branch = array('10-10 Columbus');
+			        $jobentries = \DB::table('jobentries')
+            ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+			->whereIn('jobs.branch', $branch)
+            ->orderBy("jobentries.updated_at", "desc")
+            ->get();
+		}
+		elseif(in_array(Auth::user()->id,array(93))){
+			
+			$branch = array('10-20 Remerton', '10-30 Byron', '10-80 Richmond Hill');
+			        $jobentries = \DB::table('jobentries')
+            ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+			->whereIn('jobs.branch', $branch)
+            ->orderBy("jobentries.updated_at", "desc")
+            ->get();
+		}
+		elseif(in_array(Auth::user()->id,array(2795))){
+			
+						$branch = array('10-50 Cleveland', '10-11 Cartersville', '10-12 Locust Grove');
+						        $jobentries = \DB::table('jobentries')
+            ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+			->whereIn('jobs.branch', $branch)
+            ->orderBy("jobentries.updated_at", "desc")
+            ->get();
+		}
+		elseif(in_array(Auth::user()->id,array(8138,8169))){
+			
+						$branch = array('10-60 Summerville', '10-40 Columbia', '10-70 Spartanburg', '10-65 Conway');
+						        $jobentries = \DB::table('jobentries')
+            ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+			->whereIn('jobs.branch', $branch)
+            ->orderBy("jobentries.updated_at", "desc")
+            ->get();
+		}
+		else{
+
+			$jobentries = \DB::table('jobentries')
+            ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+            ->orderBy("jobentries.updated_at", "desc")
+            ->get();
+		}
+		
+
+        return view("jobs.review", compact("jobentries"));
+    }
+
+	public function history()
+	{
+		
+			$jobentries = \DB::table('jobentries')
+            ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name', 'jobentries.submitted','jobentries.submitted_on','jobentries.approved','jobentries.link', 'jobentries.workdate','jobentries.ApprovedBy')
+            ->orderBy("approved","desc")
+            ->orderBy("workdate","desc")
+            ->get();
+		
+		
+
+        return view("jobs.history", compact("jobentries"));
+		
+	}
+    public function jobreview($id)
+    {
+		$jobnumbers = Job::where('status', '=', 'In progress')->orderBy("job_number", "asc")->get();
+        $jobcard = Jobentry::where("link", $id)->get();
+        $jobnotes = JobNotes::where("link", $id)->get();
+		$pos = PO::where("link", $id)->get();
+        $jobnum = $jobcard[0]->job_number;
+        $jobitems = JobsData::where("job_number", $jobnum)->get();
+        $job = Job::where("job_number", $jobnum)->get();
+        $files = File::where("job_number", $jobnum)
+            ->where("doctype", 0)
+            ->orderBy("type", "desc")
+            ->get();
+        $jobfiles = File::where("link", $id)
+            ->where("doctype", 1)
+            ->orderBy("type", "desc")
+            ->get();
+$production = Production::where("link", $id)->get();
+		$proditems = JobsData::where("job_number", $jobnum)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->where(\DB::raw("RIGHT(phase, 5)"), "<", 10000)->where(\DB::raw("RIGHT(phase, 5)"), ">", 0)->orderBy("phase", "asc")->get();
+		$materialitems = JobsData::where("job_number", $jobnum)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->where(\DB::raw("RIGHT(phase, 5)"), ">", 10000)->orderBy("phase", "asc")->get();
+        $material = Material::where("link", $id)->get();
+		$equipmentitems = JobsData::where("job_number", $jobnum)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->where(\DB::raw("RIGHT(phase, 5)"), "=", 10000)->orderBy("phase", "asc")->get();
+        $equipment = Equipment::where("link", $id)->get();
+        return view(
+            "jobs.jobreview",
+            compact(
+                "jobcard",
+                "production",
+                "material",
+                "equipment",
+                "job",
+                "jobitems",
+                "files",
+                "jobfiles",
+                "jobnotes",
+				"pos",
+				"jobnumbers",
+				"proditems",
+				"equipmentitems",
+				"materialitems"
+            ),
+        );
+    }
+
+    public function overview($id)
+    {
+        $jobinfo = Job::where("id", $id)->get();
+        $jobnum = $jobinfo[0]->job_number;
+        $jobitems = JobsData::select(\DB::raw("LEFT(phase, 2) as phase"))
+            ->where("job_number", $jobnum)
+            ->groupBy("phase")
+            ->get();
+        $files = File::where("job_number", $jobnum)
+            ->where("doctype", 0)
+            ->orderBy("type", "desc")
+            ->get();
+        $jobentries = Jobentry::where("job_number", $jobnum)
+            ->orderBy("submitted", "desc")
+            ->get();
+        $jobid = $id;
+        return view(
+            "jobs.overview",
+            compact("jobinfo", "files", "jobentries", "jobid", "jobitems"),
+        );
+    }
+	
+	public function jobcardview($id)
+    {
+		
+        $jobentries = Jobentry::where("userId", $id)
+			->where("submitted", '0')
+			->orWhere("approved", '2')
+			->where("userId", $id)
+			->OrderBy("approved", 'desc')
+            ->get();
+        return view(
+            "jobs.jobcardview",
+            compact("jobentries"),
+        );
+    }
+	
+		public function myjobcards($id)
+    {
+        $jobentries = Jobentry::where("userId", $id)
+			->where("userId", $id)
+			->OrderBy("approved", 'desc')
+            ->get();
+        return view(
+            "jobs.myjobcards",
+            compact("jobentries"),
+        );
+    }
+
+    public function jobcard($id)
+    {
+		
+        $jobcard = Jobentry::where("link", $id)->get();
+        $jobnum = $jobcard[0]->job_number;
+		$pos = PO::where("link", $id)->get();
+        $jobnotes = JobNotes::where("link", $id)->get();
+        $jobitems = JobsData::where("job_number", $jobnum)->where('unit_of_measure', '!=' , '%LS%')->orderBy("phase", "asc")->get();
+        $jobinfo = Job::where("job_number", $jobnum)->get();
+        $files = File::where("link", $id)
+            ->where("doctype", 1)
+            ->orderBy("type", "desc")
+            ->get();
+        $production = Production::where("link", $id)->get();
+		$proditems = JobsData::where("job_number", $jobnum)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->where(\DB::raw("RIGHT(phase, 5)"), "<", 10000)->where(\DB::raw("RIGHT(phase, 5)"), ">", 0)->orderBy("phase", "asc")->get();
+		$materialitems = JobsData::where("job_number", $jobnum)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->where(\DB::raw("RIGHT(phase, 5)"), ">", 10000)->orderBy("phase", "asc")->get();
+        $material = Material::where("link", $id)->get();
+		$equipmentitems = JobsData::where("job_number", $jobnum)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->where(\DB::raw("RIGHT(phase, 5)"), "=", 10000)->orderBy("phase", "asc")->get();
+        $equipment = Equipment::where("link", $id)->get();
+        return view(
+            "jobs.jobcard",
+            compact(
+                "jobcard",
+                "production",
+                "material",
+                "equipment",
+                "jobinfo",
+                "jobitems",
+                "files",
+                "jobnotes",
+				"pos",
+				"proditems",
+				"materialitems",
+				"equipmentitems",
+            ),
+        );
+    }
+	
+	public function view($id)
+    {
+        $jobcard = Jobentry::where("link", $id)->get();
+        $jobnum = $jobcard[0]->job_number;
+        $jobnotes = JobNotes::where("link", $id)->get();
+        $jobitems = JobsData::where("job_number", $jobnum)->get();
+        $jobinfo = Job::where("job_number", $jobnum)->get();
+        $files = File::where("link", $id)
+            ->where("doctype", 1)
+            ->orderBy("type", "desc")
+            ->get();
+        $production = Production::where("link", $id)->get();
+        $material = Material::where("link", $id)->get();
+        $equipment = Equipment::where("link", $id)->get();
+        return view(
+            "jobs.view",
+            compact(
+                "jobcard",
+                "production",
+                "material",
+                "equipment",
+                "jobinfo",
+                "jobitems",
+                "files",
+                "jobnotes",
+            ),
+        );
+    }
+
+    public function edit($id, $crewType)
+    {
+        $job = Job::find($id);
+        $job_number = $job->job_number;
+        $jobitems = JobsData::where("job_number", $job_number)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->orderBy("phase", "asc")->get();
+		$proditems = JobsData::where("job_number", $job_number)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->where(\DB::raw("RIGHT(phase, 5)"), "<", 10000)->where(\DB::raw("RIGHT(phase, 5)"), ">", 0)->orderBy("phase", "asc")->get();
+        $production = JobsData::where("job_number", $job_number)
+			->where('unit_of_measure', '!=' , 'LS')
+			->where('unit_of_measure', '!=' , 'TXT')
+            ->where(\DB::raw("RIGHT(phase, 5)"), "<", 10000)
+			->where(\DB::raw("RIGHT(phase, 5)"), ">", 0)
+            ->where(\DB::raw("LEFT(phase, 2)"), "=", $crewType)
+            ->get();
+		$materialitems = JobsData::where("job_number", $job_number)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->where(\DB::raw("RIGHT(phase, 5)"), ">", 10000)->orderBy("phase", "asc")->get();
+        $material = JobsData::where("job_number", $job_number)->where('unit_of_measure', '!=' , '%LS%')
+            ->where(\DB::raw("RIGHT(phase, 5)"), ">", 10000)
+            ->where(\DB::raw("LEFT(phase, 2)"), "=", $crewType)
+            ->get();
+			$equipmentitems = JobsData::where("job_number", $job_number)->where('unit_of_measure', '!=' , 'LS')->where('unit_of_measure', '!=' , 'TXT')->where(\DB::raw("RIGHT(phase, 5)"), "=", 10000)->orderBy("phase", "asc")->get();
+        $equipment = JobsData::where("job_number", $job_number)
+            ->where(\DB::raw("RIGHT(phase, 5)"), "=", 10000)
+            ->where(\DB::raw("LEFT(phase, 2)"), "=", $crewType)
+            ->get();
+        return view(
+            "jobs.edit",
+            compact("job", "production", "material", "equipment", "jobitems","proditems","materialitems","equipmentitems"),
+        );
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Validate the form input
+        $validatedData = $request->validate([
+            "job_name" => "required|string|max:255",
+            // Add validation rules for other attributes here
+        ]);
+
+        // Find the job record by ID
+        $job = Job::findOrFail($id);
+
+        // Update the job record with the validated data
+        $job->update($validatedData);
+
+        // Redirect to a success page or show the updated job details
+        return redirect()
+            ->route("jobs.show", $job->id)
+            ->with("success", "Job updated successfully");
+    }
+
+    public function store(Request $request)
+    {
+        $uuid = Str::uuid()->toString();
+        $jobid = $request->jobid;
+        $jobEntry = new Jobentry();
+        $jobEntry->link = $uuid;
+        $jobEntry->job_number = $request->job_number;
+        $jobEntry->workdate = $request->workdate;
+        $jobEntry->userId = $request->userId;
+        $jobEntry->name = $request->username;
+        $jobEntry->save();
+        if ($request->notes != "") {
+            $JobNote = new JobNotes();
+            $JobNote->link = $uuid;
+            $JobNote->note_type = "JobCardNote";
+            $JobNote->username = $request->username;
+            $JobNote->note = $request->notes;
+            $JobNote->save();
+        }
+        if (!is_null($request->phase)) {
+            for ($i = 0; $i < count($request->phase); $i++) {
+                if (isset($request->qty[$i])) {
+                    $prod = new Production();
+                    $prod->job_number = $request->job_number;
+                    $prod->link = $uuid;
+                    $prod->userId = $request->userId;
+                    $prod->phase = $request->phase[$i];
+                    $prod->description = $request->description[$i];
+                    $prod->qty = $request->qty[$i];
+                    $prod->unit_of_measure = $request->unit_of_measure[$i];
+                    $prod->mark_mill = $request->mark_mill[$i];
+                    $prod->road_name = $request->road_name[$i];
+                    if (isset($request->phase_item_complete[$i])) {
+                        $prod->phase_item_complete = 1;
+                    } else {
+                        $prod->phase_item_complete = 0;
+                    }
+
+                    $prod->surface_type = $request->surface_type[$i];
+
+                    $prod->save();
+                }
+            }
+        }
+        if (!is_null($request->mphase)) {
+            for ($i = 0; $i < count($request->mphase); $i++) {
+                if (isset($request->mqty[$i])){
+                    $mat = new Material();
+                    $mat->job_number = $request->job_number;
+                    $mat->link = $uuid;
+                    $mat->userId = $request->userId;
+                    $mat->phase = $request->mphase[$i];
+                    $mat->description = $request->mdescription[$i];
+                    $mat->qty = $request->mqty[$i];
+                    $mat->unit_of_measure = $request->munit[$i];
+                    $mat->supplier = $request->msupplier[$i];
+                    $mat->batch = $request->mbatch[$i];
+                    $mat->save();
+                }
+            }
+        }
+        if (!is_null($request->ephase)) {
+			
+            for ($i = 0; $i < count($request->ephase); $i++) {
+			Log::info('Request for Equipment - '.$request->ephase[$i]);
+
+                if (isset($request->ehours[$i])) {
+                    $equip = new Equipment();
+                    $equip->job_number = $request->job_number;
+                    $equip->link = $uuid;
+                    $equip->userId = $request->userId;
+                    $equip->phase = $request->ephase[$i];
+                    $equip->description = $request->edescription[$i];
+                    $equip->truck = $request->etruck[$i];
+                    $equip->hours = $request->ehours[$i];
+                    $equip->save();
+                }
+            }
+        }
+
+        return redirect()
+            ->route("jobs.jobcard", ["id" => $uuid])
+            ->with("success", "Job entry saved successfully");
+    }
+
+    public function entryupdate(Request $request)
+    {
+		DB::enableQueryLog();
+        $jobLink = $request->link;
+        Jobentry::where("link", $jobLink)->update([
+            "workdate" => $request->workdate,
+        ]);
+
+        if ($request->notes != "") {
+            $JobNote = new JobNotes();
+            $JobNote->link = $request->link;
+            $JobNote->note_type = "JobCardNote";
+            $JobNote->username = $request->user;
+            $JobNote->note = $request->notes;
+            $JobNote->save();
+        }
+
+        if ($request->review_notes != "") {
+            $JobNote = new JobNotes();
+            $JobNote->link = $request->link;
+            $JobNote->note_type = "ReviewNote";
+            $JobNote->username = $request->user;
+            $JobNote->note = $request->review_notes;
+            $JobNote->save();
+        }
+        
+        if (!empty($request->phase)) {
+			
+            for ($i = 0; $i < count($request->phase); $i++) {
+				if (isset($request->qty[$i]) && isset($request->pid[$i])) {
+					
+					$productionid = $request->pid[$i];
+								
+					
+					
+					
+					if(Production::where("link", $jobLink)
+						->where("id", $request->pid[$i])
+						->count() > 0)
+						{
+							$complete = 0;
+							$id = $request->pid[$i];
+				// Check if checkbox was checked and set accordingly
+							if (!empty($request->phase_item_complete) && array_key_exists($id, $request->phase_item_complete)) {
+							$complete = 1;
+							}	
+				// Update the Production model based on the provided data
+						$affectedRows = Production::where("link", $jobLink)
+						->where("id", $productionid)
+						->update([
+                        "qty" => $request->qty[$i],
+                        "mark_mill" => $request->mark_mill[$i],
+                        "road_name" => $request->road_name[$i],
+                        "phase_item_complete" => $complete,
+                        "surface_type" => $request->surface_type[$i],
+						]);
+
+                // Check if the update was successful
+							if ($affectedRows === false) {
+							return redirect()
+							->route("jobs.jobcard", ["id" => $request->link])
+							->with("error", "Job entry updated Unsuccessfully");
+							}
+						}
+					}
+					else
+					{
+
+						if (isset($request->qty[$i])){
+						$prod = new Production();
+						$prod->job_number = $request->job_number;
+						$prod->link = $jobLink;
+						$prod->userId = $request->userId;
+						$prod->phase = $request->phase[$i];
+						$prod->description = $request->description[$i];
+						$prod->qty = $request->qty[$i];
+						$prod->unit_of_measure = $request->unit_of_measure[$i];
+						$prod->mark_mill = $request->mark_mill[$i];
+						$prod->road_name = $request->road_name[$i];
+                        if (isset($request->phase_item_complete[$i])) {
+                            $complete = 1;
+                        } 
+                        else {
+                            $complete = 0;
+                        }                   
+                        $prod->phase_item_complete = $complete;
+						$prod->surface_type = $request->surface_type[$i];
+						$prod->save();
+						}
+					}
+					Log::info(DB::getQueryLog());
+					DB::flushQueryLog();
+				
+			}
+        }
+        if (!empty($request->mphase)) {
+			
+            for ($i = 0; $i < count($request->mphase); $i++) {
+				if (isset($request->mqty[$i]) && isset($request->mid[$i])) {
+				if(Material::where("link", $jobLink)->where("id", $request->mid[$i])->exists())
+				{
+					Material::where("link", $jobLink)
+						->where("id", $request->mid[$i])
+						->update([
+							"qty" => $request->mqty[$i],
+							"supplier" => $request->msupplier[$i],
+							"batch" => $request->mbatch[$i],
+						]);
+				}}
+				else{
+if (isset($request->mqty[$i])){
+				    $mat = new Material();
+                    $mat->job_number = $request->job_number;
+                    $mat->link = $jobLink;
+                    $mat->userId = $request->userId;
+                    $mat->phase = $request->mphase[$i];
+                    $mat->description = $request->mdescription[$i];
+                    $mat->qty = $request->mqty[$i];
+                    $mat->unit_of_measure = $request->munit[$i];
+                    $mat->supplier = $request->msupplier[$i];
+                    $mat->batch = $request->mbatch[$i];
+                    $mat->save();
+}
+				
+				}
+			
+			}
+		}
+			
+
+        if (!empty($request->ephase)) {
+			
+            for ($i = 0; $i < count($request->ephase); $i++) {
+				
+				
+				if (isset($request->ehours[$i]) && isset($request->eid[$i]) && $request->ehours[$i] > 0) {
+				if(Equipment::where("link", $jobLink)->where("id", $request->eid[$i])->exists())
+				{
+					Equipment::where("link", $jobLink)
+						->where("id", $request->eid[$i])
+						->update([
+                        "hours" => $request->ehours[$i],
+                        "truck" => $request->etruck[$i],
+						]);
+				}
+				}
+				else{
+					if (isset($request->ehours[$i]) && isset($request->etruck[$i]) && $request->ehours[$i] > 0){
+				    $equip = new Equipment();
+                    $equip->job_number = $request->job_number;
+                    $equip->link = $jobLink;
+                    $equip->userId = $request->userId;
+                    $equip->phase = $request->ephase[$i];
+                    $equip->description = $request->edescription[$i];
+                    $equip->truck = $request->etruck[$i];
+                    $equip->hours = $request->ehours[$i];
+                    $equip->save();
+					}
+					else{
+						if (!isset($request->etruck[$i]) && $request->referrer == 0){
+						return redirect()
+                ->route("jobs.jobcard", ["id" => $request->link])
+                ->with("errorentry", "You must select a truck type");
+						}
+						elseif (!isset($request->ehours[$i]) && $request->referrer == 0 || $request->ehours[$i] < 1 && $request->referrer == 0){
+													return redirect()
+                ->route("jobs.jobcard", ["id" => $request->link])
+                ->with("errorentry", "You must have hours for added equipment.");
+						}
+												if (!isset($request->etruck[$i]) && $request->referrer == 1){
+						return redirect()
+                ->route("jobs.jobreview", ["id" => $request->link])
+                ->with("errorentry", "You must select a truck type");
+						}
+						elseif (!isset($request->ehours[$i]) && $request->referrer == 1 || $request->ehours[$i] < 1 && $request->referrer == 1){
+													return redirect()
+                ->route("jobs.jobreview", ["id" => $request->link])
+                ->with("errorentry", "You must have hours for added equipment.");
+						}
+					}
+				}
+			
+			}
+        }
+        if ($request->referrer == 0) {
+            return redirect()
+                ->route("jobs.jobcard", ["id" => $request->link])
+                ->with("successentry", "Job entry updated successfully");
+        }
+
+        if ($request->referrer == 1) {
+            return redirect()
+                ->route("jobs.jobreview", ["id" => $request->link])
+                ->with("successentry", "Job entry updated successfully");
+        }
+    }
+
+    public function submitjob(Request $request)
+    {
+        Jobentry::where("link", $request->link)->update([
+            "submitted" => 1,
+			"submitted_on" => date('Y-m-d'),
+            "approved" => 3,
+        ]);
+
+        return redirect()
+            ->route("jobs")
+            ->with("successentry", "Job card submitted successfully");
+    }
+
+    public function updatecard(Request $request)
+    {
+        Jobentry::where("link", $request->link)->update(["approved" => 1,
+		"approvedBy" => $request->username,
+		"approved_date" => date('Y-m-d'),
+		]);
+        return redirect()
+            ->route("jobs.review")
+            ->with("successentry", "Job card approved");
+    }
+
+    public function opencard(Request $request)
+    {
+        Jobentry::where("link", $request->link)->update(["approved" => 3,
+		"approvedBy" => $request->username,
+		"approved_date" => date('Y-m-d'),
+        "submitted" => 1,
+		]);
+        return redirect()
+            ->route("jobs.review")
+            ->with("successentry", "Job card re-opened");
+    }
+
+    public function rejectcard(Request $request)
+    {
+        Jobentry::where("link", $request->link)->update(["submitted" => 1]);
+        Jobentry::where("link", $request->link)->update(["approved" => 2]);
+        Jobentry::where("link", $request->link)->update(["approvedBy" => $request->username,]);
+		$email = \DB::table('jobentries')
+            ->join("users", "users.id", "=", "jobentries.userId")
+			->select('users.email', 'users.name', 'jobentries.job_number')
+            ->where('jobentries.userId', $request->userId)
+			->where('jobentries.link', $request->link)
+            ->get();
+        $JobNote = new JobNotes();
+        $JobNote->link = $request->link;
+        $JobNote->note_type = "Rejection";
+        $JobNote->username = $request->username;
+        $JobNote->note = $request->note;
+        $JobNote->save();
+		$note = $request->note;
+		$emailaddress = $email[0]->email;
+		$name = $email[0]->name;
+		$job_number = $email[0]->job_number;
+		Mail::to($emailaddress)->send(new JobCardRejectionNotification($name, $job_number, $note));
+        return redirect()
+            ->route("jobs.review")
+            ->with("successentry", "Job card rejected");
+    }
+	
+	public function shareJobcard(Request $request)
+	{
+		$link = $request->link;
+		$toemail = $request->email;
+		$imageData = $request->image;
+		$email = \DB::table('jobentries')
+            ->join("users", "users.id", "=", "jobentries.userId")
+			->select('users.email', 'jobentries.job_number')
+			->where('jobentries.link', $request->link)
+            ->get();
+		$job_number = $email[0]->job_number;
+		Mail::to($toemail)->send(new Share($link, $imageData, $job_number));
+		
+			
+			
+		
+	}
+
+    public function removeLineJBRP($link, $id, $ref)
+    {
+        Production::where("link", $link)
+            ->where("id", $id)
+            ->delete();
+			if($ref == 0)
+			{
+			return redirect()
+                ->route("jobs.jobcard", ["id" => $link])
+                ->with("successentry", "Job entry updated successfully");
+			}
+			else{
+            return redirect()
+                ->route("jobs.jobreview", ["id" => $link])
+                ->with("successentry", "Job entry updated successfully");
+			}
+	}
+    public function removeLineJBRM($link, $id, $ref)
+    {
+        Material::where("link", $link)
+            ->where("id", $id)
+            ->delete();
+			if($ref == 0)
+			{
+			return redirect()
+                ->route("jobs.jobcard", ["id" => $link])
+                ->with("successentry", "Job entry updated successfully");
+			}
+			else{
+            return redirect()
+                ->route("jobs.jobreview", ["id" => $link])
+                ->with("successentry", "Job entry updated successfully");
+			}
+    }
+    public function removeLineJBRE($link, $id, $ref)
+    {
+        Equipment::where("link", $link)
+            ->where("id", $id)
+            ->delete();
+			if($ref == 0)
+			{
+			return redirect()
+                ->route("jobs.jobcard", ["id" => $link])
+                ->with("successentry", "Job entry updated successfully");
+			}
+			else{
+            return redirect()
+                ->route("jobs.jobreview", ["id" => $link])
+                ->with("successentry", "Job entry updated successfully");
+			}
+    }
+	
+	public function removeJC($link, $id)
+    {
+        Production::where("link", $link)
+            ->delete();
+			
+	
+	
+
+        Material::where("link", $link)
+            ->delete();
+		
+   
+
+        Equipment::where("link", $link)
+            ->delete();
+			
+		Jobentry::where("link", $link)
+            ->delete();
+		
+            return redirect()
+                ->route("jobs.overview", ["id" => $id])
+                ->with("successentry", "Job card deleted successfully");
+				
+			
+    }
+	
+		public function changeJobNum(Request $request)
+    {
+
+		$link = $request->link;
+		$job_number = $request->job_number;
+		$newnumber = $request->jobnumber;
+		
+		Production::where("link", $request->link)->update(["job_number" => $newnumber,]);
+	
+		Material::where("link", $request->link)->update(["job_number" => $newnumber,]);
+		
+		Equipment::where("link", $request->link)->update(["job_number" => $newnumber,]);
+			
+		JobEntry::where("link", $request->link)->update(["job_number" => $newnumber,]);
+		
+		PO::where("link", $request->link)->update(["job_number" => $newnumber,]);
+		
+		File::where("job_number", $job_number)->where("doctype", '1')->update(["job_number" => $newnumber,]);
+		
+            return redirect()
+                ->route("jobs.jobreview", ["id" => $link])
+                ->with("successentry", "Job number changed successfully");
+				
+			
+    }
+	
+	public function roadList(Request $request){
+		$job = $request->jobnumber;
+		$equipment = DB::select("CALL BillingEquipmentByDay($request->jobnumber)");
+		$material = DB::select("CALL BillingMaterialByDay($request->jobnumber)");
+		$production = DB::select("CALL BillingProductionByDay($request->jobnumber)");
+		
+		return view("jobs.roadListReport",compact("job", "production", "material", "equipment"),);
+		
+		
+	}
+	
+	
+    public function exportFile(Request $request)
+    {
+
+    if($request->check == 1){
+    $twoDates = $request->daterange;
+    $date1 = date('Y-m-d', strtotime(substr($twoDates,0,10)));
+    $date2 = date('Y-m-d', strtotime(substr($twoDates,13,21)));
+
+    $production = \DB::table('jobentries')
+    ->join("production", "production.link", "=", "jobentries.link")
+    ->select('production.phase','jobentries.workdate','jobentries.job_number','production.qty')
+    ->whereBetween("jobentries.workdate", [$date1, $date2])->where('approved', '1')->where('qty','>', '0')->get();
+                
+    $csvFileName = 'production.txt';
+
+
+    $headers = [
+        'Content-Type' => 'text/csv',
+        "Content-Description" => "File Transfer",
+        "Cache-Control" => "public",
+        'Content-Disposition' => 'attachment; filename="'.$date1."-".$date2."-".$csvFileName.'"'];
+
+    $callback = function() use($production) {
+    $handle = fopen('php://output', 'w');
+
+
+    foreach ($production as $product) {
+        fputcsv($handle, ["JCTMW", $product->job_number,"",$product->phase,"","2",date('m-d-Y', strtotime($product->workdate)),"",$product->qty]); // Add more fields as needed
+    }
+
+    fclose($handle);
+    };
+    return response()->stream($callback, 200, $headers);
+    }
+    
+
+    if($request->check == 2){
+        $twoDates = $request->daterange;
+        $date1 = date('Y-m-d', strtotime(substr($twoDates,0,10)));
+        $date2 = date('Y-m-d', strtotime(substr($twoDates,13,21)));
+    
+        $material = \DB::table('jobentries')
+        ->join("material", "material.link", "=", "jobentries.link")
+        ->select('material.phase','jobentries.workdate','jobentries.job_number','material.qty')
+        ->whereBetween("jobentries.workdate", [$date1, $date2])->where('approved', '1')->where('qty','>', '0')->get();
+                    
+        $csvFileName = 'material.txt';
+    
+    
+        $headers = [
+            'Content-Type' => 'text/csv',
+            "Content-Description" => "File Transfer",
+            "Cache-Control" => "public",
+            'Content-Disposition' => 'attachment; filename="'.$date1."-".$date2."-".$csvFileName.'"'];
+    
+        $callback = function() use($material) {
+        $handle = fopen('php://output', 'w');
+    
+    
+        foreach ($material as $product) {
+            fputcsv($handle, ["DC", $product->job_number,"",$product->phase,"M","2",date('m-d-Y', strtotime($product->workdate)),date('m-d-Y', strtotime($product->workdate)),"",$product->qty,"","","10-10-999","10-10-999","","",substr($product->phase,3,5)]); // Add more fields as needed
+        }
+    
+        fclose($handle);
+        };
+        return response()->stream($callback, 200, $headers);
+        }
+		
+        if($request->check == 3){
+            $twoDates = $request->daterange;
+            $date1 = date('Y-m-d', strtotime(substr($twoDates,0,10)));
+            $date2 = date('Y-m-d', strtotime(substr($twoDates,13,21)));
+        
+            $equipment = \DB::select('select 
+    e.phase,
+    je.workdate,
+    je.job_number,
+    e.hours,
+    e.truck, 
+    e.userid, 
+    tc.cost 
+from jobentries je
+left join equipment e on e.link = je.link 
+left join truckcost tc on tc.truck = e.truck
+where je.workdate between ? and ? and je.approved = 1 and e.hours > 0', [$date1, $date2]);
+                        
+            $csvFileName = 'equipment.txt';
+        
+        
+            $headers = [
+                'Content-Type' => 'text/csv',
+                "Content-Description" => "File Transfer",
+                "Cache-Control" => "public",
+                'Content-Disposition' => 'attachment; filename="'.$date1."-".$date2."-".$csvFileName.'"'];
+        
+            $callback = function() use($equipment) {
+            $handle = fopen('php://output', 'w');
+        
+        
+            foreach ($equipment as $product) {
+                fputcsv($handle, ["R", $product->truck,"1",$product->hours,$product->cost,"",date('m-d-Y', strtotime($product->workdate)),"","","","","",date('m-d-Y', strtotime($product->workdate)),"10-10-999","10-10-999","",$product->job_number,"",$product->phase,"E",$product->userid]); // Add more fields as needed
+            }
+        
+            fclose($handle);
+            };
+            return response()->stream($callback, 200, $headers);
+            }
+			
+        
+        }
+
+}
