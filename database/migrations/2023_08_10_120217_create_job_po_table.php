@@ -13,22 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('po', function (Blueprint $table) {
+        Schema::create('job_po', function (Blueprint $table) {
             $table->id();
-	    $table->integer('job_id');
-	    $table->integer('userId');
-	    $table->string('notes');
-	    $table->string('non_est_task');
-	    $table->float('qty');
-	    $table->string('unit_of_measure');
-	    $table->string('mark_mill');
-	    $table->string('road_name');
-	    $table->string('phase_item_complete');
-	    $table->string('surface_type');
+	    $table->uuid('link');
+	    $table->string('phase');
+	    $table->integer('userID');
 	    $table->string('po_number');
-	    $table->string('mob');
+	    $table->string('signer_name');
 	    $table->string('signature');
-	    $table->string('sig_name');
+	    $table->string('notes');
             $table->timestamps();
         });
     }
@@ -40,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('po');
+        Schema::dropIfExists('job_po');
     }
 };

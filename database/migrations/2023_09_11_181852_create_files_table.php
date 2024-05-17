@@ -10,7 +10,12 @@ class CreateFilesTable extends Migration
             $table->id();
 			$table->string('job_number')->nullable();
             $table->string('name')->nullable();
+			$table->string('description');
+			$table->string('type');
+			$table->integer('doctype');
             $table->string('file_path')->nullable();
+			$table->uuid('link');
+			$table->integer('active');
             $table->timestamps();
         });
     }

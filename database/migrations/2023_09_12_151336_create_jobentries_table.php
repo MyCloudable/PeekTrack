@@ -15,7 +15,18 @@ return new class extends Migration
     {
         Schema::create('jobentries', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->uuid('link');
+			$table->string('job_number');
+			$table->date('workdate');
+			$table->integer('submitted');
+			$table->date('submitted_on');
+			$table->integer('userId');
+			$table->string('name');
+			$table->timestamps();
+			$table->integer('approved');
+			$table->string('approvedBy');
+			$table->date('approved_date');
+			
         });
     }
 

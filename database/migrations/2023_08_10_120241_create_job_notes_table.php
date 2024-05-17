@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('job_notes', function (Blueprint $table) {
             $table->id();
-	    $table->integer('job_id');
-	    $table->integer('userId');
+			$table->uuid('link');
+			$table->string('note_type');
+			$table->string('username');
 	    $table->string('note');
             $table->timestamps();
         });

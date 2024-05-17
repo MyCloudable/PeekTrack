@@ -15,6 +15,15 @@ return new class extends Migration
     {
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
+			$table->uuid('link');
+			$table->string('job_number');
+			$table-integer('userId');
+			$table->string('phase');
+			$table->string('description');
+			$table->double('qty');
+			$table->string('unit_of_measure');
+			$table->string('supplier');
+			$table->string('batch');
             $table->timestamps();
         });
     }
