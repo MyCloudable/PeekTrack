@@ -13,12 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('job_notes', function (Blueprint $table) {
+        Schema::create('crews', function (Blueprint $table) {
             $table->id();
-			$table->uuid('link');
-			$table->string('note_type');
-			$table->string('username');
-			$table->longText('note');
+			$table->string('crew_name');
+			$table->integer('superintendentId');
+			$table->timestamp('last_verified_date');
+			$table->integer('created_by');
+			$table->integer('modified_by');
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('job_notes');
+        Schema::dropIfExists('crews');
     }
 };

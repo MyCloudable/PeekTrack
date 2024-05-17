@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Schedule extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,14 @@ class Schedule extends Migration
      */
     public function up()
     {
-                Schema::create('schedule', function (Blueprint $table) {
+        Schema::create('travel_times', function (Blueprint $table) {
             $table->id();
-            $table->string('job_number');
-			$table->string('description');
-            $table->date('start');
-            $table->date('end');
+			$table->integer('crew');
+			$table->string('type');
+			$table->timestamp('depart');
+			$table->timestamp('arrive');
+			$table->integer('created_by');
+			$table->integer('modified_by');
             $table->timestamps();
         });
     }
@@ -30,6 +32,6 @@ class Schedule extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('travel_times');
     }
 };

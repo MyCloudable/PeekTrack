@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'name' => 'Admin',
             'role_id' => 1,
-            'email' => 'admin@material.com',
+            'email' => 'admin@peeksafety.com',
             'password' => ('secret'),
             'picture' => 'profile/avatar.jpg'
         ]);
@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'name' => 'Creator',
             'role_id' => 2,
-            'email' => 'creator@material.com',
+            'email' => 'reviewer@peeksafety.com',
             'password' => ('secret'),
             'picture' => 'profile/avatar2.jpg'
         ]);
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'name' => 'Member',
             'role_id' => 3,
-            'email' => 'member@material.com',
+            'email' => 'superintendent@peeksafety.com',
             'password' => ('secret'),
             'picture' => 'profile/avatar3.jpg'
         ]);

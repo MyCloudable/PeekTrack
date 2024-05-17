@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
 			$table->uuid('link');
 			$table->string('job_number');
-			$table-integer('userId');
+			$table->integer('userId');
 			$table->string('phase');
 			$table->string('description');
 			$table->double('qty');
