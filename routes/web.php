@@ -1,23 +1,24 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FileUpload;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\JobsController;
-use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemsController;
-use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\RolesController;
 use App\Mail\JobCardRejectionNotification;
-use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SessionsController;
-use App\Http\Controllers\TagController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\UserManagementController;
-use App\Http\Controllers\FullCalenderController;
+use App\Http\Controllers\DashboardController;
 
-use App\Http\Controllers\FileUpload;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Clock\CrewsController;
+use App\Http\Controllers\FullCalenderController;
+use App\Http\Controllers\UserManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -408,4 +409,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('wizard', function () {
 		return view('applications.wizard');
 	})->name('wizard');
+
+	// clock management
+    Route::resource('crews', CrewsController::class);
+
+});
+
+
+Route::get('test', function () {
+	dd('test route on dev server');
 });

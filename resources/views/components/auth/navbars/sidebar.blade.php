@@ -91,5 +91,11 @@
 							</a>
                         </li>   
 						@endif
+                        <li class="nav-item"{{ $activeItem == 'crews' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white {{ $activeItem == 'crews' ? ' active' : '' }}  "
+								href="{{ route('crews.index') }}">
+								<span class="sidenav-normal  ms-2  ps-1"> <h5>Crews </h5></span>
+							</a>
+                        </li>
                     </div>
 </aside>
