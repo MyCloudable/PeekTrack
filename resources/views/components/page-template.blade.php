@@ -27,8 +27,12 @@
   <!-- CSS Files -->
   <link id="pagestyle" href="{{ asset('assets') }}/css/material-dashboard.css?v=3.0.1" rel="stylesheet" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  @stack('css')
 </head>
 <body class="{{ $bodyClass }}">
+
+{{-- <x-auth.navbars.navs.auth /> --}}
 
 {{ $slot }}
 
@@ -53,5 +57,12 @@
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
 <script src="{{ asset('assets') }}/js/material-dashboard.min.js?v=3.0.1"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="{{ asset('assets') }}/js/plugins/flatpickr.min.js"></script>
+
+<script src="{{ mix('js/app.js') }}" defer></script>
+{{-- <script scr="{{asset('js/app.js')}}"></script> --}}
+
 </body>
 </html>

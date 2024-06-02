@@ -15,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('travel_times', function (Blueprint $table) {
             $table->id();
-			$table->integer('crew');
+			$table->foreignId('crew_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('job_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
 			$table->string('type');
 			$table->timestamp('depart');
 			$table->timestamp('arrive');

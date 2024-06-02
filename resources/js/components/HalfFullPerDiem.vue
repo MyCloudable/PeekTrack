@@ -1,0 +1,33 @@
+<template>
+
+    <i class="fa fa-star-o ms-3" aria-hidden="true" v-if="perDiem == null" @click="hfPerDiem('h')"></i>
+    <i class="fa fa-star-half cursor-pointer ms-3" v-if="perDiem == 'h'" @click="hfPerDiem('f')"></i>
+    <i class="fa fa-star cursor-pointer ms-3" v-if="perDiem == 'f'" @click="hfPerDiem(null)"></i>
+    
+    </template>
+    
+    <script setup>
+    import axios from 'axios';
+    import { ref } from 'vue'
+
+    const props = defineProps({
+        timesheetId: Number,
+        perDiem: String
+    })
+
+    const emit = defineEmits(['hf-per-diem-done'])
+    
+    
+    const hfPerDiem = (perDiem) => {
+        axios.post('/hf-per-diem', {
+        'timesheetId': props.timesheetId,
+        'perDiem': perDiem,
+    })
+        .then(res => emit('hf-per-diem-done'))
+        .catch(err => console.log(err))
+    }
+    
+    </script>
+    
+    <style>
+    </style>

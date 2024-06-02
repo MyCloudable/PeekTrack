@@ -54,10 +54,8 @@
                         </div>
                     </a>
                 </li>
-				                <li class="nav-item px-3">
-                    <a href="javascript:;" class="nav-link text-body p-0">
-                        
-                    </a>
+				<li class="nav-item px-3" id="app">
+                <clockin />
                 </li>
             </ul>
         </div>

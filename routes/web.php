@@ -17,8 +17,10 @@ use App\Http\Controllers\SessionsController;
 use App\Http\Controllers\DashboardController;
 
 use App\Http\Controllers\Clock\CrewsController;
+use App\Http\Controllers\Clock\DepartController;
 use App\Http\Controllers\FullCalenderController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\Clock\TimesheetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -410,8 +412,32 @@ Route::group(['middleware' => 'auth'], function () {
 		return view('applications.wizard');
 	})->name('wizard');
 
-	// clock management
+
+	// ----------- clock management -----------
+
+	//crews & crew members
     Route::resource('crews', CrewsController::class);
+
+	// timesheet - verify & clockin
+	Route::get('crew-members', [TimesheetController::class, 'getCrewMembers']);
+	Route::post('verify-crew-members', [TimesheetController::class, 'verifyCrewMembers']);
+	Route::post('clockinout-crew-members', [TimesheetController::class, 'clockinoutCrewMembers']);
+
+	Route::get('getusers-for-crewentry', [TimesheetController::class, 'getAllUsers']);
+	Route::post('add-new-crew-members', [TimesheetController::class, 'addNewCrewMember']);
+	Route::post('delete-crew-members', [TimesheetController::class, 'deleteCrewMember']);
+	Route::post('hf-per-diem', [TimesheetController::class, 'hfPerDiem']);
+
+	// depart
+	Route::get('getjobs-for-depart', [DepartController::class, 'getAllJobs']);
+	Route::post('track-time-travel', [DepartController::class, 'trackTimeTravel']);
+
+
+	// ----------- end clock management -----------
+
+	Route::get('test-vue', function(){
+		return view('test-vue');
+	});
 
 });
 

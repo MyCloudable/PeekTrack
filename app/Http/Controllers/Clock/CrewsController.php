@@ -4,84 +4,55 @@ namespace App\Http\Controllers\Clock;
 
 use App\Models\Crew;
 use Illuminate\Http\Request;
+use App\Services\Clock\CrewService;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Clock\StoreCrewRequest;
 
 class CrewsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    private CrewService $crewService;
+
+    public function __construct(CrewService $crewService)
     {
-        $crews = Crew::all();
-        return view('clock.crews.index', compact('crews'));
+        $this->crewService = $crewService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function index()
+    {   
+        return view('clock.crews.index')->with('crews', $this->crewService->index());
+    }
+
     public function create()
     {
-        //
+        return view('clock.crews.create')->with('users', $this->crewService->create());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+    public function store(StoreCrewRequest $request)
+    {   
+        $this->crewService->store($request->validated());
+        return redirect()->route('crews.index')->with('message',"Crew have been created successfully");
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show(Crew $crew)
     {
-        //
+        return response()->json($this->crewService->show($crew), 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function edit(Crew $crew)
     {
-        //
+        $crew = Crew::where('id', $crew->id)->first();
+        return view('clock.crews.edit')->with(['crew'=> $crew, 'users' => $this->crewService->edit()]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(StoreCrewRequest $request, Crew $crew)
+    {   
+        $this->crewService->update($request->validated(), $crew);
+        return redirect()->route('crews.index')->with('message',"Crew have been updated successfully");
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    
+    public function destroy(Crew $crew)
     {
-        //
+        $this->crewService->destroy($crew);
+        return back()->with('message', 'Crew have been deleted successfully');
     }
 }

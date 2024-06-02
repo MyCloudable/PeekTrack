@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
 			$table->string('crew_name');
 			$table->integer('superintendentId');
-			$table->timestamp('last_verified_date');
+			$table->longText('crew_members');
+			$table->timestamp('last_verified_date')->nullable();
 			$table->integer('created_by');
 			$table->integer('modified_by');
             $table->timestamps();

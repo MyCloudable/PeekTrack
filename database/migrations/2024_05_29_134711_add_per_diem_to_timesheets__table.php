@@ -13,15 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('Timesheets', function (Blueprint $table) {
-        $table->id();
-		$table->timestamp('timeentry');
-	    $table->integer('timeentry_detail');
-	    $table->integer('userid');
-	    $table->string('job_number');
-	    $table->integer('created_by');
-	    $table->integer('modified_by');
-        $table->timestamps();
+        Schema::table('timesheets', function (Blueprint $table) {
+            $table->string('per_diem')->nullable()->after('modified_by');
         });
     }
 
@@ -32,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('Timesheets');
+        Schema::table('timesheets', function (Blueprint $table) {
+            //
+        });
     }
 };

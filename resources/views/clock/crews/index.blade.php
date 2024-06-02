@@ -4,9 +4,12 @@
     <x-auth.navbars.navs.auth pageTitle="Crews"></x-auth.navbars.navs.auth>
     <div class="container-fluid py-4">
          <div class="row">
+            @if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
             <div class="col-md-12 mb-3">
-                <a href="#" class="btn btn-info">Create crew</a>
+                <a href="{{route('crews.create')}}" class="btn btn-info">Create crew</a>
+                <x-alert />
             </div>
+            @endif
             <div class="col-md-12">
                 <div class="">
                     <table class="table table-flush table-striped" id="datatable-basic">
@@ -25,21 +28,32 @@
                         <tbody>
                             @foreach ($crews as $crew)
                             <tr>
-                            <td class="text-sm font-weight-normal">
-                                <a href="#" class="btn btn-warning">Edit</a>
-                                <a href="#" class="btn btn-danger">Delete</a>
-                            </td>
-                            <td class="text-md font-weight-bold"><h5>{{ $crew->crew_name }}</h5></td>
-                            <td class="text-sm font-weight-normal"><h5>{{ $crew->superintendentId }}</h5></td>
-                            <td class="text-sm font-weight-normal"><h5>{{ $crew->last_verified_date }}</h5></td>
-                            <td class="text-sm font-weight-normal"><h5>{{ $crew->created_by }}</h5></td>
-                            <td class="text-sm font-weight-normal"><h5>{{ $crew->modified_by }}</h5></td>
-                            <td class="text-sm font-weight-normal"><h5>{{ $crew->created_at }}</h5></td>
-                            <td class="text-sm font-weight-normal"><h5>{{ $crew->updated_at }}</h5></td>
+                                <td class="text-sm font-weight-normal">
+                                    <button type="button" class="btn bg-gradient-primary show-crew-members" data-bs-toggle="modal" 
+                                    data-bs-target="#show-crew-members"
+                                    data-crew-id="{{$crew->id}}"
+                                    >Show</button>
+                                    <a href="{{route('crews.edit', $crew)}}" class="btn btn-warning">Edit</a>
+                                    @if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
+                                    <form class="d-inline" action="{{ route('crews.destroy', $crew) }}" method="POST">
+                                        @method('DELETE')
+                                        @csrf
+                                        <input type="submit" class="btn btn-danger" value="Delete" />
+                                    </form>
+                                    @endif
+                                </td>
+                                <td class="text-md font-weight-bold"><h5>{{ $crew->crew_name }}</h5></td>
+                                <td class="text-sm font-weight-normal"><h5>{{ $crew->superintendent->name }}</h5></td>
+                                <td class="text-sm font-weight-normal"><h5>{{ $crew->last_verified_date }}</h5></td>
+                                <td class="text-sm font-weight-normal"><h5>{{ $crew->createdBy->name }}</h5></td>
+                                <td class="text-sm font-weight-normal"><h5>{{ $crew->modifiedBy->name }}</h5></td>
+                                <td class="text-sm font-weight-normal"><h5>{{ $crew->created_at }}</h5></td>
+                                <td class="text-sm font-weight-normal"><h5>{{ $crew->updated_at }}</h5></td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
+                    @include('clock.crews.show')
                     <x-auth.footers.auth.footer></x-auth.footers.auth.footer>
                 </div>
             </div>
@@ -47,19 +61,6 @@
     </div>
 </main>
 
-@push('js')
-    <link href="{{ asset('assets') }}/css/datatables.min.css" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
-    <script src="{{ asset('assets') }}/js/jquery.dataTables.min.js"></script>
-    <script src="{{ asset('assets') }}/js/datatables.min.js"></script>
+<x-push-script-stack />
 
-    <script>
-        $(document).ready(function() {
-            oTable = $('#datatable-basic').dataTable();
-            /* Filter immediately */
-            oTable.fnFilter( branch);
-        } );
-    </script>
-@endpush
 </x-page-template>

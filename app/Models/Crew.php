@@ -2,10 +2,40 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Crew extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['crew_name', 'superintendentId', 'crew_members', 'last_verified_date', 'created_by', 'modified_by'];
+
+    protected $casts = [
+        'last_verified_at' => 'datetime:Y-m-d'
+    ];
+
+    public function superintendent()
+    {
+        return $this->belongsTo(User::class, 'superintendentId');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function modifiedBy()
+    {
+        return $this->belongsTo(User::class, 'modified_by');
+    }
+
+    protected function crewMembers(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => json_decode($value, true),
+            set: fn ($value) => json_encode($value),
+        );
+    } 
 }

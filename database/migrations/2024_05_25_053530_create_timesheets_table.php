@@ -13,12 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('crew_members', function (Blueprint $table) {
+        Schema::create('timesheets', function (Blueprint $table) {
             $table->id();
-			$table->integer('crewid');
-			$table->integer('userid');
-			$table->integer('created_by');
-			$table->integer('modified_by');
+            $table->foreignId('crew_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->integer('user_id');
+            $table->timestamp('clockin_time');
+            $table->timestamp('clockout_time')->nullable();
+            $table->integer('created_by');
+            $table->integer('modified_by');
             $table->timestamps();
         });
     }
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('crew_members');
+        Schema::dropIfExists('timesheets');
     }
 };
