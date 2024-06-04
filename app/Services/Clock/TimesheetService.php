@@ -5,6 +5,7 @@ use Carbon\Carbon;
 use App\Models\Crew;
 use App\Models\User;
 use App\Models\Timesheet;
+use App\Models\TravelTime;
 use Illuminate\Support\Facades\DB;
 use App\Services\Clock\CrewService;
 
@@ -23,7 +24,6 @@ class TimesheetService {
             
             $timesheet = DB::table('timesheets')->where('crew_id', $crew->id)->whereDate('created_at', date('Y-m-d'))
             ->select('timesheets.*', 
-            // DB::raw('TIMESTAMPDIFF(minute,IFNULL(clockout_time,clockin_time),NOW()) as total_time'),
             DB::raw('TIMESTAMPDIFF(minute,clockin_time,NOW()) as total_time'),
             )
             ->get();
@@ -52,7 +52,8 @@ class TimesheetService {
                 'isAlreadyClockedout' => $isAlreadyClockedout,
                 'crewId' => $crew->id,
                 'crewMembers' => User::whereIn('id', $crewMembersArray)->select('id', 'name', 'email')->get(),
-                'timesheet' => $timesheet
+                'timesheet' => $timesheet,
+                'travelTime' => TravelTime::where('crew_id', $crew->id)->whereDate('created_at', date('Y-m-d'))->orderBy('id', 'desc')->first(),
             ];
         }else{  // needs to verify first
             $crew = Crew::where('superintendentId', auth()->id())->select('id', 'crew_members')->first();
@@ -62,7 +63,8 @@ class TimesheetService {
                 'isAlreadyClockedout' => false,
                 'crewId' => $crew->id,
                 'crewMembers' => User::whereIn('id', $crew->crew_members)->select('id', 'name', 'email')->get(),
-                'timesheet' => []
+                'timesheet' => [],
+                'travelTime' => ''
             ];
         }
     }

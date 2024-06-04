@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('job_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
 			$table->string('type');
 			$table->timestamp('depart');
-			$table->timestamp('arrive');
+			$table->timestamp('arrive')->nullable();
 			$table->integer('created_by');
 			$table->integer('modified_by');
             $table->timestamps();

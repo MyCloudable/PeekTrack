@@ -18,18 +18,18 @@
                 </div>
                 <div class="modal-body">
                     <div class="row header">
-                        <div class="col-md-6"><span class="badge badge-info me-2" v-if="isAlreadyClockedout">Status: </span></div>
+                        <div class="col-md-6"><span class="badge badge-info me-2">Status: </span></div>
                         <div class="col-md-6 d-flex justify-content-end">
-                            <span class="badge badge-info me-2" v-if="isAlreadyClockedout">Crew Clocked Out</span>
+                            <span class="badge badge-success me-2" v-if="isAlreadyClockedout">Crew Clocked Out</span>
                             <span class="badge badge-success" v-if="isAlreadyVerified">Crew Verified</span>
-                            <span class="badge badge-secondary" v-else>Crew Not Verified</span>
+                            <span class="badge badge-danger" v-else>Crew Not Verified</span>
 
                             <add-crew-member @get-all-users="GetAllUsers" v-if="isAlreadyClockedin" />
 
                         </div>
                     </div>
                     <div class="row actions mt-3 mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <button type="button" class="btn btn-primary p-3" @click="verifyTeam"
                                 v-if="!isAlreadyVerified">Verify Crew</button>
                             <button type="button" class="btn btn-success p-3" @click="clockinout('clockin')"
@@ -39,7 +39,7 @@
                             
                         </div>
                         <div class="col-md-8">
-                            <depart v-if="isAlreadyClockedin"/>
+                            <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime"/>
                         </div>
                     </div>
 
@@ -65,14 +65,17 @@
                                     <th v-if="isAlreadyClockedin || isAlreadyClockedout">
                                         <div>Status</div>
                                     </th>
-                                    <th v-if="isAlreadyClockedin || isAlreadyClockedout">
-                                        <div>Time</div>
+                                    <th v-if="!isAlreadyClockedout">
+                                        <div>Time In</div>
+                                    </th>
+									<th v-if="isAlreadyClockedout">
+                                        <div>Time Out</div>
                                     </th>
                                     <th v-if="isAlreadyClockedin || isAlreadyClockedout">
-                                        <div>Hours</div>
+                                        <div>Total</div>
                                     </th>
                                     <th v-if="isAlreadyVerified">
-                                        <div>Action</div>
+                                        <div></div>
                                     </th>
                                 </tr>
                             </thead>
@@ -152,9 +155,9 @@
                                     <td class="d-flex">
                                         <div v-if="isAlreadyClockedin">
                                             <i class="fa fa-pencil cursor-pointer" aria-hidden="true"
-                                                @click="enableMenualClock(member.id)"></i>
+                                                @click="enableMenualClock(member.id)"></i>&nbsp&nbsp&nbsp&nbsp
                                                 <half-full-per-diem :timesheetId="member.timesheet_id" :perDiem="member.per_diem"
-                                                @hf-per-diem-done="hfPerDiemDone" />
+                                                @hf-per-diem-done="hfPerDiemDone" />&nbsp&nbsp&nbsp&nbsp
 
                                         </div>
                                         <delete-crew-member :crewId="crewId" :crewMemberId="member.id"
@@ -200,6 +203,7 @@ let submitCrewMembersToVerify = ref([])
 let isAlreadyClockedin = ref(false)
 let isAlreadyClockedout = ref(false)
 let timesheet = ref([])
+let travelTime = ref('')
 
 let allUsers = ref([])
 let createNewCrewForm = ref([{
@@ -237,6 +241,7 @@ const getCrewMembers = () => {
             crewId.value = res.data.crewId
             CrewMembersTobeVerified.value = res.data.crewMembers
             timesheet.value = res.data.timesheet
+            travelTime.value = res.data.travelTime
 
             timesheet.value.map(time => {
                 CrewMembersTobeVerified.value.map(member => {

@@ -430,7 +430,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 	// depart
 	Route::get('getjobs-for-depart', [DepartController::class, 'getAllJobs']);
-	Route::post('track-time-travel', [DepartController::class, 'trackTimeTravel']);
+	Route::post('track-time-travel', [DepartController::class, 'trackTravelTime']);
 
 
 	// ----------- end clock management -----------
