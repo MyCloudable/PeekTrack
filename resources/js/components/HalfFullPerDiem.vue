@@ -11,19 +11,19 @@
     import { ref } from 'vue'
 
     const props = defineProps({
-        timesheetId: Number,
+        timesheetId: [Number, Array],
         perDiem: String
     })
 
     const emit = defineEmits(['hf-per-diem-done'])
-    
-    
+
     const hfPerDiem = (perDiem) => {
+
         axios.post('/hf-per-diem', {
         'timesheetId': props.timesheetId,
         'perDiem': perDiem,
     })
-        .then(res => emit('hf-per-diem-done'))
+        .then(res => emit('hf-per-diem-done', perDiem))
         .catch(err => console.log(err))
     }
     

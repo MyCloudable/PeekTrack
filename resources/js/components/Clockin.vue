@@ -18,7 +18,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="row header">
-                        <div class="col-md-6"><span class="badge badge-info me-2">Status: </span></div>
+                        <div class="col-md-6 text-dark"><span class="badge badge-info me-2">Status: </span> {{ status }}
+                            <select class="d-inline w-50 ms-2" v-if="!isAlreadyVerified" v-model="crewTypeId">
+                                <option v-for="(crewType, index) in crewTypes" :value="crewType.id">
+                                    {{ crewType.name }}
+                                </option>
+                            </select>
+                        </div>
                         <div class="col-md-6 d-flex justify-content-end">
                             <span class="badge badge-success me-2" v-if="isAlreadyClockedout">Crew Clocked Out</span>
                             <span class="badge badge-success" v-if="isAlreadyVerified">Crew Verified</span>
@@ -29,23 +35,31 @@
                         </div>
                     </div>
                     <div class="row actions mt-3 mb-3">
+                        <div class="col-md-8">
+                            <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime"
+                                @track-time-done="trackTimeDone" />
+
+                            <button type="button" class="btn btn-secondary p-3" @click="weatherEntry"
+                                v-if="(!isAlreadyVerified || isAlreadyVerified) && !isAlreadyClockedin">Weather</button>
+
+                        </div>
                         <div class="col-md-3">
+
                             <button type="button" class="btn btn-primary p-3" @click="verifyTeam"
                                 v-if="!isAlreadyVerified">Verify Crew</button>
                             <button type="button" class="btn btn-success p-3" @click="clockinout('clockin')"
                                 v-if="isAlreadyVerified && !isAlreadyClockedin">Clock in</button>
                             <button type="button" class="btn btn-danger p-3" @click="clockinout('clockout')"
-                                v-if="isAlreadyClockedin && !isAlreadyClockedout">Clock out</button>
-                            
-                        </div>
-                        <div class="col-md-8">
-                            <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime"/>
+                                v-if="isAlreadyClockedin && !isAlreadyClockedout">Clock out
+                            </button>
+                            <button type="button" class="btn btn-secondary p-3" @click="readyForVerification"
+                                v-if="isAlreadyClockedout">Ready for verification</button>
                         </div>
                     </div>
 
                     <div class="table-responsive">
                         <table class="table table-flush table-striped verify-crew-members">
-                            <thead class="thead-light">
+                            <thead class="">
                                 <tr>
                                     <th v-if="!isAlreadyVerified">
                                         <div>Check</div>
@@ -65,17 +79,21 @@
                                     <th v-if="isAlreadyClockedin || isAlreadyClockedout">
                                         <div>Status</div>
                                     </th>
-                                    <th v-if="!isAlreadyClockedout">
-                                        <div>Time In</div>
+                                    <th v-if="isAlreadyClockedin">
+                                        <div>Time</div>
                                     </th>
-									<th v-if="isAlreadyClockedout">
+                                    <th v-if="isMenualClockinout">
                                         <div>Time Out</div>
                                     </th>
                                     <th v-if="isAlreadyClockedin || isAlreadyClockedout">
                                         <div>Total</div>
                                     </th>
-                                    <th v-if="isAlreadyVerified">
+                                    <!-- <th v-if="isAlreadyVerified">
                                         <div></div>
+                                    </th> -->
+                                    <th v-if="isAlreadyClockedin">
+                                        <div><half-full-per-diem :timesheetId="allPerDiemTimesheetIds"
+                                                :perDiem="allPerDiemStatus" @hf-per-diem-done="hfPerDiemDone" /></div>
                                     </th>
                                 </tr>
                             </thead>
@@ -92,7 +110,8 @@
                                 <tr v-if="allUsers.length > 0">
                                     <td>
                                         <div class="input-group input-group-outline">
-                                            <select class="form-control" v-model="createNewCrewForm[0].crew_member_id">
+                                            <select class="form-control clr-light"
+                                                v-model="createNewCrewForm[0].crew_member_id">
                                                 <option value="">Select superintendent</option>
                                                 <option v-for="(user, index) in allUsers" :key="user.id"
                                                     :value="user.id">{{ user.name }}
@@ -101,7 +120,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <input type="datetime-local" class="form-control datetime"
+                                        <input type="datetime-local" class="form-controll datetime"
                                             v-model="createNewCrewForm[0].clockin_time">
                                     </td>
                                     <td>
@@ -145,8 +164,22 @@
                                     </td>
 
                                     <td v-if="isAlreadyClockedin || isAlreadyClockedout">
-                                        {{ member.clockout_time ? member.clockout_time : member.clockin_time }}
+                                        <div v-if="!member.isMenualClockinout">
+                                            {{ member.clockout_time ? member.clockout_time : member.clockin_time }}
+                                        </div>
+                                        <div v-else><input type="datetime-local" class="form-controll datetime"
+                                                @change="menualClockinout($event, member.timesheet_id, 'clockin')"
+                                                :value="now">
+                                        </div>
                                     </td>
+
+                                    <td v-if="member.isMenualClockinout">
+                                        <div><input type="datetime-local" class="form-controll datetime"
+                                                @change="menualClockinout($event, member.timesheet_id, 'clockout')"
+                                                :value="now">
+                                        </div>
+                                    </td>
+                                    <td v-if="isMenualClockinout && !member.isMenualClockinout"></td>
 
                                     <td v-if="isAlreadyClockedin || isAlreadyClockedout">
                                         {{ member.total_time }}
@@ -156,13 +189,14 @@
                                         <div v-if="isAlreadyClockedin">
                                             <i class="fa fa-pencil cursor-pointer" aria-hidden="true"
                                                 @click="enableMenualClock(member.id)"></i>&nbsp&nbsp&nbsp&nbsp
-                                                <half-full-per-diem :timesheetId="member.timesheet_id" :perDiem="member.per_diem"
+                                            <half-full-per-diem :timesheetId="member.timesheet_id"
+                                                :perDiem="member.per_diem"
                                                 @hf-per-diem-done="hfPerDiemDone" />&nbsp&nbsp&nbsp&nbsp
 
                                         </div>
-                                        <delete-crew-member :crewId="crewId" :crewMemberId="member.id"
+                                        <!-- <delete-crew-member :crewId="crewId" :crewMemberId="member.id"
                                         @crew-member-deleted="crewMemberDeleted"
-                                            v-if="isAlreadyVerified" />
+                                            v-if="isAlreadyVerified" /> -->
                                     </td>
                                 </tr>
                             </tbody>
@@ -211,6 +245,16 @@ let createNewCrewForm = ref([{
     'clockin_time': ''
 }])
 
+let isMenualClockinout = ref(false)
+
+let allPerDiemTimesheetIds = ref([])
+let allPerDiemStatus = ref(null)
+
+let status = ref('')
+
+let crewTypes = ref([])
+let crewTypeId = ref('')
+
 onMounted(() => {
     window.addEventListener('scroll', handleScroll)
 
@@ -242,8 +286,12 @@ const getCrewMembers = () => {
             CrewMembersTobeVerified.value = res.data.crewMembers
             timesheet.value = res.data.timesheet
             travelTime.value = res.data.travelTime
+            status.value = res.data.status
+            crewTypes.value = res.data.crewTypes
+            crewTypeId.value = res.data.crewTypeId
 
             timesheet.value.map(time => {
+
                 CrewMembersTobeVerified.value.map(member => {
                     if (member.id == time.user_id) {
                         member.clockin_time = time.clockin_time
@@ -254,6 +302,8 @@ const getCrewMembers = () => {
                         member.total_time = TimeConvert(time.total_time)
                     }
                 })
+
+                allPerDiemTimesheetIds.value.push(time.id)
             })
 
         })
@@ -279,7 +329,8 @@ const verifyTeam = () => {
 
     axios.post('/verify-crew-members', {
         'crewId': crewId.value,
-        'crewMembers': submitCrewMembersToVerify.value
+        'crewMembers': submitCrewMembersToVerify.value,
+        'crewTypeId': crewTypeId.value
     })
         .then(res => getCrewMembers())
         .catch(err => console.log(err))
@@ -296,6 +347,9 @@ const clockinout = (type) => {
 }
 
 const enableMenualClock = (id) => {
+
+    let isEnabled = false
+
     CrewMembersTobeVerified.value.map(member => {
         if (member.id == id) {
             if (!member.hasOwnProperty('isMenualClockinout')) {
@@ -304,6 +358,14 @@ const enableMenualClock = (id) => {
                 member.isMenualClockinout = !member.isMenualClockinout
             }
         }
+
+
+        if (member.hasOwnProperty('isMenualClockinout') && member.isMenualClockinout) {
+            isEnabled = true
+        }
+
+        isMenualClockinout.value = isEnabled
+
     })
 }
 
@@ -339,7 +401,32 @@ const addNewCrew = () => {
 
 const crewMemberDeleted = () => getCrewMembers()
 
-const hfPerDiemDone = () => getCrewMembers()
+const hfPerDiemDone = (status) => {
+    allPerDiemStatus.value = status
+    getCrewMembers()
+}
+
+const trackTimeDone = () => getCrewMembers()
+
+const readyForVerification = () => {
+    axios.post('/ready-for-verification', {
+        'crewId': crewId.value,
+    })
+        .then(res => {
+            getCrewMembers()
+        })
+        .catch(err => console.log(err))
+}
+
+const weatherEntry = () => {
+    axios.post('/wather-entry', {
+        'crewId': crewId.value,
+    })
+        .then(res => {
+            getCrewMembers()
+        })
+        .catch(err => console.log(err))
+}
 
 
 
@@ -352,7 +439,7 @@ const handleScroll = (() => {
 <style>
 .verify-crew-members {
     font-size: 14px;
-    background: #1A2035;
+    background: #1A2035 !important;
 }
 
 .modal-backdrop {
@@ -363,5 +450,22 @@ const handleScroll = (() => {
 .modal-content {
     margin: 2px auto;
     z-index: 1100 !important;
+}
+
+.table td,
+.table th {
+    text-align: center;
+}
+
+.clr-light {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.dark-version .table tbody tr td {
+    color: #fff !important;
+}
+
+.dark-version .table thead tr th {
+    font-size: large !important;
 }
 </style>

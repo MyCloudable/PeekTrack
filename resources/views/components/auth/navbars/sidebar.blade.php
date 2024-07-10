@@ -22,10 +22,33 @@
                     <ul class="nav ">
                         <li class="nav-item">
                             <a class="nav-link text-white " href="{{ route('user-profile') }}">
-                                <span class="sidenav-mini-icon"> S </span>
-                                <span class="sidenav-normal  ms-3  ps-1"> Settings </span>
+                                <span class="sidenav-mini-icon"> P </span>
+                                <span class="sidenav-normal  ms-3  ps-1"> Profile </span>
                             </a>
                         </li>
+						<li class="nav-item">
+                            <a class="nav-link text-white " href="{{ route('crews.index') }}">
+                                <span class="sidenav-mini-icon"> C </span>
+                                <span class="sidenav-normal  ms-3  ps-1"> Manage Crews </span>
+                            </a>
+                        </li>
+						@if ( auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
+						<li class="nav-item">
+                            <a class="nav-link text-white " href="{{ route('widgets') }}">
+                                <span class="sidenav-mini-icon"> E </span>
+                                <span class="sidenav-normal  ms-3  ps-1"> Export Data </span>
+                            </a>
+                        </li>
+						@endif
+						@if ( auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
+						<li class="nav-item"{{ $activeItem == 'reports' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white "
+								href="https://peektrack.com/reportico">
+								<span class="sidenav-mini-icon"> R </span>
+                                <span class="sidenav-normal  ms-3  ps-1"> Reports</span>
+							</a>
+                        </li>   
+						@endif
                         <form method="POST" action="{{ route('logout') }}" class="d-none" id="logout-form">
                             @csrf
                         </form>
@@ -75,30 +98,24 @@
 							</a>
                         </li>
 						@endif
-						@if ( auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
-						<li class="nav-item"{{ $activeItem == 'reports' ? ' active ' : '' }}  ">
-							<a class="nav-link text-white {{ $activeItem == 'reports' ? ' active' : '' }}  "
-								href="https://peektrack.com/reportico">
-								<span class="sidenav-normal  ms-2  ps-1"> <h5>Reports </h5></span>
-							</a>
-                        </li>   
-						@endif
-                        @if ( auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
-						<li class="nav-item"{{ $activeItem == 'export' ? ' active ' : '' }}  ">
-							<a class="nav-link text-white {{ $activeItem == 'export' ? ' active' : '' }}  "
-								href="{{ route('widgets') }}">
-								<span class="sidenav-normal  ms-2  ps-1"> <h5>Export Data </h5></span>
-							</a>
-                        </li>   
-						@endif
-                        <li class="nav-item"{{ $activeItem == 'crews' ? ' active ' : '' }}  ">
+                        <!---<li class="nav-item"{{ $activeItem == 'crews' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white {{ $activeItem == 'crews' ? ' active' : '' }}  "
 								href="{{ route('crews.index') }}">
 								<span class="sidenav-normal  ms-2  ps-1"> <h5>Crews </h5></span>
 							</a>
+                        </li>-->
+                        <!---<li class="nav-item"{{ $activeItem == 'crewTypes' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white {{ $activeItem == 'crewTypes' ? ' active' : '' }}  "
+								href="{{ route('crewTypes.index') }}">
+								<span class="sidenav-normal  ms-2  ps-1"> <h5>Crews types </h5></span>
+							</a>
+                        </li>-->
+                        <li class="nav-item"{{ $activeItem == 'timesheet-management' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white {{ $activeItem == 'timesheet-management' ? ' active' : '' }}  "
+								href="{{ route('timesheet-management.index') }}">
+								<span class="sidenav-normal  ms-2  ps-1"> <h5>Time</h5></span>
+							</a>
                         </li>
-                        {{-- <li class="nav-item" id="app">
-							<clockin />
-                        </li> --}}
+                        
                     </div>
 </aside>

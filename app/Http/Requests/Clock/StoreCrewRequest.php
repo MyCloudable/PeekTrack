@@ -24,7 +24,8 @@ class StoreCrewRequest extends FormRequest
     public function rules()
     {
         return [
-            'crew_name' => 'required|max:255',
+            // 'crew_name' => 'required|max:255',
+            'crew_type_id' => 'required',
             'superintendentId' => 'required',
             'crew_members' => 'required'
         ];

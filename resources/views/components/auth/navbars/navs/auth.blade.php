@@ -54,10 +54,18 @@
                         </div>
                     </a>
                 </li>
-				<li class="nav-item px-3" id="app">
+				<li class="nav-item px-3" id="appp">
                 <clockin />
                 </li>
             </ul>
         </div>
     </div>
 </nav>
+
+@push('css')
+    <style>
+        body.dark-version ul.select2-results__options{
+            background: #1A2035 !important;
+        }
+    </style>
+@endpush

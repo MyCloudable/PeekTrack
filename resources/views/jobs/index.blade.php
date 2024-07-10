@@ -3,7 +3,7 @@
     <x-auth.navbars.sidebar activePage="jobs" activeItem="jobs" activeSubitem=""></x-auth.navbars.sidebar>
 
 
-    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="app">
       
 <style>
 /* Paste this css to your style sheet file or under head tag */

@@ -8,7 +8,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body crew-show">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
@@ -19,7 +19,7 @@
 
 @push('css')
     <style>
-        .modal-body div, .modal-header h5{
+        .modal-body.crew-show div, .modal-header h5{
             color: black !important;
         }
     </style>

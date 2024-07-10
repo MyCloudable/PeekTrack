@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
 			$table->foreignId('crew_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('job_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->integer('crew_type_id');
+            $table->integer('time_type_id')->nullable();
 			$table->string('type');
 			$table->timestamp('depart');
 			$table->timestamp('arrive')->nullable();

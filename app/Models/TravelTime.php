@@ -9,7 +9,7 @@ class TravelTime extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['crew_id', 'job_id', 'type', 'depart', 'arrive', 'created_by', 'modified_by'];
+    protected $fillable = ['crew_id', 'job_id', 'crew_type_id', 'time_type_id', 'type', 'depart', 'arrive', 'created_by', 'modified_by'];
 
     public function job()
     {

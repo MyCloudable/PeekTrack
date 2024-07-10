@@ -2,71 +2,144 @@
 namespace App\Services\Clock;
 
 use Carbon\Carbon;
+use App\Models\Job;
 use App\Models\Crew;
 use App\Models\User;
+use App\Models\CrewType;
+use App\Models\TimeType;
 use App\Models\Timesheet;
 use App\Models\TravelTime;
 use Illuminate\Support\Facades\DB;
 use App\Services\Clock\CrewService;
+use Illuminate\Support\Facades\Log;
+use App\Services\Clock\DepartService;
 
 class TimesheetService {
     
     public function getCrewMembers()
     {   
         $crew = Crew::where('superintendentId', auth()->id())
-                ->select('id', 'superintendentId', 'last_verified_date', 'crew_members', 'updated_at');
+                    // ->where('modified_by', auth()->id())
+                    ->select('id', 'superintendentId', 'last_verified_date', 'crew_members', 
+                    'is_ready_for_verification', 'updated_at', 'crew_type_id')
+                    ->first();
+
+        $crewMembersArray = $this->getCrewMembersArray($crew->crew_members, $crew->superintendentId);
+
+        $timesheet = ($crew->last_verified_date) ? 
+            Timesheet::where('crew_id', $crew->id)
+            ->whereIn('user_id', $crewMembersArray)->where('created_at', '>=', $crew->last_verified_date)
+            ->select('timesheets.*', 
+            DB::raw('IF(clockout_time, TIMESTAMPDIFF(minute,clockin_time,clockout_time), TIMESTAMPDIFF(minute,clockin_time,NOW()))as total_time'),
+            )
+            ->get() :
+            '';
+
+        return $this->checkStatus($crew, $crewMembersArray, $timesheet);
 
         
-        $isAlreadyVerified = $crew->where('modified_by', auth()->id())->whereDate('last_verified_date', date('Y-m-d'))->first();
-       
-        if($isAlreadyVerified){ // crew members already verified by superintendent
-            $crew = Crew::where('superintendentId', auth()->id())->select('id', 'superintendentId', 'crew_members')->first();
-            
-            $timesheet = DB::table('timesheets')->where('crew_id', $crew->id)->whereDate('created_at', date('Y-m-d'))
-            ->select('timesheets.*', 
-            DB::raw('TIMESTAMPDIFF(minute,clockin_time,NOW()) as total_time'),
-            )
-            ->get();
-            $timesheetWithNullClockouttime = Timesheet::where('crew_id', $crew->id)->whereDate('created_at', date('Y-m-d'))->whereNull('clockout_time')->count();
+                
+    }
 
+    private function getCrewMembersArray($crewMembers, $superintendentId)
+    {
+        $crewMembersArray = $crewMembers;
+        array_push($crewMembersArray, $superintendentId);
+        return $crewMembersArray;
+    }
+
+    private function checkStatus($crew, $crewMembersArray, $timesheet)
+    {
+
+        $isAlreadyVerified = false;
+        $isAlreadyClockedin = false;
+        $isAlreadyClockedout = false;
+        $crewId = $crew->id;
+        $crewMembers;
+        $timesheet = $timesheet ? $timesheet : [];
+        $travelTime = '';
+
+        if($crew->last_verified_date){ // crew is updated by superintendent after created by admin
             if($timesheet->isNotEmpty()){
-
-                if($timesheetWithNullClockouttime == 0){
+                $ifNullClockout = false;
+                $timesheet->each(function ($item, $key) use (&$ifNullClockout){
+                    if(!$item->clockout_time){
+                        $ifNullClockout = true;
+                        return false;
+                    }
+                });
+                
+                if($ifNullClockout){ // crew members are not clocked out yet
+                    $isAlreadyVerified = true;
                     $isAlreadyClockedin = true;
-                    $isAlreadyClockedout = true;
-                }else{
-                    $isAlreadyClockedin = true;
-                    $isAlreadyClockedout = false;
+                    $crewMembers = User::whereIn('id', $crewMembersArray)->select('id', 'name', 'email')->get();
+                    $travelTime = TravelTime::where('crew_id', $crew->id)->where('created_at', '>=', $crew->last_verified_date)
+                                    ->orderBy('id', 'desc')
+                                    ->first();
+                }else{  // all crew members are clocked out
+                    if($crew->is_ready_for_verification){   // ready for verification, please verify crews
+                        $crewMembers = User::whereIn('id', $crew->crew_members)->select('id', 'name', 'email')->get();
+                    }else{  // not ready for verification, show current timesheet
+                        $isAlreadyVerified = true;
+                        $isAlreadyClockedin = true;
+                        $isAlreadyClockedout = true;
+                        $crewMembers = User::whereIn('id', $crewMembersArray)->select('id', 'name', 'email')->get();
+                    }
                 }
-            }else{
-                $isAlreadyClockedin = false;
-                $isAlreadyClockedout = false;
+            }else{  // crew is verified by superintendent , not clockedin yet
+                $isAlreadyVerified = true;
+                $crewMembers = User::whereIn('id', $crewMembersArray)->select('id', 'name', 'email')->get();
             }
-
-            $crewMembersArray = $crew->crew_members;
-            array_push($crewMembersArray, $crew->superintendentId);
-            
-            return [
-                'isAlreadyVerified' => true,
-                'isAlreadyClockedin' => $isAlreadyClockedin,
-                'isAlreadyClockedout' => $isAlreadyClockedout,
-                'crewId' => $crew->id,
-                'crewMembers' => User::whereIn('id', $crewMembersArray)->select('id', 'name', 'email')->get(),
-                'timesheet' => $timesheet,
-                'travelTime' => TravelTime::where('crew_id', $crew->id)->whereDate('created_at', date('Y-m-d'))->orderBy('id', 'desc')->first(),
-            ];
-        }else{  // needs to verify first
-            $crew = Crew::where('superintendentId', auth()->id())->select('id', 'crew_members')->first();
-            return [
-                'isAlreadyVerified' => false,
-                'isAlreadyClockedin' => false,
-                'isAlreadyClockedout' => false,
-                'crewId' => $crew->id,
-                'crewMembers' => User::whereIn('id', $crew->crew_members)->select('id', 'name', 'email')->get(),
-                'timesheet' => [],
-                'travelTime' => ''
-            ];
+        }else{ // crew just created by admin and superintendent did't do anything yet
+            $crewMembers = User::whereIn('id', $crew->crew_members)->select('id', 'name', 'email')->get();
         }
+
+        //get status outline
+        $crewType = CrewType::find($crew->crew_type_id)->name;
+        $currentNode = '';
+        if($isAlreadyVerified)
+            $currentNode = 'Verified';
+        
+        if($isAlreadyClockedin)
+            $currentNode = 'Clocked In';
+
+        if($isAlreadyClockedout)
+            $currentNode = 'Clocked Out';
+
+        if($travelTime){
+            $lastTravelEntry = $travelTime;
+            // dd($lastTravelEntry);
+            if($lastTravelEntry->type =='depart_for_job'){
+                if($lastTravelEntry->arrive)
+                    $currentNode = 'Arrived at Job # ' . Job::where('id', $lastTravelEntry->job_id)->first()->job_number;
+                else
+                $currentNode = 'Departing to Job # ' . Job::where('id', $lastTravelEntry->job_id)->first()->job_number;
+            }
+            if($lastTravelEntry->type =='depart_for_office'){
+                if($lastTravelEntry->arrive)
+                    $currentNode = 'Arrive at office';
+                else
+                $currentNode = 'Departing to Office';
+            }
+        }
+
+        $status = $crewType . ': ' . $currentNode;
+
+
+        //end get status outline
+
+        return [
+            'isAlreadyVerified' =>$isAlreadyVerified,
+            'isAlreadyClockedin' =>$isAlreadyClockedin,
+            'isAlreadyClockedout' => $isAlreadyClockedout,
+            'crewId' => $crewId,
+            'crewMembers' => $crewMembers,
+            'timesheet' => $timesheet,
+            'travelTime' => $travelTime,
+            'status' => $status,
+            'crewTypes' => CrewType::select('id', 'name', 'value')->get(),
+            'crewTypeId' => $crew->crew_type_id,
+        ];
     }
 
     public function verifyCrewMembers($data)
@@ -76,6 +149,8 @@ class TimesheetService {
                     'crew_members' => $data['crewMembers'],
                     'last_verified_date' => Carbon::now(),
                     'modified_by' => auth()->id(),
+                    'is_ready_for_verification' => 0,
+                    'crew_type_id' => $data['crewTypeId']
                 ]);
     }
 
@@ -96,15 +171,17 @@ class TimesheetService {
     {
         $crew = Crew::find($data['crewId']);
 
-        $crewMembersArray = $crew->crew_members;
-        array_push($crewMembersArray, $crew->superintendentId);
+        $crewMembersArray = $this->getCrewMembersArray($crew->crew_members, $crew->superintendentId);
 
         if($data['type'] == 'clockin'){
             foreach ($crewMembersArray as $member) {
                 $timesheet = Timesheet::create([
                     'crew_id' => $crew->id,
+                    'crew_type_id' => $crew->crew_type_id,
                     'user_id' => $member,
                     'clockin_time' => Carbon::now(),
+                    'job_id' => Job::where('job_number', '9-99-9998')->first()->id,
+                    'time_type_id' => TimeType::where('name', 'Shop')->first()->id,
                     'created_by' => auth()->id(),
                     'modified_by' => auth()->id(),
                 ]);
@@ -113,16 +190,39 @@ class TimesheetService {
         }
 
         if($data['type'] == 'clockout'){
+
+            //set a session for already clocked out members before end of day.
+            session(['alreadyClockedOutMembers' => Timesheet::where('crew_id', $data['crewId'])
+                ->whereNotNull('clockout_time')
+                ->where('created_at', '>=', $crew->last_verified_date)
+                ->select('id', 'crew_id', 'user_id', 'clockout_time')
+                ->get()
+            ]);
+
+
+            
+            // dd(session('alreadyClockedOutMembers'));
+
             foreach ($crewMembersArray as $member) {
                 $timesheet = Timesheet::where('crew_id', $data['crewId'])
                 ->whereNull('clockout_time')
-                ->whereDate('updated_at', date('Y-m-d'))
+                ->where('created_at', '>=', $crew->last_verified_date)
                 ->update([
                     'clockout_time' => Carbon::now(),
                     'modified_by' => auth()->id(),
                 ]);
                 
             }
+
+            // uncomment after implementation
+            (new DepartService())->calculateIndirectTime([
+                'crewId' => $crew->id,
+            ], true);
+
+            
+
+            $this->saveAllDepartEntries($crew, $crewMembersArray);
+
         }
     }
 
@@ -147,20 +247,23 @@ class TimesheetService {
 
     public function addNewCrewMember($data)
     {
-        $isAlreadyClockedin = Timesheet::where('crew_id', $data['crewId'])->where('user_id', $data['createNewCrewForm']['crew_member_id'])
-        ->whereDate('clockin_time', date('Y-m-d'))->first();
+        $crew = Crew::where('id', $data['crewId'])->first();
 
-        if(!$isAlreadyClockedin){ // only create crew and clock in if its not clocked in for today
-            $crew = Crew::where('id', $data['crewId'])->first();
-            $crewMembers = $crew->crew_members;
-            array_push($crewMembers, $data['createNewCrewForm']['crew_member_id']);
+        $isAlreadyClockedin = Timesheet::where('crew_id', $data['crewId'])->where('user_id', $data['createNewCrewForm']['crew_member_id'])
+        ->where('created_at', '>=', $crew->last_verified_date)->first();
+
+        if(!$isAlreadyClockedin){ // only create crew member and clock in if its not clocked in
+            $crewMembers = $this->getCrewMembersArray($crew->crew_members, $data['createNewCrewForm']['crew_member_id']);;
             $crew->crew_members = $crewMembers;
             $crew->save();
 
             $timesheet = Timesheet::create([
                 'crew_id' => $crew->id,
+                'crew_type_id' => $crew->crew_type_id,
                 'user_id' => $data['createNewCrewForm']['crew_member_id'],
                 'clockin_time' => $data['createNewCrewForm']['clockin_time'],
+                'job_id' => Job::where('job_number', '9-99-9998')->first()->id,
+                'time_type_id' => TimeType::where('name', 'Shop')->first()->id,
                 'created_by' => auth()->id(),
                 'modified_by' => auth()->id(),
             ]);
@@ -181,18 +284,163 @@ class TimesheetService {
             $crew->save();
     
             Timesheet::where('crew_id', $data['crewId'])->where('user_id', $data['crewMemberId'])
-            ->whereDate('clockin_time', date('Y-m-d'))->delete();
+            ->where('created_at', '>=', $crew->last_verified_date)->delete();
         }
 
         return true;
     }
 
     public function hfPerDiem($data)
-    {
-        Timesheet::where('id', $data['timesheetId'])->update([
+    {   
+        $has_array = is_array($data['timesheetId']);
+
+        Timesheet::
+        // where('id', $data['timesheetId'])
+        when(!$has_array, function ($query, $has_array) use($data) {
+            $query->where('id', $data['timesheetId']);
+        })
+        ->when($has_array, function ($query, $has_array) use($data) {
+            $query->whereIn('id', $data['timesheetId']);
+        })
+        ->update([
             'per_diem' => $data['perDiem']
         ]);
 
         return true;
+    }
+
+    public function readyForVerification($data)
+    {
+        Crew::where('id', $data['crewId'])->update([
+            'is_ready_for_verification' => 1
+        ]);
+
+    }
+
+    // save all depart entries for every crew member in timesheets table. so we can export csv's
+    private function saveAllDepartEntries($crew, $crewcrewMembersArray)
+    {
+
+        $timesheets = Timesheet::where('crew_id', $crew->id)
+                ->where('created_at', '>=', $crew->last_verified_date)->get();
+        
+        $travelTimes = TravelTime::where('crew_id', $crew->id)->where('created_at', '>=', $crew->last_verified_date)->get();
+
+        $alreadyExistingTimesheet = [];
+        $timesheets->each(function ($item, $key) use(&$alreadyExistingTimesheet) {
+            $alreadyExistingTimesheet[$item->user_id] = $item->clockout_time;
+        });
+
+        // dd($alreadyExistingTimesheet);
+
+        $newlyCreatedTimesheetIds = [];
+
+        foreach ($travelTimes as $key => $travelTime) {
+            // if($key==0 && $travelTime->type == 'indirect_time'){
+            if($travelTime->type == 'indirect_time'){
+
+                if($key == 0){ // if first indirect_time entry
+                    //set clockout for already existing timesheets entries same as depart time (first time)
+                    Timesheet::where('crew_id', $crew->id)
+                    ->where('created_at', '>=', $crew->last_verified_date)
+                    ->where('clockout_time', '>', $travelTime->arrive) // update only if clockout after first depart
+                    ->update([
+                        'clockout_time' => $travelTime->arrive,
+                        'modified_by' => auth()->id(),
+                    ]);
+                }else{ // if last indirect_time entry
+                    Timesheet::whereIn('id', $newlyCreatedTimesheetIds)
+                    ->update([
+                        'clockout_time' => $travelTime->arrive
+                    ]);
+                }
+                
+            }else{
+
+                // if($key!==0 && $travelTime->type == 'indirect_time'){ // if this is last indirect_time entry from travel_times table then just update clockout for previous entries
+                    
+
+                //     break;;
+                // }
+
+                // check if some crew member clockout before depart for next job after completing depart for previous job
+                // foreach ($alreadyExistingTimesheet as $key => $value) {
+                    
+                // }
+
+
+
+                // add clockout_time for previous entries (created for Arrive button with time_type_id = NULL)
+                Timesheet::whereIn('id', $newlyCreatedTimesheetIds)
+                ->update([
+                    'clockout_time' => $travelTime->depart
+                ]);
+
+                foreach ($alreadyExistingTimesheet as $key => $value) {
+                    if($value >= $travelTime->depart){ // if crew member not clocked out at the time of this depart entry
+                        $timesheet = Timesheet::create([
+                            'crew_id' => $crew->id,
+                            'crew_type_id' => $crew->crew_type_id,
+                            'user_id' => $key,
+                            'clockin_time' => $travelTime->depart,
+                            'clockout_time' => $travelTime->arrive,
+                            'job_id' => $travelTime->job_id,
+                            'time_type_id' => $travelTime->time_type_id,
+                            'created_by' => auth()->id(),
+                            'modified_by' => auth()->id(),
+                        ]);
+
+                    }
+                }
+
+
+                $newlyCreatedTimesheetIds = [];
+
+                foreach ($alreadyExistingTimesheet as $key => $value) { //foreach loop for arrive button clicked
+                    if($value >= $travelTime->depart){ // if crew member not clocked out at the time of this depart entry
+                        $timesheet = Timesheet::create([
+                            'crew_id' => $crew->id,
+                            'crew_type_id' => $crew->crew_type_id,
+                            'user_id' => $key,
+                            'clockin_time' => $travelTime->arrive,
+                            'job_id' => $travelTime->job_id,
+                            'time_type_id' => ($travelTime->type == 'depart_for_office') ? TimeType::where('name', 'Shop')->first()->id : NULL,
+                            'created_by' => auth()->id(),
+                            'modified_by' => auth()->id(),
+                        ]);
+
+                        $newlyCreatedTimesheetIds[] = $timesheet->id;
+                    }
+
+                }
+
+
+                
+
+
+
+            }
+        }
+
+
+        //  set original clock out if some crew member clockout before end of day
+        foreach(session('alreadyClockedOutMembers') as $timesheet){
+            Timesheet::where('crew_id', $crew->id)
+                    ->where('created_at', '>=', $crew->last_verified_date)
+                    ->where('user_id', $timesheet->user_id)
+                    ->latest('id')->first()   
+                    ->update([
+                        'clockout_time' => $timesheet->clockout_time,
+                        'modified_by' => auth()->id(),
+                    ]);
+        }
+
+        session()->forget('alreadyClockedOutMembers');
+        
+    }
+
+    public function weatherEntry($data)
+    {
+        dd($data);
     }
 }

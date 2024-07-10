@@ -1,33 +1,31 @@
 <template>
     <div ref="departWrapper">
-        
-        <button type="button" class="btn btn-info p-3" @click="getAllJobs" 
-        v-if="(!isDepart && travelTime == null) || 
-        (!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive)">
-        MOBILIZATION</button>
 
-        <button type="button" class="btn btn-secondary ms-5 p-3" 
-        v-if="!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive" @click="depart">
-        Back to office</button>
-        
+        <button type="button" class="btn btn-info p-3" @click="getAllJobs" v-if="(!isDepart && travelTime == null) ||
+            (!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive)">
+            MOBILIZATION</button>
+
+        <button type="button" class="btn btn-secondary ms-5 p-3"
+            v-if="!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive" @click="depart">
+            END PRODUCTION</button>
+
         <div class="d-flex align-items-center" v-if="isDepart">
-            <!-- <select class="form-control w-50" v-model="departForm.jobId">
-                <option value="">Select your job</option>
-                <option v-for="(job, index) in jobs" :key="job.id" :value="job.id">{{ job.job_number }}</option>
-            </select> -->
+            <i class="fas fa-undo text-dark cursor-pointer me-1" @click="isDepart = false"></i>
             <div class="text-dark">
-                <Select2 v-model="departForm.jobId" :options="jobs" 
-            :settings="{ width: '250px', dropdownParent: departWrapper }"  />
+                <Select2 v-model="departForm.jobId" :options="jobs" :settings="select2Settings" class="foo-bar" />
             </div>
             <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Depart</button>
         </div>
 
-        <div class="d-flex align-items-center" v-if="travelTime && travelTime.type == 'depart_for_job' && !travelTime.arrive">
-            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Arrive at job location</button>
+        <div class="d-flex align-items-center"
+            v-if="travelTime && travelTime.type == 'depart_for_job' && !travelTime.arrive">
+            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Arrive at job
+                location</button>
         </div>
 
-        <div class="d-flex align-items-center" v-if="travelTime && travelTime.type == 'depart_for_office' && !travelTime.arrive">
-            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Arrive at office</button>
+        <div class="d-flex align-items-center"
+            v-if="travelTime && travelTime.type == 'depart_for_office' && !travelTime.arrive">
+            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Arrive</button>
         </div>
 
     </div>
@@ -38,11 +36,18 @@ import axios from 'axios';
 import { ref, onMounted } from 'vue';
 
 const props = defineProps({
-        crewId: Number,
-        travelTime: Object,
-    })
+    crewId: Number,
+    travelTime: Object,
+})
+
+const emit = defineEmits(['track-time-done'])
 
 const departWrapper = ref(null)
+let select2Settings = ref({
+    'width': '250px',
+    'dropdownParent': departWrapper,
+    'dropdownCssClass': ':all'
+})
 
 let travelTime = ref(props.travelTime)
 let isDepart = ref(false)
@@ -77,26 +82,27 @@ const depart = () => {
         .then(res => {
             travelTime.value = res.data
             isDepart.value = false
+            emit('track-time-done')
         })
         .catch(err => console.log(err))
 }
 
 const setType = () => {
-    if(travelTime.value == null && isDepart.value){
+    if (travelTime.value == null && isDepart.value) {
         departForm.value.type = 'depart_for_job'
     }
-    else if(travelTime.value && travelTime.value.type == 'depart_for_job' && !travelTime.value.arrive){
+    else if (travelTime.value && travelTime.value.type == 'depart_for_job' && !travelTime.value.arrive) {
         departForm.value.type = 'arrive_for_job'
         departForm.value.travelTimeId = travelTime.value.id
     }
-    else if(isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive){
+    else if (isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive) {
         departForm.value.type = 'depart_for_job'
         departForm.value.travelTimeId = travelTime.value.id
     }
-    else if(!isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive){
+    else if (!isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive) {
         departForm.value.type = 'depart_for_office'
     }
-    else if(travelTime.value && travelTime.value.type == 'depart_for_office' && !travelTime.value.arrive){
+    else if (travelTime.value && travelTime.value.type == 'depart_for_office' && !travelTime.value.arrive) {
         departForm.value.type = 'arrive_for_office'
         departForm.value.travelTimeId = travelTime.value.id
     }
@@ -104,28 +110,4 @@ const setType = () => {
 
 </script>
 
-<style scoped>
-
-/* .select2-container--default .select2-results>.select2-results__options{
-    color: black !important;
-} */
-
-/* .select2-container--bootstrap .select2-results__option--highlighted[aria-selected] {
-    background-color: green;
-    color: black;
-    display: table-row;
-} */
-
-
-/* body.dark-version{
-    color: lightgrey !important;
-} */
-
-/* .form-control{
-color: #949494 !important;
-}
-.form-control:focus{
-border-color: #1d8cf8 !important;
-} */
-
-</style>
+<style scoped></style>

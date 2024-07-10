@@ -19,8 +19,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Clock\CrewsController;
 use App\Http\Controllers\Clock\DepartController;
 use App\Http\Controllers\FullCalenderController;
+use App\Http\Controllers\Clock\CrewTypeController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\Clock\TimesheetController;
+use App\Http\Controllers\Clock\TimesheetManagementConroller;
 
 /*
 |--------------------------------------------------------------------------
@@ -427,10 +429,25 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('add-new-crew-members', [TimesheetController::class, 'addNewCrewMember']);
 	Route::post('delete-crew-members', [TimesheetController::class, 'deleteCrewMember']);
 	Route::post('hf-per-diem', [TimesheetController::class, 'hfPerDiem']);
+	Route::post('ready-for-verification', [TimesheetController::class, 'readyForVerification']);
+	Route::post('wather-entry', [TimesheetController::class, 'weatherEntry']);
 
 	// depart
 	Route::get('getjobs-for-depart', [DepartController::class, 'getAllJobs']);
 	Route::post('track-time-travel', [DepartController::class, 'trackTravelTime']);
+
+	//crew types
+	Route::resource('crewTypes', CrewTypeController::class);
+
+	// timesheet management
+	Route::get('timesheet-management', [TimesheetManagementConroller::class, 'index'])->name('timesheet-management.index');
+	Route::get('timesheet-management/getall', [TimesheetManagementConroller::class, 'getAll']);
+	Route::post('/timesheet-management/update-checkbox-approval', [TimesheetManagementConroller::class, 'updateCheckboxApproval']);
+	Route::post('timesheet-management/update-checkbox-approval-bulk', [TimesheetManagementConroller::class, 'updateCheckboxApprovalBulk']);
+	Route::post('/timesheet-management/update-times', [TimesheetManagementConroller::class, 'updateTimes']);
+	Route::delete('/timesheets/{id}', [TimesheetManagementConroller::class, 'deleteTimesheet']);
+	Route::post('/timesheet-management/store', [TimesheetManagementConroller::class, 'storeTimesheet']);
+
 
 
 	// ----------- end clock management -----------

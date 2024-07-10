@@ -10,7 +10,9 @@ class Crew extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['crew_name', 'superintendentId', 'crew_members', 'last_verified_date', 'created_by', 'modified_by'];
+    protected $fillable = ['crew_name', 'crew_type_id', 'superintendentId', 'crew_members', 
+        'last_verified_date', 'created_by', 'modified_by', 'is_ready_for_verification'
+    ];
 
     protected $casts = [
         'last_verified_at' => 'datetime:Y-m-d'
@@ -29,6 +31,11 @@ class Crew extends Model
     public function modifiedBy()
     {
         return $this->belongsTo(User::class, 'modified_by');
+    }
+
+    public function crewType()
+    {
+        return $this->belongsTo(CrewType::class);
     }
 
     protected function crewMembers(): Attribute

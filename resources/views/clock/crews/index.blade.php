@@ -1,6 +1,6 @@
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
 <x-auth.navbars.sidebar activePage="crews" activeItem="" activeSubitem=""></x-auth.navbars.sidebar>
-<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="app">
     <x-auth.navbars.navs.auth pageTitle="Crews"></x-auth.navbars.navs.auth>
     <div class="container-fluid py-4">
          <div class="row">
@@ -16,13 +16,10 @@
                         <thead class="thead-light">
                             <tr>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Action</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Crew name</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Crew type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">SuperIndentend name</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Last verified date</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Created by</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Modified by</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Created at</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Updated at</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -42,13 +39,10 @@
                                     </form>
                                     @endif
                                 </td>
-                                <td class="text-md font-weight-bold"><h5>{{ $crew->crew_name }}</h5></td>
+                                <td class="text-md font-weight-bold"><h5>{{ $crew->crewType->name }}</h5></td>
                                 <td class="text-sm font-weight-normal"><h5>{{ $crew->superintendent->name }}</h5></td>
                                 <td class="text-sm font-weight-normal"><h5>{{ $crew->last_verified_date }}</h5></td>
-                                <td class="text-sm font-weight-normal"><h5>{{ $crew->createdBy->name }}</h5></td>
-                                <td class="text-sm font-weight-normal"><h5>{{ $crew->modifiedBy->name }}</h5></td>
-                                <td class="text-sm font-weight-normal"><h5>{{ $crew->created_at }}</h5></td>
-                                <td class="text-sm font-weight-normal"><h5>{{ $crew->updated_at }}</h5></td>
+
                             </tr>
                             @endforeach
                         </tbody>

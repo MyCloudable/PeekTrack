@@ -52,4 +52,14 @@ class TimesheetController extends Controller
     {
         return response()->json($this->timesheetService->hfPerDiem($request->all()), 200);
     }
+
+    public function readyForVerification(Request $request)
+    {
+        return response()->json($this->timesheetService->readyForVerification($request->all()), 200);
+    }
+
+    public function weatherEntry(Request $request)
+    {
+        return response()->json($this->timesheetService->weatherEntry($request->all()), 200);
+    }
 }

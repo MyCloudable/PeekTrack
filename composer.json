@@ -11,9 +11,11 @@
         "guzzlehttp/guzzle": "^7.4",
         "laravel/framework": "^9.0",
         "laravel/sanctum": "^2.15",
+        "laravel/telescope": "*",
         "laravel/tinker": "^2.6",
         "mailersend/laravel-driver": "^2.3",
-        "reportico/laravel-reportico": "^8.0"
+        "reportico/laravel-reportico": "^8.0",
+        "yajra/laravel-datatables": "^9.0"
     },
     "require-dev": {
         "spatie/laravel-ignition": "^1.0",

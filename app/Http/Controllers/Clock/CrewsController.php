@@ -24,13 +24,13 @@ class CrewsController extends Controller
 
     public function create()
     {
-        return view('clock.crews.create')->with('users', $this->crewService->create());
+        return view('clock.crews.create')->with('data', $this->crewService->create());
     }
 
     public function store(StoreCrewRequest $request)
     {   
         $this->crewService->store($request->validated());
-        return redirect()->route('crews.index')->with('message',"Crew have been created successfully");
+        return redirect()->route('crews.index')->with('message',"Crew has been created successfully");
     }
 
     public function show(Crew $crew)
@@ -41,18 +41,18 @@ class CrewsController extends Controller
     public function edit(Crew $crew)
     {
         $crew = Crew::where('id', $crew->id)->first();
-        return view('clock.crews.edit')->with(['crew'=> $crew, 'users' => $this->crewService->edit()]);
+        return view('clock.crews.edit')->with(['crew'=> $crew, 'data' => $this->crewService->edit()]);
     }
 
     public function update(StoreCrewRequest $request, Crew $crew)
     {   
         $this->crewService->update($request->validated(), $crew);
-        return redirect()->route('crews.index')->with('message',"Crew have been updated successfully");
+        return redirect()->route('crews.index')->with('message',"Crew has been updated successfully");
     }
     
     public function destroy(Crew $crew)
     {
         $this->crewService->destroy($crew);
-        return back()->with('message', 'Crew have been deleted successfully');
+        return back()->with('message', 'Crew has been deleted successfully');
     }
 }

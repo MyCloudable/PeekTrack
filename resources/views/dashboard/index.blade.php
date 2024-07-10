@@ -1,7 +1,7 @@
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
 
     <x-auth.navbars.sidebar activePage="dashboard" activeItem="analytics" activeSubitem=""></x-auth.navbars.sidebar>
-    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="app">
         <!-- Navbar -->
         <x-auth.navbars.navs.auth pageTitle="Dashboard"></x-auth.navbars.navs.auth>
         <!-- End Navbar -->

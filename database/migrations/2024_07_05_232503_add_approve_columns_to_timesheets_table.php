@@ -14,7 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::table('timesheets', function (Blueprint $table) {
-            $table->string('per_diem')->nullable()->after('modified_by');
+            $table->boolean('weekend_out')->default(0);
+            $table->boolean('reviewer_approval')->default(0);
+            $table->integer('reviewer_approval_by')->nullable();
+            $table->timestamp('reviewer_approval_at')->nullable();
+            $table->boolean('payroll_approval')->default(0);
         });
     }
 

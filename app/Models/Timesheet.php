@@ -10,7 +10,10 @@ class Timesheet extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['crew_id', 'user_id', 'clockin_time', 'clockout_time', 'created_by', 'modified_by'];
+    protected $fillable = ['crew_id', 'crew_type_id', 'user_id', 'clockin_time', 'clockout_time',
+    'job_id', 'time_type_id', 'created_by', 'modified_by', 
+    'weekend_out', 'reviewer_approval', 'reviewer_approval_by', 'reviewer_approval_at', 'payroll_approval', 'crew_member_approval'
+    ];
 
     // protected $casts = [
     //     'clockin_time' => 'datetime:Y-m-d',

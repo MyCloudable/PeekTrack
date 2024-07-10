@@ -5,6 +5,7 @@ namespace App\Services\Clock;
 use Carbon\Carbon;
 use App\Models\Crew;
 use App\Models\User;
+use App\Models\CrewType;
 
 class CrewService {
 
@@ -13,7 +14,7 @@ class CrewService {
         $role = auth()->user()->role_id;
 
         return Crew::with(['superintendent:id,name,email', 'createdBy:id,name,email', 
-                    'modifiedBy:id,name,email'])
+                    'modifiedBy:id,name,email', 'crewType:id,name,value'])
                     ->when(($role !== 1 && $role !== 2), function ($query, $role) {
                         $query->where('superintendentId', auth()->id());
                     })
@@ -22,7 +23,10 @@ class CrewService {
 
     public function create()
     {
-        return $this->getUsers();
+        return [
+            'users' => $this->getUsers(),
+            'crewTypes' => $this->getCrewTypes()
+        ];
     }
 
     public function store(array $data): Crew
@@ -37,12 +41,15 @@ class CrewService {
 
     public function edit()
     {
-        return $this->getUsers();
+        return [
+            'users' => $this->getUsers(),
+            'crewTypes' => $this->getCrewTypes()
+        ];
     }
 
     public function update(array $data, Crew $crew): bool
     {
-        return $crew->update($this->mergeDataBeforeSaveUpdate($data));
+        return $crew->update($this->mergeDataBeforeSaveUpdate($data, true));
     }
 
     public function destroy(Crew $crew)
@@ -52,13 +59,17 @@ class CrewService {
 
     public function getUsers()
     {
-        return User::select('id', 'email', 'name')->get();
+        return User::select('id', 'email', 'name', 'role_id')->get();
+    }
+    public function getCrewTypes()
+    {
+        return CrewType::select('id', 'name', 'value')->get();
     }
 
-    private function mergeDataBeforeSaveUpdate(array $data)
+    private function mergeDataBeforeSaveUpdate(array $data, $isUpdate = false)
     {
-        // $data['last_verified_date'] = Carbon::now(); 
-        $data['last_verified_date'] = NULL; 
+        // $data['last_verified_date'] = Carbon::now();
+        (!$isUpdate) ? $data['last_verified_date'] = NULL : '';
         $data['created_by'] = auth()->id(); 
         $data['modified_by'] = auth()->id();
         return $data;

@@ -15,12 +15,13 @@ return new class extends Migration
     {
         Schema::create('crews', function (Blueprint $table) {
             $table->id();
-			$table->string('crew_name');
+			$table->integer('crew_type_id');
 			$table->integer('superintendentId');
 			$table->longText('crew_members');
 			$table->timestamp('last_verified_date')->nullable();
 			$table->integer('created_by');
 			$table->integer('modified_by');
+            $table->boolean('is_ready_for_verification')->default(0);
             $table->timestamps();
         });
     }
