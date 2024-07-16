@@ -40,7 +40,7 @@
                                 @track-time-done="trackTimeDone" />
 
                             <button type="button" class="btn btn-secondary p-3" @click="weatherEntry"
-                                v-if="(!isAlreadyVerified || isAlreadyVerified) && !isAlreadyClockedin">Weather</button>
+                                v-if="isAlreadyVerified && !isAlreadyClockedin">Weather</button>
 
                         </div>
                         <div class="col-md-3">

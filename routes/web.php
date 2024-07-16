@@ -15,7 +15,6 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SessionsController;
 use App\Http\Controllers\DashboardController;
-
 use App\Http\Controllers\Clock\CrewsController;
 use App\Http\Controllers\Clock\DepartController;
 use App\Http\Controllers\FullCalenderController;
@@ -50,12 +49,14 @@ Mail::to('qtconsultants@gmail.com')->send(new JobCardRejectionNotification());
 
 Route::get('/autocomplete', [SearchController::class, 'autocomplete'])->name('autocomplete');
 
+Route::get('crewmember', [TimesheetManagementConroller::class, 'crewindex'])->middleware('auth')->name('crew');
+
 
 
 Route::post('/jobs/shareJobcard', [JobsController::class, 'shareJobcard'])->name('jobs.shareJobcard');
 
-Route::get('sign-up', [RegisterController::class, 'create'])->middleware('guest')->name('register');
-Route::post('sign-up', [RegisterController::class, 'store'])->middleware('guest');
+Route::get('crew', [RegisterController::class, 'create'])->middleware('guest')->name('register');
+Route::post('crew', [SessionsController::class, 'crewlogin'])->middleware('guest');
 
 Route::get('sign-in', [SessionsController::class, 'create'])->middleware('guest')->name('login');
 Route::post('sign-in', [SessionsController::class, 'store'])->middleware('guest');
@@ -443,6 +444,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('timesheet-management', [TimesheetManagementConroller::class, 'index'])->name('timesheet-management.index');
 	Route::get('timesheet-management/getall', [TimesheetManagementConroller::class, 'getAll']);
 	Route::post('/timesheet-management/update-checkbox-approval', [TimesheetManagementConroller::class, 'updateCheckboxApproval']);
+	Route::post('/timesheet-management/approve-crew-time', [TimesheetManagementConroller::class, 'updateCrewCheckBox']);
 	Route::post('timesheet-management/update-checkbox-approval-bulk', [TimesheetManagementConroller::class, 'updateCheckboxApprovalBulk']);
 	Route::post('/timesheet-management/update-times', [TimesheetManagementConroller::class, 'updateTimes']);
 	Route::delete('/timesheets/{id}', [TimesheetManagementConroller::class, 'deleteTimesheet']);

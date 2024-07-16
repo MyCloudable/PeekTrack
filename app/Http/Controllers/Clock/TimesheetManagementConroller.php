@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Clock;
 
 use Carbon\Carbon;
 use App\Models\Job;
+use App\Models\Crew;
 use App\Models\User;
 use App\Models\CrewType;
 use App\Models\TimeType;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class TimesheetManagementConroller extends Controller
 {
@@ -24,7 +26,41 @@ class TimesheetManagementConroller extends Controller
         $timeTypes = TimeType::select('id', 'name', 'value', DB::raw('name as text'))->get();
         $authuser = Auth::user();
         $crewTypes = CrewType::select('id', 'name as text')->get();
-        return view('clock.timesheetManagement.index', compact('users', 'jobs', 'timeTypes', 'authuser', 'crewTypes'));
+        
+        // get this to show in super intendent dropdown while creating a new entry.So that we can grab crew_id from this
+        $uniqueSuperintendents = User::whereIn('id', Crew::select('superintendentId')->distinct())->select('id', 'name as text')->get();
+
+        return view('clock.timesheetManagement.index', compact('users', 'jobs', 'timeTypes', 'authuser', 'crewTypes', 'uniqueSuperintendents'));
+    }
+	
+	    public function crewindex()
+    {
+	$query = DB::table('timesheets')
+		->join('users as crewmembers', 'timesheets.user_id', '=', 'crewmembers.id')
+		->join('crews', 'timesheets.crew_id', '=', 'crews.id')
+		->join('users as superintendents', 'crews.superintendentId', '=', 'superintendents.id')
+		->join('jobs', 'timesheets.job_id', '=', 'jobs.id')
+		->leftJoin('time_types', 'timesheets.time_type_id', '=', 'time_types.id')
+		->select(
+			DB::raw('DATE(timesheets.clockin_time) as day'),
+			'crewmembers.name as crewmember_name',
+			DB::raw('SUM(TIMESTAMPDIFF(minute, timesheets.clockin_time, timesheets.clockout_time) / 60) as total_hours'),
+			'crewmembers.id as user_id',
+			'timesheets.crew_member_approval',
+		)
+		->groupBy(
+			'day',
+			'crewmembers.name',
+			'crewmembers.id',
+			'timesheets.crew_member_approval',
+		)
+		->orderBy('day', 'desc')
+		->get();
+
+
+
+
+        return view('crew.crewindex', compact('query'));
     }
 
     public function getAll(Request $request)
@@ -135,6 +171,19 @@ class TimesheetManagementConroller extends Controller
 
         return response()->json(['success' => true]);
     }
+	
+	public function updateCrewCheckBox(Request $request)
+	{
+		$id = $request->id;
+		$date = $request->date;
+
+		DB::table('timesheets')
+			->where('user_id', $id)
+			->where('clockin_time', 'LIKE', $date . '%')
+			->update(['crew_member_approval' => 1]);
+
+		return response()->json(['success' => true]);
+	}
 
     public function updateCheckboxApprovalBulk(Request $request)
     {
@@ -182,33 +231,41 @@ class TimesheetManagementConroller extends Controller
             $timesheet = Timesheet::findOrFail($id);
             // dd($timesheet);
 
-            // Validate against nearest timesheet entry with same crew and date
-            $nearestTimesheet = Timesheet::where('crew_id', $timesheet->crew_id)
-            ->where('user_id', $timesheet->user_id)
-            ->whereDate('clockin_time', '=', date('Y-m-d', strtotime($timesheet->clockin_time)))
-            ->where('id', '<>', $timesheet->id)
-            ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, clockin_time, ?))', [$clockinTime])
-            ->first();
+            // // Validate against nearest timesheet entry with same crew and date
+            // $nearestTimesheet = Timesheet::where('crew_id', $timesheet->crew_id)
+            // ->where('user_id', $timesheet->user_id)
+            // ->whereDate('clockin_time', '=', date('Y-m-d', strtotime($timesheet->clockin_time)))
+            // ->where('id', '<>', $timesheet->id)
+            // ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, clockin_time, ?))', [$clockinTime])
+            // ->first();
 
-            if ($nearestTimesheet) {
-                // Check if updating clock out time is not greater than nearest record clock in time
-                if (strtotime($clockoutTime) > strtotime($nearestTimesheet->clockin_time)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Updating clock out time cannot be greater than nearest record clock in time with id ' . $nearestTimesheet->id
-                    ], 422);
-                }
+            // if ($nearestTimesheet) {
+            //     // Check if updating clock out time is not greater than nearest record clock in time
+            //     if (strtotime($clockoutTime) > strtotime($nearestTimesheet->clockin_time)) {
+            //         return response()->json([
+            //             'success' => false,
+            //             'message' => 'Updating clock out time cannot be greater than nearest record clock in time with id ' . $nearestTimesheet->id
+            //         ], 422);
+            //     }
     
-                // Check if updating clockin time is not less than nearest record clock out time
-                if (strtotime($clockinTime) < strtotime($nearestTimesheet->clockout_time)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Updating clockin time cannot be less than nearest record clock out time with id ' . $nearestTimesheet->id
-                    ], 422);
-                }
-            }
+            //     // Check if updating clockin time is not less than nearest record clock out time
+            //     if (strtotime($clockinTime) < strtotime($nearestTimesheet->clockout_time)) {
+            //         return response()->json([
+            //             'success' => false,
+            //             'message' => 'Updating clockin time cannot be less than nearest record clock out time with id ' . $nearestTimesheet->id
+            //         ], 422);
+            //     }
+            // }
 
-            // dd($nearestTimesheet);
+
+            // Validate overlap using custom method
+            $this->validateTimesheetOverlap(
+                $timesheet->user_id,
+                $request->clockin_time,
+                $request->clockout_time,
+                $timesheet->id // Exclude current timesheet ID from overlap check
+            );
+
 
             // Update the timesheet data
             $timesheet->clockin_time = $clockinTime;
@@ -242,8 +299,70 @@ class TimesheetManagementConroller extends Controller
 
     public function storeTimesheet(Request $request)
     {
-        dd($request->all());
+        try {
+
+            $data = $request->formData;
+            $data['crew_id'] = Crew::where('superintendentId', $data['superintendentId'])->value('id'); //get crew id from superintendent id
+            $data['created_by'] = Auth::user()->id;
+            $data['modified_by'] = Auth::user()->id;
+
+            // Validate overlap using custom method
+            $this->validateTimesheetOverlap(
+                $data['user_id'],
+                $data['clockin_time'],
+                $data['clockout_time'],
+            );
+
+            Timesheet::create($data);
+            return response()->json(['success' => true, 'message' => 'Timesheet created successfully', 200]);
+        } catch(\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+        
     }
+
+    private function validateTimesheetOverlap($user_id, $clockin_time, $clockout_time, $exclude_id = null)
+    {
+        // dd($user_id);
+
+        try {
+            $query = Timesheet::where('user_id', $user_id)
+                ->whereDate('clockin_time', '<=', date('Y-m-d', strtotime($clockout_time))) // Check if existing timesheets start before or on the new timesheet's clockout_date
+                ->whereDate('clockout_time', '>=', date('Y-m-d', strtotime($clockin_time))); // Check if existing timesheets end after or on the new timesheet's clockin_date
+    
+            // dd($query->get());
+            $query->where(function ($query) use ($clockin_time, $clockout_time) {
+                $query->where(function ($query) use ($clockin_time, $clockout_time) {
+                    $query->where('clockin_time', '<', $clockout_time)
+                        ->where('clockout_time', '>', $clockin_time);
+                })->orWhere(function ($query) use ($clockin_time, $clockout_time) {
+                    $query->where('clockin_time', '>=', $clockin_time)
+                        ->where('clockout_time', '<=', $clockout_time);
+                });
+            });
+    
+            if ($exclude_id) {
+                $query->where('id', '!=', $exclude_id);
+            }
+    
+            $overlappingTimesheets = $query->get();
+            
+            if ($overlappingTimesheets->isNotEmpty()) {
+                // Prepare an array of overlapping timesheet IDs
+                $overlappingIds = $overlappingTimesheets->pluck('id')->toArray();
+
+                throw ValidationException::withMessages([
+                    'error' => 'Overlapping timesheets with these ids. ' . implode(',', $overlappingIds),
+                    // 'overlapping_ids' => $overlappingIds
+                ]);
+            }
+    
+            return $overlappingTimesheets;
+        } catch(\Exception $e) {
+            throw $e;
+        }
+    }
+
 
 
 }

@@ -221,7 +221,8 @@ class TimesheetService {
 
             
 
-            $this->saveAllDepartEntries($crew, $crewMembersArray);
+            // commend this for now, as we are going to save all entries with every click rather than at end
+            // $this->saveAllDepartEntries($crew, $crewMembersArray);
 
         }
     }
@@ -441,6 +442,26 @@ class TimesheetService {
 
     public function weatherEntry($data)
     {
-        dd($data);
+        try{
+            $crew = Crew::find($data['crewId']);
+            $crewMembersArray = $this->getCrewMembersArray($crew->crew_members, $crew->superintendentId);
+            foreach ($crewMembersArray as $member) {
+                $timesheet = Timesheet::create([
+                    'crew_id' => $crew->id,
+                    'crew_type_id' => $crew->crew_type_id,
+                    'user_id' => $member,
+                    'clockin_time' => Carbon::now(),
+                    'clockout_time' => Carbon::now()->addMinute(),
+                    'job_id' => Job::where('job_number', '9-99-9998')->first()->id,
+                    'time_type_id' => TimeType::where('name', 'Weather')->first()->id,
+                    'created_by' => auth()->id(),
+                    'modified_by' => auth()->id(),
+                ]);
+                
+            }
+            return response()->json(['success' => true, 'message' => 'Weather Record created successfully.']);
+        } catch(\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 }

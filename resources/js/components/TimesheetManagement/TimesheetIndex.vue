@@ -1,16 +1,19 @@
 <template>
 
     <div class="row">
-        <timesheet-filter :users="props.users" :jobs="props.jobs" :authuser="authuser" @filter="handleFilter" />
-
+        <div class="card card-frame">
+            <div class="card-body">
+                <div class="card-title">Create Timesheet</div>
+                <timesheet-form :users="props.users" :jobs="props.jobs" :timetypes="props.timetypes"
+                    :crewtypes="props.crewtypes" :uniqueSuperintendents="props.uniqueSuperintendents"
+                    @create-timesheet="TimesheetCreated" />
+            </div>
+        </div>
     </div>
 
-    <div class="row mt-3">
-        <div class="col-md-12">
-            <button class="btn btn-info w-25" @click="showForm = true">Create Record</button>
-        </div>
-        <timesheet-form :users="props.users" :jobs="props.jobs" :timetypes="props.timetypes" :crewtypes="props.crewtypes" 
-        v-if="showForm" @submit-timesheet="createTimesheet" />
+    <div class="row mt-5">
+        <timesheet-filter :users="props.users" :jobs="props.jobs" :authuser="authuser" @filter="handleFilter" />
+
     </div>
 
     <div class="row mt-5">
@@ -52,10 +55,10 @@ const props = defineProps({
     timetypes: Object,
     // roleid: Number,
     authuser: Object,
-    crewtypes: Object
+    crewtypes: Object,
+    uniqueSuperintendents: Object
 })
 
-const showForm = ref(false)
 
 const filterData = ref('')
 const dataTableRef = ref(null)
@@ -261,7 +264,7 @@ const tableOptions = ref({
                     const isCrewMember = false
                     const isSuperintendent = props.authuser.role_id === 3
                     const isReviewer = props.authuser.role_id === 2
-                    const isPayrollAdmin = props. authuser.role_id === 5
+                    const isPayrollAdmin = props.authuser.role_id === 5
 
                     // Approval statuses
                     const isCmaApproved = row.crew_member_approval === 1
@@ -447,38 +450,25 @@ const handleDeleteClick = async (event) => {
                 }
                 toast.success('Timesheet entry deleted successfully')
                 alert(response.data.message)
-            } else {   
+            } else {
                 toast.error('Failed to delete timesheet entry')
                 alert(response.data.message)
             }
         } catch (error) {
-            toast.error('An error occurred while deleting the timesheet entry')
-            alert('An error occurred while deleting the timesheet entry')
+            let errorMessage = error.response.data.message
+            errorMessage ? toast.error(errorMessage) : 'An error occurred while deleting the timesheet entry'
         }
     }
 };
 
-const createTimesheet = async (formData) => {
-    try {
-            const response = await axios.post(`timesheet-management/store`, {
-                formData: formData
-            })
-
-            if (response.data.success) {
-                if (dataTableRef.value && dataTableRef.value.dt) {
-                    dataTableRef.value.dt.ajax.reload(null, false);
-                }
-                toast.success('Timesheet entry created successfully')
-                alert(response.data.message)
-            } else {   
-                toast.error('Failed to create timesheet entry')
-                alert(response.data.message)
-            }
-        } catch (error) {
-            toast.error('An error occurred while creating the timesheet entry')
-            alert('An error occurred while creating the timesheet entry')
-        }
+const TimesheetCreated = () => {
+    console.log('coming here')
+    if (dataTableRef.value && dataTableRef.value.dt) {
+        dataTableRef.value.dt.ajax.reload(null, false);
+    }
 }
+
+
 
 
 onMounted(async () => {
@@ -510,7 +500,8 @@ onMounted(async () => {
 }
 
 body.dark-version table.dataTable tbody tr:nth-child(even) {
-    background-color: #333; /* Darker shade for dark theme */
+    background-color: #333;
+    /* Darker shade for dark theme */
 }
 
 /* table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order, table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order, table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order, table.dataTable thead > tr > td.dt-orderable-asc span.dt-column-order, table.dataTable thead > tr > td.dt-orderable-desc span.dt-column-order, table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order, table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order {
@@ -539,6 +530,4 @@ table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:before, ta
     content: "▲";
     content: "▲" / "";
 } */
-
-
 </style>

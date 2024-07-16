@@ -27,21 +27,25 @@ class DepartService {
                 $data['departForm']['time_type_id'] = $timeType->id;
                 $this->calculateIndirectTime($data['departForm']);
                 $travelTime = $this->createTravelTime($data['departForm']);
+                $this->createTimesheetForEveryDepartClick($travelTime, 'depart_for_job');
                 break;
 
             case 'arrive_for_job':
                 $data['departForm']['time_type_id'] = $timeType->id;
                 $travelTime = $this->updateTravelTime($data['departForm']);
+                $this->createTimesheetForEveryDepartClick($travelTime, 'arrive_for_job');
                 break;
 
             case 'depart_for_office':
                 $data['departForm']['jobId'] = Job::where('job_number', '9-99-9998')->first()->id;
                 $data['departForm']['time_type_id'] = $timeType->id;
                 $travelTime = $this->createTravelTime($data['departForm']);
+                $this->createTimesheetForEveryDepartClick($travelTime, 'depart_for_office');
                 break;
 
             case 'arrive_for_office':
                 $travelTime = $this->updateTravelTime($data['departForm']);
+                $this->createTimesheetForEveryDepartClick($travelTime, 'arrive_for_office');
                 break;
             
             default:
@@ -55,7 +59,7 @@ class DepartService {
     private function createTravelTime($data)
     {
         $crew = Crew::find($data['crewId']); 
-        return TravelTime::create([
+        $travelTime = TravelTime::create([
                 'crew_id' => $crew->id,
                 'job_id' => $data['jobId'] ,
                 'crew_type_id' => $crew->crew_type_id,
@@ -66,6 +70,10 @@ class DepartService {
                 'created_by' => auth()->id(),
                 'modified_by' =>  auth()->id()
             ]);
+
+        // $this->createTimesheetForEveryDepartClick($travelTime, 'create');
+
+        return $travelTime;
     }
 
     private function updateTravelTime($data)
@@ -75,7 +83,11 @@ class DepartService {
             'modified_by' =>  auth()->id()
         ]);
 
-        return TravelTime::where('id', $data['travelTimeId'])->with('job')->first();
+        $travelTime = TravelTime::where('id', $data['travelTimeId'])->with('job')->first();
+
+        // $this->createTimesheetForEveryDepartClick($travelTime, 'update');
+
+        return $travelTime;
     }
 
     public function calculateIndirectTime($data, $isClockout = false)
@@ -101,5 +113,74 @@ class DepartService {
             $this->createTravelTime($record);
         }
             
+    }
+
+    public function createTimesheetForEveryDepartClick($travelTime, $type)
+    {
+        // type will be 'create' or 'update'
+
+            $crew = Crew::find($travelTime->crew_id);
+
+            $crewMembers = $crew->crew_members;
+            $crewMembersArray = $crewMembers;
+            array_push($crewMembersArray, $crew->superintendentId);
+
+            $clockin_time = '';
+            $time_type_id = $travelTime->time_type_id;
+
+            if($type == 'depart_for_job' || $type == 'depart_for_office'){
+                $clockin_time = $travelTime->depart;
+            }
+            if($type == 'arrive_for_job' || $type == 'arrive_for_office'){
+                $clockin_time = $travelTime->arrive;
+            }
+
+
+
+            if($type == 'arrive_for_job'){
+                $time_type_id = NULL;
+            }
+            if($type == 'arrive_for_office'){
+                $timeType = TimeType::where('name', 'Shop')->first();
+                $time_type_id = $timeType->id;
+            }
+            
+            // elseif($type == 'depart_for_office'){
+
+            // }elseif($type == 'arrive_for_office'){
+
+            // }
+
+
+
+            Timesheet::where('crew_id', $crew->id)
+                    ->where('created_at', '>=', $crew->last_verified_date)
+                    ->whereIn('user_id', $crewMembersArray)
+                    ->whereNull('clockout_time') 
+                    ->update([
+                        'clockout_time' => $clockin_time,
+                        'modified_by' => auth()->id(),
+                    ]);
+
+
+
+        foreach ($crewMembersArray as $member) {
+            $timesheet = Timesheet::create([
+                'crew_id' => $crew->id,
+                'crew_type_id' => $crew->crew_type_id,
+                'user_id' => $member,
+                'clockin_time' => $clockin_time,
+                // 'job_id' => Job::where('job_number', '9-99-9998')->first()->id,
+                'job_id' => $travelTime->job_id,
+                // 'time_type_id' => ($type == 'arrive_for_job') ? NULL : $travelTime->time_type_id,
+                'time_type_id' => $time_type_id,
+                'created_by' => auth()->id(),
+                'modified_by' => auth()->id(),
+            ]);
+                
+        }
+
+        
+
     }
 }

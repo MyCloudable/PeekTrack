@@ -18,8 +18,10 @@
                    
                     <span class="nav-link-text ms-2 ps-1">{{ auth()->user()->name }}</span>
                 </a>
+				 
                 <div class="collapse" id="ProfileNav" style="">
                     <ul class="nav ">
+					@if ( auth()->user()->role_id < 6)
                         <li class="nav-item">
                             <a class="nav-link text-white " href="{{ route('user-profile') }}">
                                 <span class="sidenav-mini-icon"> P </span>
@@ -49,9 +51,11 @@
 							</a>
                         </li>   
 						@endif
+						@endif
                         <form method="POST" action="{{ route('logout') }}" class="d-none" id="logout-form">
                             @csrf
                         </form>
+						
                         <li class="nav-item">
                             <a class="nav-link text-white " href="{{ route('logout') }}"
                                 onclick="event.preventDefault();document.getElementById('logout-form').submit();">
@@ -61,9 +65,10 @@
                         </li>
                     </ul>
                 </div>
+				
             </li>
             <hr class="horizontal light mt-0">
-
+			@if ( auth()->user()->role_id < 6)
                         <li class="nav-item {{ $activeItem == 'dashboard' ? ' active ' : '' }}  ">
                             <a class="nav-link text-white {{ $activeItem == 'dashboard' ? ' active' : '' }}  "
                                 href="{{ route('dashboard') }}">
@@ -116,6 +121,6 @@
 								<span class="sidenav-normal  ms-2  ps-1"> <h5>Time</h5></span>
 							</a>
                         </li>
-                        
+                        @endif
                     </div>
 </aside>

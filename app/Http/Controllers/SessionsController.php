@@ -34,6 +34,25 @@ class SessionsController extends Controller
         return redirect('/dashboard');
 
     }
+	
+	    public function crewlogin()
+    {
+        $attributes = request()->validate([
+            'email' => 'required',
+            'password' => 'required'
+        ]);
+
+        if (! auth()->attempt($attributes)) {
+            throw ValidationException::withMessages([
+                'email' => 'Your provided credentials could not be verified.'
+            ]);
+        }
+
+        session()->regenerate();
+
+        return redirect('/crewmember');
+
+    }
 
     public function show(){
 
@@ -85,9 +104,14 @@ class SessionsController extends Controller
 
     public function destroy()
     {
-        auth()->logout();
-
+        $user_role = auth()->user()->role_id;
+		auth()->logout();
+		if($user_role == 6){
+		return redirect('/crew');	
+		}
+		else{
         return redirect('/sign-in');
+		}
     }
 
 }
