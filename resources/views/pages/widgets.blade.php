@@ -24,7 +24,9 @@
   <label>
     <input type="checkbox" class="radio" value="2" name="check" onclick="onlyOne(this)" />Material</label>
   <label>
-    <input type="checkbox" class="radio" value="3" name="check" onclick="onlyOne(this)"/>Equipment</label>&nbsp;&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp     Work Date:  <input type="text" name="daterange" value="01/01/2018 - 01/15/2018" /><br>
+    <input type="checkbox" class="radio" value="3" name="check" onclick="onlyOne(this)"/>Equipment</label>
+	<label>
+    <input type="checkbox" class="radio" value="4" name="check" onclick="onlyOne(this)"/>Payroll</label>&nbsp;&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp     Date Range:  <input type="text" name="daterange" value="01/01/2018 - 01/15/2018" /><br>
             <input type="submit" value="Export"/>
             </form>
 </div>
@@ -72,6 +74,7 @@ function onlyOne(checkbox) {
 $(function() {
   $('input[name="daterange"]').daterangepicker({
     opens: 'left',
+	startDate: new Date(),
     minDate: '01/01/2024'
   }, function(start, end, label) {
     console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));

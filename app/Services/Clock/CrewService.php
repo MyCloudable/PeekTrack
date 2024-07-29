@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Crew;
 use App\Models\User;
 use App\Models\CrewType;
+use Illuminate\Support\Facades\DB;
 
 class CrewService {
 
@@ -59,11 +60,11 @@ class CrewService {
 
     public function getUsers()
     {
-        return User::select('id', 'email', 'name', 'role_id')->get();
+        return User::select('id', 'email', 'name', 'role_id', DB::raw("name as text"))->get();
     }
     public function getCrewTypes()
     {
-        return CrewType::select('id', 'name', 'value')->get();
+        return CrewType::select('id', 'name', 'value', DB::raw("name as text"))->get();
     }
 
     private function mergeDataBeforeSaveUpdate(array $data, $isUpdate = false)

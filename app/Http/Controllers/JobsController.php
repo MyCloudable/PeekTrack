@@ -22,15 +22,35 @@ use Illuminate\Support\Str;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail; 
+use Yajra\DataTables\DataTables;
 
 class JobsController extends Controller
 {
 	
-    public function index()
+    public function index(Request $request)
     {
-        $jobs = Job::where('status', '=', 'In progress')->orderBy("completion_date", "asc")->get();
-		$branch = Branch::get();
-        return view("jobs.index", compact("jobs","branch"));
+        if($request->ajax()){
+            $jobs = Job::where('status', '=', 'In progress')
+            ->get();
+
+            return DataTables::of($jobs)
+            
+            ->addColumn('action', function($row) {
+                return '<a class="btn btn-warning" href="/jobs/'. $row->id . '/overview">Open</a>';
+            })
+
+            ->rawColumns(['action'])
+            
+            ->make(true);
+
+        }else{
+            $branchName = Branch::where('department', Auth::user()->location)->value('branch');
+            $branchName = ($branchName) ? preg_replace('/^\s+|\s+$/', '', $branchName) : '';
+            return view("jobs.index", compact("branchName"));
+        }
+        
+		
+        
     }
 	
 	public function globalreview()
@@ -101,19 +121,46 @@ class JobsController extends Controller
         return view("jobs.review", compact("jobentries"));
     }
 
-	public function history()
+	public function history(Request $request)
 	{
-		
-			$jobentries = \DB::table('jobentries')
+        if($request->ajax()){
+			$jobentries = DB::table('jobentries')
             ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
-			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name', 'jobentries.submitted','jobentries.submitted_on','jobentries.approved','jobentries.link', 'jobentries.workdate','jobentries.ApprovedBy')
-            ->orderBy("approved","desc")
-            ->orderBy("workdate","desc")
+			->select(
+                'jobs.job_number', 
+                'jobs.description',
+                'jobs.branch',
+                'jobentries.name', 
+                DB::raw("IF(jobentries.submitted = 1, 'Submitted', 'Not submitted') as submission_status"),
+                'jobentries.submitted_on',
+                DB::raw("CASE 
+                            WHEN jobentries.approved = 1 THEN 'Approved' 
+                            WHEN jobentries.approved = 2 THEN 'Rejected' 
+                            ELSE 'Pending' 
+                        END as approval_status"),
+                'jobentries.link', 
+                'jobentries.workdate',
+                DB::raw("CASE 
+                    WHEN jobentries.approved = 1 THEN jobentries.ApprovedBy 
+                    ELSE '' 
+                 END as approved_by")
+            )
             ->get();
-		
-		
 
-        return view("jobs.history", compact("jobentries"));
+            return DataTables::of($jobentries)
+            
+            ->addColumn('action', function($row) {
+                return '<a class="btn btn-warning" href="/jobs/'. $row->link . '/view">View</a>';
+            })
+
+            ->rawColumns(['action'])
+            
+            ->make(true);
+
+        }else{
+            return view("jobs.history");
+        }
+
 		
 	}
     public function jobreview($id)
@@ -911,6 +958,65 @@ where je.workdate between ? and ? and je.approved = 1 and e.hours > 0', [$date1,
             };
             return response()->stream($callback, 200, $headers);
             }
+			
+			if($request->check == 4){
+    $twoDates = $request->daterange;
+    $date1 = date('Y-m-d', strtotime(substr($twoDates, 0, 10)));
+    $date2 = date('Y-m-d', strtotime(substr($twoDates, 13, 21)));
+
+    try {
+        $equipment = \DB::select("select 
+            LEFT(t.clockout_time, 10) as timesheet_date,
+            t.user_id,
+            j.job_number,
+            tt.value,
+            '10' as blanka,
+            '0' as blankb,
+            TIMESTAMPDIFF(HOUR, t.clockin_time, t.clockout_time) AS hours,
+            '2' as employee_type,
+            t.user_id
+        from timesheets t
+        join jobs j on t.job_id = j.id
+        join time_types tt on t.time_type_id = tt.id
+        where payroll_approval = 1 and t.clockout_time between ? and ?", [$date1, $date2]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+
+    $csvFileName = 'payroll' . $date1 . '-' . $date2 . '.txt';
+
+    $headers = [
+        'Content-Type' => 'text/csv',
+        'Content-Description' => 'File Transfer',
+        'Cache-Control' => 'public',
+        'Content-Disposition' => 'attachment; filename="' . $date1 . '-' . $date2 . '-' . $csvFileName . '"',
+    ];
+
+    $callback = function() use ($equipment) {
+        $handle = fopen('php://output', 'w');
+
+        foreach ($equipment as $product) {
+            fputcsv($handle, [
+                $product->clockout_time ?? '', 
+                $product->user_id ?? '',
+                $product->job_number ?? '', 
+                $product->value ?? '', 
+                '10',
+				'0',
+				$product->hours ?? '',
+				'',
+				'',
+				'2',
+				$product->user_id ?? ''
+            ]); // Add more fields as needed
+        }
+
+        fclose($handle);
+    };
+
+    return response()->stream($callback, 200, $headers);
+}
+
 			
         
         }

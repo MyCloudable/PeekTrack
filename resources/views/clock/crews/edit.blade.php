@@ -6,7 +6,7 @@
          <div class="row">
             <div class="col-md-12">
                 <div class="card-body pt-0">
-                    <form method="POST" action="{{ route('crews.update', $crew) }}">
+                    {{-- <form method="POST" action="{{ route('crews.update', $crew) }}">
                         @csrf
                         @method('PUT')
 
@@ -58,7 +58,8 @@
                         @error('crew_members')
                         <p class='text-danger inputerror'>{{ $message }} </p>
                         @enderror
-                    </form>
+                    </form> --}}
+                    <crewedit :users="{{$data['users']}}" :crew-types="{{$data['crewTypes']}}" :crew="{{$crew}}" />
                 </div>
             </div>
          </div>

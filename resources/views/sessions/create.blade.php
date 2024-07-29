@@ -64,6 +64,10 @@
                                         <a href="{{ route('verify') }}"
                                             class="text-warning text-gradient font-weight-bold">here</a>
                                     </p>
+									<p class="text-sm text-center mt-3">
+                                        
+                                        <button type="button" class="btn bg-gradient-warning my-4 mb-2"><a href="https://dev.peektrack.com/crew">Crew Portal</a></button>
+                                    </p>
                                 </form>
                             </div>
                         </div>

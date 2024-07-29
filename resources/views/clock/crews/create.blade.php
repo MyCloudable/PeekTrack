@@ -7,7 +7,7 @@
          <div class="row">
             <div class="col-md-12">
                 <div class="card-body pt-0">
-                    <form method="POST" action="{{ route('crews.store') }}">
+                    {{-- <form method="POST" action="{{ route('crews.store') }}">
                         @csrf
 
                         <div class="input-group input-group-outline mt-4"> 
@@ -53,7 +53,9 @@
                         <p class='text-danger inputerror'>{{ $message }} </p>
                         @enderror
 
-                    </form>
+                    </form> --}}
+                   
+                    <crewcreate :users="{{$data['users']}}" :crew-types="{{$data['crewTypes']}}" />
                 </div>
             </div>
          </div>

@@ -30,7 +30,11 @@ class CrewsController extends Controller
     public function store(StoreCrewRequest $request)
     {   
         $this->crewService->store($request->validated());
-        return redirect()->route('crews.index')->with('message',"Crew has been created successfully");
+
+        return response()->json(['success' => true, 
+        'message' => 'Crew has been created successfully',
+        'redirect' => route('crews.index'),
+        200]);
     }
 
     public function show(Crew $crew)
@@ -47,7 +51,12 @@ class CrewsController extends Controller
     public function update(StoreCrewRequest $request, Crew $crew)
     {   
         $this->crewService->update($request->validated(), $crew);
-        return redirect()->route('crews.index')->with('message',"Crew has been updated successfully");
+        // return redirect()->route('crews.index')->with('message',"Crew has been updated successfully");
+
+        return response()->json(['success' => true, 
+        'message' => 'Crew has been updated successfully',
+        'redirect' => route('crews.index'),
+        200]);
     }
     
     public function destroy(Crew $crew)

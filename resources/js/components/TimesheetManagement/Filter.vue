@@ -47,7 +47,7 @@
 
 
     <div class="col-md-12">
-        <button class="btn btn-primary btn-md mt-4" @click="$emit('filter', filterData)">Submit</button>
+        <button class="btn btn-warning btn-md mt-4" @click="$emit('filter', filterData)">Submit</button>
         <button class="btn btn-danger btn-md mt-4 ms-3" @click="filterData = {};$emit('filter', filterData)">Clear</button>
     </div>
 

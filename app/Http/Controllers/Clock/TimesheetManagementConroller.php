@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Services\Clock\TimesheetService;
 use Illuminate\Validation\ValidationException;
 
 class TimesheetManagementConroller extends Controller
@@ -72,16 +73,20 @@ class TimesheetManagementConroller extends Controller
                     ->join('crews', 'timesheets.crew_id', '=', 'crews.id')
                     ->join('users as superintendents', 'crews.superintendentId', '=', 'superintendents.id')
                     ->join('jobs', 'timesheets.job_id', '=', 'jobs.id')
-                    // ->join('crew_types', 'timesheets.crew_type_id', '=', 'crew_types.id')
                     ->leftJoin('time_types', 'timesheets.time_type_id', '=', 'time_types.id')
-                    ->select('timesheets.*', DB::raw("TIMESTAMPDIFF(minute,clockin_time,clockout_time) as total_time"),
-                    'crewmembers.name as crewmember_name', 'crewmembers.location as crewmember_location',
-                    // 'jobs.job_number',
-                    DB::raw("CONCAT(jobs.job_number,' ',jobs.county) as job_number_county"), 
-                    'superintendents.id', 'superintendents.name as superintendent_name', 'superintendents.location as superintendent_location',
-                    // 'crew_types.name as crew_type_name',
-                    'time_types.name as time_type_name',
-                    'timesheets.id as timesheet_id' 
+                    ->select(
+                        'timesheets.*',
+                        DB::raw("DATE_FORMAT(clockin_time, '%Y-%m-%d %H:%i') as clockin_time"), 
+                        DB::raw("DATE_FORMAT(clockout_time, '%Y-%m-%d %H:%i') as clockout_time"), 
+                        DB::raw("TIMESTAMPDIFF(minute,clockin_time,clockout_time) as total_time"),
+                        'crewmembers.name as crewmember_name', 
+                        'crewmembers.location as crewmember_location',
+                        DB::raw("CONCAT(jobs.job_number,' ',jobs.county) as job_number_county"), 
+                        'superintendents.id', 
+                        'superintendents.name as superintendent_name', 
+                        'superintendents.location as superintendent_location',
+                        'time_types.name as time_type_name',
+                        'timesheets.id as timesheet_id' 
                     );
 
         if(is_array($request->filterData)){
@@ -258,6 +263,9 @@ class TimesheetManagementConroller extends Controller
             // }
 
 
+            // validate clockin and clockout
+            (new TimesheetService())->validateClockInOut($request->clockin_time, $request->clockout_time);
+
             // Validate overlap using custom method
             $this->validateTimesheetOverlap(
                 $timesheet->user_id,
@@ -289,7 +297,7 @@ class TimesheetManagementConroller extends Controller
         $timesheet = Timesheet::findOrFail($id);
 
         // Add your role checks here
-        if (($user->role_id == 5 || $user->role_id == 3 || $user->role_id == 5) && !$timesheet->payroll_approval) {
+        if (($user->role_id == 2 || $user->role_id == 3 || $user->role_id == 5) && !$timesheet->payroll_approval) {
             $timesheet->delete();
             return response()->json(['success' => true, 'message' => 'Timesheet deleted successfully', 200]);
         }else{
@@ -299,12 +307,16 @@ class TimesheetManagementConroller extends Controller
 
     public function storeTimesheet(Request $request)
     {
+
         try {
 
             $data = $request->formData;
             $data['crew_id'] = Crew::where('superintendentId', $data['superintendentId'])->value('id'); //get crew id from superintendent id
             $data['created_by'] = Auth::user()->id;
             $data['modified_by'] = Auth::user()->id;
+
+            // validate clockin and clockout
+            (new TimesheetService())->validateClockInOut($data['clockin_time'], $data['clockout_time']);
 
             // Validate overlap using custom method
             $this->validateTimesheetOverlap(
@@ -323,7 +335,6 @@ class TimesheetManagementConroller extends Controller
 
     private function validateTimesheetOverlap($user_id, $clockin_time, $clockout_time, $exclude_id = null)
     {
-        // dd($user_id);
 
         try {
             $query = Timesheet::where('user_id', $user_id)

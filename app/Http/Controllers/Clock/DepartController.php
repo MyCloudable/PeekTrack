@@ -21,6 +21,7 @@ class DepartController extends Controller
 
     public function trackTravelTime(Request $request)
     {
-        return response()->json($this->departService->trackTravelTime($request->all()), 200);
+            return response()->json($this->departService->trackTravelTime($request->all()), 200);
+        
     }
 }

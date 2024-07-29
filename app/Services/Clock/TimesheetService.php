@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\Clock\CrewService;
 use Illuminate\Support\Facades\Log;
 use App\Services\Clock\DepartService;
+use Illuminate\Validation\ValidationException;
 
 class TimesheetService {
     
@@ -229,16 +230,20 @@ class TimesheetService {
 
     private function menualClock($data)
     {
-        $timesheet = Timesheet::where('id', $data['timesheetId'])->first();
-
-        if($data['type'] == 'clockin')
-            $timesheet->clockin_time = $data['time'];
-        
-
-        if($data['type'] == 'clockout')
-            $timesheet->clockout_time = $data['time'];
-        
-        $timesheet->save();
+            $timesheet = Timesheet::where('id', $data['timesheetId'])->first();
+    
+            if($data['type'] == 'clockin'){
+                $timesheet->clockin_time = $data['time'];
+                $this->validateClockInOut($data['time'], $timesheet->clockout_time);
+            }
+            
+    
+            if($data['type'] == 'clockout'){
+                $timesheet->clockout_time = $data['time'];
+                $this->validateClockInOut($timesheet->clockin_time, $data['time']);
+            }
+            
+            $timesheet->save();
     }
 
     public function getAllUsers()
@@ -254,6 +259,9 @@ class TimesheetService {
         ->where('created_at', '>=', $crew->last_verified_date)->first();
 
         if(!$isAlreadyClockedin){ // only create crew member and clock in if its not clocked in
+
+            $this->validateClockInOut($data['createNewCrewForm']['clockin_time'], null);
+
             $crewMembers = $this->getCrewMembersArray($crew->crew_members, $data['createNewCrewForm']['crew_member_id']);;
             $crew->crew_members = $crewMembers;
             $crew->save();
@@ -463,5 +471,42 @@ class TimesheetService {
         } catch(\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function validateClockInOut($clockin, $clockout)
+    {
+        // Parse dates if they are not null
+        $clockin = $clockin ? Carbon::parse($clockin) : null;
+        $clockout = $clockout ? Carbon::parse($clockout) : null;
+        $now = Carbon::now();
+
+        // If both clockin and clockout are provided, validate them
+        if ($clockin && $clockout) {
+            // Validate that clockout is not less than clockin
+            if ($clockout->lessThan($clockin)) {
+                // dd('1');
+                throw ValidationException::withMessages([
+                    'clockout' => 'Clockout time should not be less than Clockin time.',
+                ]);
+            }
+
+            // Validate that clockin is not greater than clockout
+            if ($clockin->greaterThan($clockout)) {
+                throw ValidationException::withMessages([
+                    'clockin' => 'Clockin time should not be greater than Clockout time.',
+                ]);
+            }
+        }
+
+        // Validate that clockin is not greater than current time
+        if ($clockin && $now->lessThan($clockin)) {
+            throw ValidationException::withMessages([
+                'clockin' => 'Clockin time should not be greater than the current time.',
+            ]);
+        }
+
+        // If no validation errors, return true or perform further actions
+        return true;
+
     }
 }

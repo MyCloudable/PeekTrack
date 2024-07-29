@@ -1,8 +1,14 @@
 require('./bootstrap');
 
 import { createApp } from 'vue'
+
 import Clockin from './components/Clockin.vue'
 import TimesheetIndex from './components/TimesheetManagement/TimesheetIndex.vue'
+import CrewCreate from './components/CrewsManagement/Create.vue'
+import CrewEdit from './components/CrewsManagement/Edit.vue'
+import JobHistory from './components/Jobs/History.vue'
+import JobIndex from './components/Jobs/Index.vue'
+
 
 import Select2 from 'vue3-select2-component';
 
@@ -16,6 +22,10 @@ const app = createApp({})
 app.component('clockin', Clockin)
 app.component('timesheet', TimesheetIndex)
 app.component('Select2', Select2)
+app.component('crewcreate', CrewCreate)
+app.component('crewedit', CrewEdit)
+app.component('jobhistory', JobHistory)
+app.component('jobindex', JobIndex)
 
 
 

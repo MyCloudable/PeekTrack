@@ -3,7 +3,7 @@
     <a href="javascript:;" class="nav-link text-body p-0" data-bs-toggle="modal" data-bs-target="#clockin"
         @click="getCrewMembers" v-if="iconVisible">
         <span class="sidenav-normal  ms-2  ps-1">
-            <h5> <i class="fas fa-business-time"></i> </h5>
+            <h2> <i class="fas fa-business-time"></i> </h2>
         </span>
     </a>
 
@@ -37,6 +37,7 @@
                     <div class="row actions mt-3 mb-3">
                         <div class="col-md-8">
                             <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime"
+                                :key="departKey"
                                 @track-time-done="trackTimeDone" />
 
                             <button type="button" class="btn btn-secondary p-3" @click="weatherEntry"
@@ -107,16 +108,17 @@
                                     <td></td>
                                 </tr>
 
-                                <tr v-if="allUsers.length > 0">
+                                <tr v-if="allUsers.length > 0" ref="departWrapper">
                                     <td>
                                         <div class="input-group input-group-outline">
-                                            <select class="form-control clr-light"
+                                            <!-- <select class="form-control clr-light"
                                                 v-model="createNewCrewForm[0].crew_member_id">
                                                 <option value="">Select superintendent</option>
                                                 <option v-for="(user, index) in allUsers" :key="user.id"
                                                     :value="user.id">{{ user.name }}
                                                 </option>
-                                            </select>
+                                            </select> -->
+                                            <Select2 v-model="createNewCrewForm[0].crew_member_id" :options="allUsers" :settings="select2Settings" />
                                         </div>
                                     </td>
                                     <td>
@@ -217,11 +219,22 @@
 <script setup>
 import axios from 'axios';
 import { ref, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
+
+import { useToast } from "vue-toastification"
+
 import AddCrewMember from './AddCrewMember'
 import DeleteCrewMember from './DeleteCrewMember'
 import HalfFullPerDiem from './HalfFullPerDiem'
 import TimeConvert from '../composables/TimeConvert'
 import Depart from './Depart'
+
+const toast = useToast();
+
+const departWrapper = ref(null)
+let select2Settings = ref({
+    'width': '250px',
+    'dropdownParent': departWrapper,
+})
 
 let now = ref('')
 
@@ -254,6 +267,8 @@ let status = ref('')
 
 let crewTypes = ref([])
 let crewTypeId = ref('')
+
+let departKey = ref(0)
 
 onMounted(() => {
     window.addEventListener('scroll', handleScroll)
@@ -306,6 +321,8 @@ const getCrewMembers = () => {
                 allPerDiemTimesheetIds.value.push(time.id)
             })
 
+            departKey.value++ //this will causes Vue to recreate the depart component
+
         })
         .catch(err => console.log(err))
 }
@@ -337,13 +354,21 @@ const verifyTeam = () => {
 }
 
 const clockinout = (type) => {
-    axios.post('/clockinout-crew-members', {
-        'crewId': crewId.value,
-        'type': type,
-        'isMenual': false,
-    })
+    
+        console.log('Attempting to send request...');
+        const response = axios.post('/clockinout-crew-members', {
+            'crewId': crewId.value,
+            'type': type,
+            'isMenual': false,
+        })
         .then(res => getCrewMembers())
-        .catch(err => console.log(err))
+        .catch(error => {
+            console.log('bs kr')
+            let errorMessage = error.response.data.message
+            errorMessage ? toast.error(errorMessage) : 'Something went wrong'
+        })
+    
+    
 }
 
 const enableMenualClock = (id) => {
@@ -378,13 +403,21 @@ const menualClockinout = (event, timesheetId, type) => {
         'time': event.target.value
     })
         .then(res => getCrewMembers())
-        .catch(err => console.log(err))
+        .catch(error => {
+            let errorMessage = error.response.data.message
+            errorMessage ? toast.error(errorMessage) : 'Something went wrong'
+        })
 }
 
 
 // add new crew member
 const GetAllUsers = (users) => {
-    allUsers.value = users
+    // allUsers.value = users
+
+    users.map(user => {
+    (user.role_id == 6) ? allUsers.value.push(user) : ''; // if crew member
+  })
+
     createNewCrewForm.value[0].clockin_time = now.value
 }
 const addNewCrew = () => {
@@ -396,7 +429,10 @@ const addNewCrew = () => {
             allUsers.value = []
             getCrewMembers()
         })
-        .catch(err => console.log(err))
+        .catch(error => {
+            let errorMessage = error.response.data.message
+            errorMessage ? toast.error(errorMessage) : 'Something went wrong'
+        })
 }
 
 const crewMemberDeleted = () => getCrewMembers()

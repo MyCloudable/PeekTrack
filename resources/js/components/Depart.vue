@@ -14,7 +14,7 @@
             <div class="text-dark">
                 <Select2 v-model="departForm.jobId" :options="jobs" :settings="select2Settings" class="foo-bar" />
             </div>
-            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Depart</button>
+            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart(true)">Depart</button>
         </div>
 
         <div class="d-flex align-items-center"
@@ -33,7 +33,9 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue'
+
+import { useToast } from "vue-toastification"
 
 const props = defineProps({
     crewId: Number,
@@ -41,6 +43,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['track-time-done'])
+
+const toast = useToast()
 
 const departWrapper = ref(null)
 let select2Settings = ref({
@@ -72,7 +76,16 @@ const getAllJobs = () => {
         .catch(err => console.log(err))
 }
 
-const depart = () => {
+const depart = (eventOrValidation = false) => {
+
+     // Determine if we should validate the job ID
+     const shouldValidateJobId = eventOrValidation === true;
+
+    // job id should be required
+    if(shouldValidateJobId && departForm.value.jobId == ''){
+        toast.error('Please select the job first')
+        return
+    }
 
     setType()
 

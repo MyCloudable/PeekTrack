@@ -27,7 +27,10 @@
         <label for="">Time type</label>
         <Select2 :options="props.timetypes" v-model="formData.time_type_id" required />
       </div>
-      <div class="col-md-2"></div>
+      <div class="col-md-2">
+        <label for="">Per diem</label>
+        <Select2 :options="diem" v-model="formData.per_diem" required />
+      </div>
       <div class="col-md-2 mt-2">
         <label for="">Clock in</label>
         <input type="datetime-local" class="form-control bg-white" v-model="formData.clockin_time" required>
@@ -72,6 +75,8 @@ let showForm = ref(false)
 let crewMembers = ref([])
 let timetypes = ref([])
 
+let diem = ref([{id: 'h', text: 'h'}, {id: 'f', text: 'f'}])
+
 const formData = ref({
 });
 
@@ -109,7 +114,7 @@ const back = () => {
 onMounted(() => {
   props.users.map(user => {
     // (user.role_id == 3) ? superIntendents.value.push(user) : '';
-    (user.role_id == 6) ? crewMembers.value.push(user) : '';
+    (user.role_id == 6 || user.role_id == 3) ? crewMembers.value.push(user) : '';
 
   })
 })

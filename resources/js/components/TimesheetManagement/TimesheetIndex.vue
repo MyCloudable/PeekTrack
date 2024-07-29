@@ -18,8 +18,9 @@
 
     <div class="row mt-5">
         <div class="col-md-12">
-            <!-- <DataTable :options="tableOptions" ref="dataTableRef" @change="handleCheckboxChange" /> -->
             <DataTable :options="tableOptions" ref="dataTableRef" />
+
+            <span id="totalTimeFooter">Total time: {{ totalTimeFooter }}</span>
         </div>
     </div>
 
@@ -35,11 +36,7 @@ import TimeConvert from '../../composables/TimeConvert'
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net-bs5';
 
-// import toast from '../../plugins/toast' // Import toast instance
-
 import { useToast } from "vue-toastification";
-
-// import Select2 from 'vue3-select2-component'; // Ensure this is correctly imported
 
 
 import { createApp } from 'vue';
@@ -65,6 +62,10 @@ const dataTableRef = ref(null)
 const editingRows = reactive(new Set())
 
 const selectAllPayrollApproval = ref(false)
+
+const totalTimeFooter = ref('')
+
+
 
 const handleSelectAllPayrollApproval = async (event) => {
     const checkbox = event.target
@@ -152,8 +153,8 @@ const tableOptions = ref({
     },
 
     columns: [
-        { data: 'timesheet_id', title: 'Test id' },
-        { data: 'crewmember_name', title: 'Crew member' },
+        { data: 'timesheet_id', title: 'Time Id' },
+        { data: 'crewmember_name', title: 'Crew Member' },
         { data: 'superintendent_name', title: 'Superintendent' },
 
         {
@@ -170,9 +171,6 @@ const tableOptions = ref({
                 return data;
             }
         },
-
-        // { data: 'job_number_county', title: 'Job Number(County)', render: renderJobSelect },
-        // { data: 'job_number_county', title: 'Job Number(County)', render: renderJobColumn },
 
         {
             data: 'time_type_name',
@@ -208,10 +206,6 @@ const tableOptions = ref({
             }
         },
 
-
-
-        // { data: 'crew_type_name', title: 'Crew type Name' },
-        // { data: 'per_diem', title: 'Per Diem' },
         {
             data: 'total_time',
             title: 'Total',
@@ -311,14 +305,32 @@ const tableOptions = ref({
 
 
 
-                    // Default to false if any approval is done by CMA
-                    if (isCmaApproved) {
-                        return isReviewer || isPayrollAdmin;
+                    // // Default to false if any approval is done by CMA
+                    // if (isCmaApproved) {
+                    //     return isReviewer || isPayrollAdmin;
+                    // }
+
+                    // // Allow editing if no approvals and user is Superintendent, Reviewer, or Payroll Admin
+                    // return !isCmaApproved && !isReviewerApproved && !isPayrollApproved &&
+                    //     (isSuperintendent || isReviewer || isPayrollAdmin);
+
+
+                    if(isCmaApproved){ // only reviewer and payroll admin can interact
+                        if((isReviewer || isPayrollAdmin) && (!isReviewerApproved && !isPayrollApproved)){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }else{ // all users, superintendent , reviewer and payroll admin can interact
+                        if((isSuperintendent || isReviewer || isPayrollAdmin) && (!isReviewerApproved && !isPayrollApproved)){
+                            return true
+                        }else{
+                            return false
+                        }
                     }
 
-                    // Allow editing if no approvals and user is Superintendent, Reviewer, or Payroll Admin
-                    return !isCmaApproved && !isReviewerApproved && !isPayrollApproved &&
-                        (isSuperintendent || isReviewer || isPayrollAdmin);
+
+
                 };
 
                 // Determine if the pencil icon should be shown based on edit permissions
@@ -334,14 +346,19 @@ const tableOptions = ref({
                     actionButtons += `<i class="fa fa-times disabled-icon" aria-hidden="true"></i>`;
                 }
 
-                if (showTrashIcon) {
+                // if (showTrashIcon) {
+                if (showPencilIcon) {
                     actionButtons += `<i class="fa fa-trash cursor-pointer delete-icon" data-id="${row.timesheet_id}" aria-hidden="true" style="margin-left: 10px;"></i>`;
                 }
 
                 return actionButtons;
             }
         },
-    ]
+    ],
+    footerCallback: function (tfoot, data, start, end, display) {
+        totalTimeFooter.value = TimeConvert(data.reduce((acc, row) => acc + parseFloat(row.total_time), 0)) // Calculate total_time sum
+    },
+
 });
 
 
@@ -481,6 +498,7 @@ onMounted(async () => {
 
 });
 
+
 </script>
 
 <style>
@@ -504,30 +522,4 @@ body.dark-version table.dataTable tbody tr:nth-child(even) {
     /* Darker shade for dark theme */
 }
 
-/* table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order, table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order, table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order, table.dataTable thead > tr > td.dt-orderable-asc span.dt-column-order, table.dataTable thead > tr > td.dt-orderable-desc span.dt-column-order, table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order, table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order {
-    position: absolute;
-    right: 12px;
-    top: 0;
-    bottom: 0;
-    width: 12px;
-}
-
-table.dataTable thead > tr > th.dt-orderable-asc, table.dataTable thead > tr > th.dt-orderable-desc, table.dataTable thead > tr > td.dt-orderable-asc, table.dataTable thead > tr > td.dt-orderable-desc {
-    cursor: pointer;
-}
-
-table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:after, table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:before, table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:after, table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:after, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after, table.dataTable thead > tr > td.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > tr > td.dt-orderable-asc span.dt-column-order:after, table.dataTable thead > tr > td.dt-orderable-desc span.dt-column-order:before, table.dataTable thead > tr > td.dt-orderable-desc span.dt-column-order:after, table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:after, table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:before, table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:after {
-    left: 0;
-    opacity: 0.125;
-    line-height: 9px;
-    font-size: 0.8em;
-}
-
-table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > td.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before {
-    position: absolute;
-    display: block;
-    bottom: 50%;
-    content: "▲";
-    content: "▲" / "";
-} */
 </style>
