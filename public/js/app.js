@@ -22453,7 +22453,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       }, {
         data: 'payroll_approval',
         title: '<input type="checkbox" class="form-check-input" id="select-all-payroll-approval" data-type="payroll_approval" /> PA',
-        orderable: true,
+        orderable: false,
         render: function render(data, type, row) {
           return "<input type=\"checkbox\" class=\"form-check-input payroll-approval-checkbox\" data-id=\"".concat(row.timesheet_id, "\" data-type=\"payroll_approval\" ").concat(data ? 'checked' : '', " ").concat(props.authuser.role_id == 5 ? '' : 'disabled', " />");
         }
@@ -22653,19 +22653,20 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
               if (response.data.success) {
                 if (dataTableRef.value && dataTableRef.value.dt) {
                   console.log('13');
-                  // dataTableRef.value.dt.ajax.reload(null, false)
-                  dataTableRef.value.reload();
+                  dataTableRef.value.dt.ajax.reload(null, false);
+                  // dataTableRef.value.reload()
                 }
-                // this.$toast.success('Approval status updated successfully')
+                _this.$toast.success('Approval status updated successfully');
               } else {
-                // this.$toast.error('Failed to update approval status')
+                _this.$toast.error('Failed to update approval status');
               }
-              _context2.next = 16;
+              _context2.next = 17;
               break;
             case 14:
               _context2.prev = 14;
               _context2.t0 = _context2["catch"](7);
-            case 16:
+              _this.$toast.error('An error occurred while updating approval status');
+            case 17:
             case "end":
               return _context2.stop();
           }

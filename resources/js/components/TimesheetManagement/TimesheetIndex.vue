@@ -205,7 +205,7 @@ const tableOptions = ref({
         {
             data: 'payroll_approval',
             title: '<input type="checkbox" class="form-check-input" id="select-all-payroll-approval" data-type="payroll_approval" /> PA',
-            orderable: true,
+            orderable: false,
             render: function (data, type, row) {
                 return `<input type="checkbox" class="form-check-input payroll-approval-checkbox" data-id="${row.timesheet_id}" data-type="payroll_approval" ${data ? 'checked' : ''} ${props.authuser.role_id == 5 ? '' : 'disabled'} />`
             }
@@ -370,6 +370,7 @@ const handleCheckboxChange = async (event) => {
 
 const handleSelectAllPayrollApproval = async (event) => {
     console.log('handleSelectAllPayrollApproval')
+    
     const checkbox = event.target
     const checkboxes = document.querySelectorAll('.payroll-approval-checkbox')
     const selectedIds = []
@@ -396,15 +397,15 @@ const handleSelectAllPayrollApproval = async (event) => {
         if (response.data.success) {
             if (dataTableRef.value && dataTableRef.value.dt) {
                 console.log('13')
-                // dataTableRef.value.dt.ajax.reload(null, false)
-                dataTableRef.value.reload()
+                dataTableRef.value.dt.ajax.reload(null, false)
+                // dataTableRef.value.reload()
             }
-            // this.$toast.success('Approval status updated successfully')
+             this.$toast.success('Approval status updated successfully')
         } else {
-            // this.$toast.error('Failed to update approval status')
+             this.$toast.error('Failed to update approval status')
         }
     } catch (error) {
-        // this.$toast.error('An error occurred while updating approval status')
+         this.$toast.error('An error occurred while updating approval status')
     }
 }
 
