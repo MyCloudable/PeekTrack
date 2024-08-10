@@ -32,7 +32,7 @@
             <h6 class="font-weight-bolder mb-0">{{ $pageTitle }}</h6>
         </nav>
         <div class="sidenav-toggler sidenav-toggler-inner d-xl-block d-none ">
-            <a href="javascript:;" class="nav-link text-body p-0">
+            <a href="javascript:;" class="nav-link text-body p-0 custom-toggler-class">
                 <div class="sidenav-toggler-inner">
                     <i class="sidenav-toggler-line"></i>
                     <i class="sidenav-toggler-line"></i>
@@ -46,7 +46,7 @@
                           </div>
             <ul class="navbar-nav  align-items-center">
 			<li class="nav-item d-xl-none ps-3 d-flex align-items-center">
-                    <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+                    <a href="javascript:;" class="nav-link text-body p-0 custom-toggler-class" id="iconNavbarSidenav">
                         <div class="sidenav-toggler-inner">
                             <i class="sidenav-toggler-line"></i>
                             <i class="sidenav-toggler-line"></i>

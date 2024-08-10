@@ -17,9 +17,11 @@
         "vue-loader": "^16.8.3"
     },
     "dependencies": {
+        "@vuepic/vue-datepicker": "^9.0.1",
         "datatables.net-bs5": "^2.0.8",
         "datatables.net-dt": "^2.0.8",
         "datatables.net-vue3": "^3.0.1",
+        "date-fns": "^3.6.0",
         "pinia": "^2.1.7",
         "signature_pad": "^4.1.7",
         "vue": "^3.4.27",

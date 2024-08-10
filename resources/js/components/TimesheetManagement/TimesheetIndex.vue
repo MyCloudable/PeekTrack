@@ -6,7 +6,7 @@
                 <div class="card-title">Create Timesheet</div>
                 <timesheet-form :users="props.users" :jobs="props.jobs" :timetypes="props.timetypes"
                     :crewtypes="props.crewtypes" :uniqueSuperintendents="props.uniqueSuperintendents"
-                    @create-timesheet="TimesheetCreated" />
+                    @create-timesheet="TimesheetCreated" :authuser="authuser" />
             </div>
         </div>
     </div>
@@ -67,44 +67,6 @@ const totalTimeFooter = ref('')
 
 
 
-const handleSelectAllPayrollApproval = async (event) => {
-    const checkbox = event.target
-    const checkboxes = document.querySelectorAll('.payroll-approval-checkbox')
-    const selectedIds = []
-
-    selectAllPayrollApproval.value = checkbox.checked
-    const type = checkbox.dataset.type
-
-    checkboxes.forEach(checkbox => {
-        if (!checkbox.disabled) { // Check if the checkbox is not disabled
-            checkbox.checked = selectAllPayrollApproval.value
-            selectedIds.push({
-                id: checkbox.dataset.id,
-            })
-        }
-    })
-
-    try {
-        const response = await axios.post('/timesheet-management/update-checkbox-approval-bulk', {
-            selectedIds: selectedIds,
-            approved: selectAllPayrollApproval.value,
-            type: type
-        })
-
-        if (response.data.success) {
-            if (dataTableRef.value && dataTableRef.value.dt) {
-                dataTableRef.value.dt.ajax.reload(null, false)
-            }
-            this.$toast.success('Approval status updated successfully')
-        } else {
-            this.$toast.error('Failed to update approval status')
-        }
-    } catch (error) {
-        this.$toast.error('An error occurred while updating approval status')
-    }
-}
-
-
 const tableOptions = ref({
     processing: true,
     serverSide: true,
@@ -126,6 +88,7 @@ const tableOptions = ref({
             console.error('Ajax error:', error);
         },
         complete: function (response) {
+            console.log('complete function')
             // Optionally, handle after AJAX request completion
             nextTick(() => {
 
@@ -368,12 +331,14 @@ const handleFilter = (filter) => {
     console.log(filterData.value)
 
     if (dataTableRef.value && dataTableRef.value.dt) {
+        console.log('11')
         dataTableRef.value.dt.ajax.reload(); // Trigger DataTable reload
     }
 };
 
 
 const handleCheckboxChange = async (event) => {
+    console.log('handleCheckboxChange')
     const checkbox = event.target
     if (checkbox.classList.contains('form-check-input')) {
         const id = checkbox.dataset.id
@@ -389,6 +354,7 @@ const handleCheckboxChange = async (event) => {
 
             if (response.data.success) {
                 if (dataTableRef.value && dataTableRef.value.dt) {
+                    console.log('12')
                     dataTableRef.value.dt.ajax.reload(null, false) // Reload table data without resetting pagination
                 }
                 this.$toast.success('Approval status updated successfully')
@@ -401,6 +367,48 @@ const handleCheckboxChange = async (event) => {
     }
 }
 
+
+const handleSelectAllPayrollApproval = async (event) => {
+    console.log('handleSelectAllPayrollApproval')
+    const checkbox = event.target
+    const checkboxes = document.querySelectorAll('.payroll-approval-checkbox')
+    const selectedIds = []
+
+    selectAllPayrollApproval.value = checkbox.checked
+    const type = checkbox.dataset.type
+
+    checkboxes.forEach(checkbox => {
+        if (!checkbox.disabled) { // Check if the checkbox is not disabled
+            checkbox.checked = selectAllPayrollApproval.value
+            selectedIds.push({
+                id: checkbox.dataset.id,
+            })
+        }
+    })
+
+    try {
+        const response = await axios.post('/timesheet-management/update-checkbox-approval-bulk', {
+            selectedIds: selectedIds,
+            approved: selectAllPayrollApproval.value,
+            type: type
+        })
+
+        if (response.data.success) {
+            if (dataTableRef.value && dataTableRef.value.dt) {
+                console.log('13')
+                // dataTableRef.value.dt.ajax.reload(null, false)
+                dataTableRef.value.reload()
+            }
+            // this.$toast.success('Approval status updated successfully')
+        } else {
+            // this.$toast.error('Failed to update approval status')
+        }
+    } catch (error) {
+        // this.$toast.error('An error occurred while updating approval status')
+    }
+}
+
+
 const handleEditClick = (event) => {
 
     const id = event.target.getAttribute('data-id')
@@ -411,6 +419,7 @@ const handleEditClick = (event) => {
         editingRows.add(parseInt(id))
     }
     if (dataTableRef.value && dataTableRef.value.dt) {
+        console.log('14')
         dataTableRef.value.dt.ajax.reload(null, false)
     }
 }
@@ -439,6 +448,7 @@ const saveRow = async (id) => {
 
         if (response.data.success) {
             if (dataTableRef.value && dataTableRef.value.dt) {
+                console.log('15')
                 dataTableRef.value.dt.ajax.reload(null, false); // Reload table data without resetting pagination
             }
             this.$toast.success('Timesheet entry updated successfully')
@@ -463,6 +473,7 @@ const handleDeleteClick = async (event) => {
 
             if (response.data.success) {
                 if (dataTableRef.value && dataTableRef.value.dt) {
+                    console.log('16')
                     dataTableRef.value.dt.ajax.reload(null, false);
                 }
                 toast.success('Timesheet entry deleted successfully')
@@ -481,6 +492,7 @@ const handleDeleteClick = async (event) => {
 const TimesheetCreated = () => {
     console.log('coming here')
     if (dataTableRef.value && dataTableRef.value.dt) {
+        console.log('17')
         dataTableRef.value.dt.ajax.reload(null, false);
     }
 }
@@ -491,6 +503,7 @@ const TimesheetCreated = () => {
 onMounted(async () => {
 
     try {
+        console.log('18')
         dataTableRef.value = new DataTable(dataTableRef.value.$el, tableOptions.value);
     } catch (error) {
         console.error('Error initializing DataTable:', error);

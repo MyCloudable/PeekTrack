@@ -21,7 +21,7 @@
   <link href="{{ asset('assets') }}/css/nucleo-icons.css" rel="stylesheet" />
   <link href="{{ asset('assets') }}/css/nucleo-svg.css" rel="stylesheet" />
   <!-- Font Awesome Icons -->
-  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/8b8836597a.js"  crossorigin="anonymous"></script>
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <!-- CSS Files -->
@@ -64,7 +64,11 @@
 <!-- Github buttons -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-<script src="{{ asset('assets') }}/js/material-dashboard.min.js?v=3.0.1"></script>
+
+{{-- comment this min js file and load js for now  , for testing menubar toggler --}}
+{{-- <script src="{{ asset('assets') }}/js/material-dashboard.min.js?v=3.0.1"></script> --}}
+<script src="{{ asset('assets') }}/js/material-dashboard.js?v=3.0.1"></script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="{{ asset('assets') }}/js/plugins/flatpickr.min.js"></script>
@@ -75,25 +79,43 @@
 
 <script> 
 
-$( document ).ready(function() {
+//$( document ).ready(function() {
+      document.addEventListener('DOMContentLoaded', function() {
+
     //navbar toggler 
-    $('.sidenav-toggler').click(function(){
+    
+    //$('.sidenav-toggler').click(function(){
       
-      toggler();
-    })
-    $('.sidenav-toggler-inner').click(function(){
-      toggler();
-    })
+    //  toggler();
+    //})
+    //$('.sidenav-toggler-inner').click(function(){
+    //  toggler();
+    //})
+
+
+    setTimeout(function() {
+          console.log('Initializing jQuery functions');
+          $('.custom-toggler-class').click(function() {
+            toggler();
+          });
+        }, 1000); // Adjust delay as needed
+
+    
 
     function toggler()
     {
+
+      console.log('Current classes on body:', $('body').attr('class'));
+
       if($('body').hasClass('g-sidenav-pinned')){
+          console.log('1');
           $('body').addClass('g-sidenav-hidden')
           $('body').removeClass('g-sidenav-pinned')
           return;
       }
 
       if($('body').hasClass('g-sidenav-hidden')){
+        console.log('2');
           $('body').addClass('g-sidenav-pinned')
           $('body').removeClass('g-sidenav-hidden')
           return;
@@ -104,10 +126,12 @@ $( document ).ready(function() {
         { 
           // The viewport is less than 560 pixels wide 
           console.log('user on mobile')
+          console.log('3');
             $('body').addClass('g-sidenav-pinned')
         } else { 
             // The viewport is at least 560 pixels wide 
             console.log('user on desktop')
+            console.log('4');
             $('body').addClass('g-sidenav-hidden')
         }
         return; 

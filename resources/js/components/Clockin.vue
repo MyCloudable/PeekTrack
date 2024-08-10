@@ -18,8 +18,9 @@
                 </div>
                 <div class="modal-body">
                     <div class="row header">
+                        <i class="fas fa-yen-sign"></i>
                         <div class="col-md-6 text-dark"><span class="badge badge-info me-2">Status: </span> {{ status }}
-                            <select class="d-inline w-50 ms-2" v-if="!isAlreadyVerified" v-model="crewTypeId">
+                            <select class="d-inline w-50 ms-2 mt-3" v-if="!isAlreadyVerified || enableCrewTypeId" v-model="crewTypeId">
                                 <option v-for="(crewType, index) in crewTypes" :value="crewType.id">
                                     {{ crewType.name }}
                                 </option>
@@ -36,9 +37,9 @@
                     </div>
                     <div class="row actions mt-3 mb-3">
                         <div class="col-md-8">
-                            <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime"
-                                :key="departKey"
-                                @track-time-done="trackTimeDone" />
+                            <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime" :crewTypeId="crewTypeId"
+                                 :key="departKey"
+                                @track-time-done="trackTimeDone" @is-mobilization="enableCrewTypeId = !enableCrewTypeId" />
 
                             <button type="button" class="btn btn-secondary p-3" @click="weatherEntry"
                                 v-if="isAlreadyVerified && !isAlreadyClockedin">Weather</button>
@@ -68,15 +69,6 @@
                                     <th>
                                         <div>Name</div>
                                     </th>
-                                    <!-- <th>
-                                        <div>Email</div>
-                                    </th> -->
-                                    <!-- <th v-if="isAlreadyClockedin">
-                                        <div>In</div>
-                                    </th>
-                                    <th v-if="isAlreadyClockedin">
-                                        <div>Out</div>
-                                    </th> -->
                                     <th v-if="isAlreadyClockedin || isAlreadyClockedout">
                                         <div>Status</div>
                                     </th>
@@ -89,9 +81,6 @@
                                     <th v-if="isAlreadyClockedin || isAlreadyClockedout">
                                         <div>Total</div>
                                     </th>
-                                    <!-- <th v-if="isAlreadyVerified">
-                                        <div></div>
-                                    </th> -->
                                     <th v-if="isAlreadyClockedin">
                                         <div><half-full-per-diem :timesheetId="allPerDiemTimesheetIds"
                                                 :perDiem="allPerDiemStatus" @hf-per-diem-done="hfPerDiemDone" /></div>
@@ -111,19 +100,17 @@
                                 <tr v-if="allUsers.length > 0" ref="departWrapper">
                                     <td>
                                         <div class="input-group input-group-outline">
-                                            <!-- <select class="form-control clr-light"
-                                                v-model="createNewCrewForm[0].crew_member_id">
-                                                <option value="">Select superintendent</option>
-                                                <option v-for="(user, index) in allUsers" :key="user.id"
-                                                    :value="user.id">{{ user.name }}
-                                                </option>
-                                            </select> -->
-                                            <Select2 v-model="createNewCrewForm[0].crew_member_id" :options="allUsers" :settings="select2Settings" />
+                                            <Select2 v-model="createNewCrewForm[0].crew_member_id" :options="allUsers"
+                                                :settings="select2Settings" />
                                         </div>
                                     </td>
                                     <td>
-                                        <input type="datetime-local" class="form-controll datetime"
-                                            v-model="createNewCrewForm[0].clockin_time">
+                                        <!-- <input type="datetime-local" class="form-controll datetime"
+                                            v-model="createNewCrewForm[0].clockin_time"> -->
+                                            <VueDatePicker v-model="createNewCrewForm[0].clockin_time" :enable-time="true"
+                                            :formate="dateTimeFormat"
+                                            class="responsive-datepicker"
+                                            ></VueDatePicker>
                                     </td>
                                     <td>
                                         <button class="btn btn-success" @click="addNewCrew"
@@ -139,27 +126,6 @@
                                     <td>
                                         <div>{{ member.name }}</div>
                                     </td>
-                                    <!-- <td>
-                                        <div>{{ member.email }}</div>
-                                    </td> -->
-                                    <!-- <td v-if="isAlreadyClockedin">
-                                        <div v-if="!member.isMenualClockinout">
-                                            {{ member.clockin_time }}
-                                        </div>
-                                        <div v-else><input type="datetime-local" class="form-control datetime"
-                                                @change="menualClockinout($event, member.timesheet_id, 'clockin')"
-                                                :value="now">
-                                        </div>
-                                    </td>
-                                    <td v-if="isAlreadyClockedin">
-                                        <div v-if="!member.isMenualClockinout">
-                                            {{ member.clockout_time }}
-                                        </div>
-                                        <div v-else><input type="datetime-local" class="form-control datetime"
-                                                @change="menualClockinout($event, member.timesheet_id, 'clockout')"
-                                                :value="now">
-                                        </div>
-                                    </td> -->
 
                                     <td v-if="isAlreadyClockedin || isAlreadyClockedout">
                                         {{ member.status }}
@@ -169,16 +135,28 @@
                                         <div v-if="!member.isMenualClockinout">
                                             {{ member.clockout_time ? member.clockout_time : member.clockin_time }}
                                         </div>
-                                        <div v-else><input type="datetime-local" class="form-controll datetime"
+                                        <div v-else>
+                                            <!-- <input type="datetime-local" class="form-controll datetime"
                                                 @change="menualClockinout($event, member.timesheet_id, 'clockin')"
-                                                :value="now">
+                                                :value="member.clockin_time"> -->
+                                                <VueDatePicker v-model="member.clockin_time_edit"
+                                                :enable-time="true"
+                                                :formate="dateTimeFormat"
+                                                @update:model-value="menualClockinout($event, member.timesheet_id, 'clockin')"
+                                                class="responsive-datepicker"></VueDatePicker>
                                         </div>
                                     </td>
 
                                     <td v-if="member.isMenualClockinout">
-                                        <div><input type="datetime-local" class="form-controll datetime"
+                                        <div>
+                                            <!-- <input type="datetime-local" class="form-controll datetime"
                                                 @change="menualClockinout($event, member.timesheet_id, 'clockout')"
-                                                :value="now">
+                                                :value="(member.clockout_time) ? member.clockout_time : now"> -->
+                                                <VueDatePicker v-model="member.clockout_time_edit"
+                                                :enable-time="true"
+                                                :formate="dateTimeFormat"
+                                                @update:model-value="menualClockinout($event, member.timesheet_id, 'clockout')"
+                                                class="responsive-datepicker"></VueDatePicker>
                                         </div>
                                     </td>
                                     <td v-if="isMenualClockinout && !member.isMenualClockinout"></td>
@@ -196,9 +174,6 @@
                                                 @hf-per-diem-done="hfPerDiemDone" />&nbsp&nbsp&nbsp&nbsp
 
                                         </div>
-                                        <!-- <delete-crew-member :crewId="crewId" :crewMemberId="member.id"
-                                        @crew-member-deleted="crewMemberDeleted"
-                                            v-if="isAlreadyVerified" /> -->
                                     </td>
                                 </tr>
                             </tbody>
@@ -228,6 +203,8 @@ import HalfFullPerDiem from './HalfFullPerDiem'
 import TimeConvert from '../composables/TimeConvert'
 import Depart from './Depart'
 
+import { format, parse } from 'date-fns'
+
 const toast = useToast();
 
 const departWrapper = ref(null)
@@ -236,9 +213,12 @@ let select2Settings = ref({
     'dropdownParent': departWrapper,
 })
 
+const dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss";
+
 let now = ref('')
 
 let iconVisible = ref(true)
+const scrollThreshold = 50 // Adjust the threshold as needed
 
 let isAlreadyVerified = ref(false)
 let crewId = ref('')
@@ -267,29 +247,32 @@ let status = ref('')
 
 let crewTypes = ref([])
 let crewTypeId = ref('')
+let enableCrewTypeId = ref(false)
 
 let departKey = ref(0)
+
 
 onMounted(() => {
     window.addEventListener('scroll', handleScroll)
 
-    const date = new Date();
-    let year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-
-    if (month.toString().length === 1) {
-        console.log('come here');
-    }
-
-    (month.toString().length === 1) ? month = '0' + month : ''
-        (day.toString().length === 1) ? day = '0' + day : ''
-    now.value = `${year}-${month}-${day}T12:00`
+    setCurrentDateTime()
 
 })
 onBeforeUnmount(() => {
     window.removeEventListener('scroll', handleScroll)
 })
+
+const setCurrentDateTime = () => {
+    const noww = new Date();
+    const year = noww.getFullYear();
+    const month = String(noww.getMonth() + 1).padStart(2, '0');
+    const day = String(noww.getDate()).padStart(2, '0');
+    const hours = String(noww.getHours()).padStart(2, '0');
+    const minutes = String(noww.getMinutes()).padStart(2, '0');
+    //   const seconds = String(noww.getSeconds()).padStart(2, '0');
+
+    now.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
 const getCrewMembers = () => {
     axios.get('/crew-members')
@@ -315,6 +298,10 @@ const getCrewMembers = () => {
                         member.per_diem = time.per_diem
                         member.status = (time.clockout_time) ? 'Out' : 'In'
                         member.total_time = TimeConvert(time.total_time)
+
+                        // add these two extra keys so that can be used while initilization of date picker, and for update as well
+                        member.clockin_time_edit = parse(time.clockin_time, 'yyyy-MM-dd HH:mm', new Date())
+                        member.clockout_time_edit = (time.clockout_time) ? parse(time.clockout_time, 'yyyy-MM-dd HH:mm', new Date()) : now.value
                     }
                 })
 
@@ -354,21 +341,21 @@ const verifyTeam = () => {
 }
 
 const clockinout = (type) => {
-    
-        console.log('Attempting to send request...');
-        const response = axios.post('/clockinout-crew-members', {
-            'crewId': crewId.value,
-            'type': type,
-            'isMenual': false,
-        })
+
+    console.log('Attempting to send request...');
+    const response = axios.post('/clockinout-crew-members', {
+        'crewId': crewId.value,
+        'type': type,
+        'isMenual': false,
+    })
         .then(res => getCrewMembers())
         .catch(error => {
             console.log('bs kr')
             let errorMessage = error.response.data.message
             errorMessage ? toast.error(errorMessage) : 'Something went wrong'
         })
-    
-    
+
+
 }
 
 const enableMenualClock = (id) => {
@@ -395,12 +382,16 @@ const enableMenualClock = (id) => {
 }
 
 const menualClockinout = (event, timesheetId, type) => {
+
+    const formatedDateTime = format(event, dateTimeFormat) // to adjust formate of date picker
+
     axios.post('/clockinout-crew-members', {
         'crewId': crewId.value,
         'type': type,
         'isMenual': true,
         'timesheetId': timesheetId,
-        'time': event.target.value
+        // 'time': event.target.value
+        'time': formatedDateTime
     })
         .then(res => getCrewMembers())
         .catch(error => {
@@ -412,15 +403,17 @@ const menualClockinout = (event, timesheetId, type) => {
 
 // add new crew member
 const GetAllUsers = (users) => {
-    // allUsers.value = users
 
     users.map(user => {
-    (user.role_id == 6) ? allUsers.value.push(user) : ''; // if crew member
-  })
+        (user.role_id == 6) ? allUsers.value.push(user) : ''; // if crew member
+    })
 
     createNewCrewForm.value[0].clockin_time = now.value
 }
 const addNewCrew = () => {
+
+    createNewCrewForm.value[0].clockin_time = format(createNewCrewForm.value[0].clockin_time, dateTimeFormat) // adjust for date picker formate
+
     axios.post('/add-new-crew-members', {
         'crewId': crewId.value,
         'createNewCrewForm': createNewCrewForm.value[0],
@@ -467,7 +460,12 @@ const weatherEntry = () => {
 
 
 const handleScroll = (() => {
-    iconVisible.value = false
+    if (window.scrollY > scrollThreshold) {
+        iconVisible.value = false;
+    } else {
+        iconVisible.value = true;
+    }
+
 })
 
 </script>
@@ -504,4 +502,59 @@ const handleScroll = (() => {
 .dark-version .table thead tr th {
     font-size: large !important;
 }
+
+/* to manage date picker  */
+
+.dp__pointer.dp__input_readonly{
+    min-width: 210px !important;
+}
+.dp__main{
+    position: static !important;
+
+}
+.dp__outer_menu_wrap.dp--menu-wrapper{
+    top: 0 !important;
+    left: 35% !important;
+}
+/* to manage date picker ends  */
+
+
+/* to fit datepicker on mobile devices */
+@media (max-width: 767px) {
+  .modal-dialog {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .modal-content {
+    border-radius: 0;
+  }
+
+  .responsive-datepicker {
+    width: 100%;
+  }
+  .dp__outer_menu_wrap.dp--menu-wrapper{
+    left: 10% !important;
+    top: 30% !important;
+}
+.dp--menu-wrapper{
+    z-index: 9999999999 !important;
+}
+.dp__menu_inner{
+    position: relative;
+    z-index: 1200;
+}
+}
+/* to fit datepicker on mobile devices ends */
+
+
+
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    .modal-lg{
+        max-width: 100% !important;
+    }
+}
+
+
 </style>

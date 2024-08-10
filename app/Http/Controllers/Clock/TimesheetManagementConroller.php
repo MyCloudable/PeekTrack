@@ -315,17 +315,29 @@ class TimesheetManagementConroller extends Controller
             $data['created_by'] = Auth::user()->id;
             $data['modified_by'] = Auth::user()->id;
 
+            $userIds = $data['user_id']; // assuming user_id is an array
+
             // validate clockin and clockout
             (new TimesheetService())->validateClockInOut($data['clockin_time'], $data['clockout_time']);
 
-            // Validate overlap using custom method
-            $this->validateTimesheetOverlap(
-                $data['user_id'],
-                $data['clockin_time'],
-                $data['clockout_time'],
-            );
+            // Validate overlap using custom method (for each crew member)
+            foreach ($userIds as $userId) {
+                $this->validateTimesheetOverlap(
+                    $data['user_id'],
+                    $data['clockin_time'],
+                    $data['clockout_time'],
+                );
+            }
 
-            Timesheet::create($data);
+            // If validation passes for all user_ids, proceed to save
+            foreach ($userIds as $userId) {
+                $timesheetData = array_merge($data, [
+                    'user_id' => $userId
+                ]);
+
+                Timesheet::create($timesheetData);
+            }
+
             return response()->json(['success' => true, 'message' => 'Timesheet created successfully', 200]);
         } catch(\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
@@ -362,8 +374,11 @@ class TimesheetManagementConroller extends Controller
                 // Prepare an array of overlapping timesheet IDs
                 $overlappingIds = $overlappingTimesheets->pluck('id')->toArray();
 
+                // Get the user name
+                $userName = User::where('id', $user_id)->value('name');
+
                 throw ValidationException::withMessages([
-                    'error' => 'Overlapping timesheets with these ids. ' . implode(',', $overlappingIds),
+                    'error' => 'Overlapping timesheets for user ' .  $userName .  ' with these ids. ' . implode(',', $overlappingIds),
                     // 'overlapping_ids' => $overlappingIds
                 ]);
             }

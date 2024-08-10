@@ -10,7 +10,7 @@
             END PRODUCTION</button>
 
         <div class="d-flex align-items-center" v-if="isDepart">
-            <i class="fas fa-undo text-dark cursor-pointer me-1" @click="isDepart = false"></i>
+            <i class="fas fa-undo text-dark cursor-pointer me-1" @click="isDepart = false; $emit('is-mobilization')"></i>
             <div class="text-dark">
                 <Select2 v-model="departForm.jobId" :options="jobs" :settings="select2Settings" class="foo-bar" />
             </div>
@@ -40,9 +40,10 @@ import { useToast } from "vue-toastification"
 const props = defineProps({
     crewId: Number,
     travelTime: Object,
+    crewTypeId: Number
 })
 
-const emit = defineEmits(['track-time-done'])
+const emit = defineEmits(['track-time-done', 'is-mobilization'])
 
 const toast = useToast()
 
@@ -72,20 +73,25 @@ const getAllJobs = () => {
         .then(res => {
             jobs.value = res.data;
             isDepart.value = true
+            emit('is-mobilization')
         })
         .catch(err => console.log(err))
 }
 
 const depart = (eventOrValidation = false) => {
 
-     // Determine if we should validate the job ID
-     const shouldValidateJobId = eventOrValidation === true;
+    // Determine if we should validate the job ID
+    const shouldValidateJobId = eventOrValidation === true;
 
     // job id should be required
-    if(shouldValidateJobId && departForm.value.jobId == ''){
+    if (shouldValidateJobId && departForm.value.jobId == '') {
         toast.error('Please select the job first')
         return
     }
+
+    //set crewTypeId to departForm if depart for a job as crewTypeId dropdown is active at this time (in Clockin.vue)
+    if (shouldValidateJobId)
+        departForm.value.crewTypeId = props.crewTypeId
 
     setType()
 
@@ -96,6 +102,10 @@ const depart = (eventOrValidation = false) => {
             travelTime.value = res.data
             isDepart.value = false
             emit('track-time-done')
+
+            if (shouldValidateJobId)
+                emit('is-mobilization')
+
         })
         .catch(err => console.log(err))
 }

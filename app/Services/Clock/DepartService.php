@@ -20,6 +20,7 @@ class DepartService {
 
     public function trackTravelTime($data)
     {
+
         $timeType = TimeType::where('name', 'Mobilization')->first();
 
         switch ($data['departForm']['type']) {
@@ -51,6 +52,13 @@ class DepartService {
             default:
                 return false;
                 break;
+        }
+
+        //udpate crewTypeId if it exists
+        if(isset($data['departForm']['crewTypeId'])){
+            Crew::where('id', $data['departForm']['crewId'])->update([
+                'crew_type_id' => $data['departForm']['crewTypeId']
+            ]);
         }
 
         return $travelTime;

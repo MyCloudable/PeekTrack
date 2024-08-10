@@ -406,6 +406,7 @@ function navbarMinimize(el) {
     el.setAttribute("checked", "true");
   } else {
     sidenavShow.classList.remove('g-sidenav-hidden');
+    console.log('navbarMinimize , running from here as well 1');
     sidenavShow.classList.add('g-sidenav-pinned');
     el.removeAttribute("checked");
   }
@@ -679,6 +680,7 @@ if (document.querySelector('.sidenav-toggler')) {
         }
       } else {
         sidenavShow.classList.remove('g-sidenav-hidden');
+        console.log('navbarMinimize , running from here as well');
         sidenavShow.classList.add('g-sidenav-pinned');
         if (toggleNavbarMinimize) {
           toggleNavbarMinimize.click();

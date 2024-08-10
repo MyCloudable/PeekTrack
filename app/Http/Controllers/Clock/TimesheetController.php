@@ -40,6 +40,7 @@ class TimesheetController extends Controller
 
     public function addNewCrewMember(Request $request)
     {
+        // dd($request->all());
         return response()->json($this->timesheetService->addNewCrewMember($request->all()), 200);
     }
 

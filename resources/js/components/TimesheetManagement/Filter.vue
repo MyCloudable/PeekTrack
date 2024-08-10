@@ -48,7 +48,7 @@
 
     <div class="col-md-12">
         <button class="btn btn-warning btn-md mt-4" @click="$emit('filter', filterData)">Submit</button>
-        <button class="btn btn-danger btn-md mt-4 ms-3" @click="filterData = {};$emit('filter', filterData)">Clear</button>
+        <button class="btn btn-danger btn-md mt-4 ms-3" @click="clear()">Clear</button>
     </div>
 
 </template>
@@ -114,6 +114,14 @@ onMounted(() => {
 
     })
 })
+
+const clear = () => {
+    const superIntendentValue = filterData.value.superIntendent
+    filterData.value = {}
+    filterData.value.superIntendent = superIntendentValue
+
+    emit('filter', filterData.value)
+}
 
 
 </script>
