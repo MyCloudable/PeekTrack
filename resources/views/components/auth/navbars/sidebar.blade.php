@@ -52,6 +52,7 @@
                         </li>   
 						@endif
 						@endif
+						
                         <form method="POST" action="{{ route('logout') }}" class="d-none" id="logout-form">
                             @csrf
                         </form>
@@ -68,7 +69,7 @@
 				
             </li>
             <hr class="horizontal light mt-0">
-			@if ( auth()->user()->role_id < 6)
+			@if ( auth()->user()->role_id < 6 || auth()->user()->role_id == 7)
                         <li class="nav-item {{ $activeItem == 'dashboard' ? ' active ' : '' }}  ">
                             <a class="nav-link text-white {{ $activeItem == 'dashboard' ? ' active' : '' }}  "
                                 href="{{ route('dashboard') }}">
@@ -95,7 +96,7 @@
 							</a>
                         </li>
 						@endif
-						@if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
+						@if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2 || auth()->user()->role_id == 7)
 						<li class="nav-item"{{ $activeItem == 'history' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white {{ $activeItem == 'history' ? ' active' : '' }}  "
 								href="{{ route('jobs.history') }}">
@@ -122,5 +123,23 @@
 							</a>
                         </li>
                         @endif
+						@if ( auth()->user()->role_id == 6)
+						<li class="nav-item"{{ $activeItem == 'reports' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white "
+								href="https://peektrack.com/crewmember">
+								<span class="sidenav-mini-icon"> A </span>
+                                <span class="sidenav-normal  ms-3  ps-1">Approve Time</span>
+							</a>
+                        </li>   
+						@endif
+						@if ( auth()->user()->role_id == 6)
+						<li class="nav-item"{{ $activeItem == 'reports' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white "
+								href="https://peektrack.com/crewsummary">
+								<span class="sidenav-mini-icon"> H </span>
+                                <span class="sidenav-normal  ms-3  ps-1">History</span>
+							</a>
+                        </li>   
+						@endif
                     </div>
 </aside>

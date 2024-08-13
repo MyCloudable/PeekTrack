@@ -58,7 +58,7 @@ class JobsController extends Controller
 
 			$jobentries = \DB::table('jobentries')
             ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
-			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link','jobentries.workdate')
             ->orderBy("jobentries.updated_at", "desc")
             ->get();
 	
@@ -73,9 +73,9 @@ class JobsController extends Controller
 			$branch = array('10-10 Columbus');
 			        $jobentries = \DB::table('jobentries')
             ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
-			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link','jobentries.workdate')
 			->whereIn('jobs.branch', $branch)
-            ->orderBy("jobentries.updated_at", "desc")
+            ->orderBy("jobentries.workdate", "asc")
             ->get();
 		}
 		elseif(in_array(Auth::user()->id,array(93))){
@@ -83,9 +83,9 @@ class JobsController extends Controller
 			$branch = array('10-20 Remerton', '10-30 Byron', '10-80 Richmond Hill');
 			        $jobentries = \DB::table('jobentries')
             ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
-			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link','jobentries.workdate')
 			->whereIn('jobs.branch', $branch)
-            ->orderBy("jobentries.updated_at", "desc")
+            ->orderBy("jobentries.workdate", "asc")
             ->get();
 		}
 		elseif(in_array(Auth::user()->id,array(2795))){
@@ -93,9 +93,9 @@ class JobsController extends Controller
 						$branch = array('10-50 Cleveland', '10-11 Cartersville', '10-12 Locust Grove');
 						        $jobentries = \DB::table('jobentries')
             ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
-			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link','jobentries.workdate')
 			->whereIn('jobs.branch', $branch)
-            ->orderBy("jobentries.updated_at", "desc")
+            ->orderBy("jobentries.workdate", "asc")
             ->get();
 		}
 		elseif(in_array(Auth::user()->id,array(8138,8169))){
@@ -103,17 +103,17 @@ class JobsController extends Controller
 						$branch = array('10-60 Summerville', '10-40 Columbia', '10-70 Spartanburg', '10-65 Conway');
 						        $jobentries = \DB::table('jobentries')
             ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
-			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link','jobentries.workdate')
 			->whereIn('jobs.branch', $branch)
-            ->orderBy("jobentries.updated_at", "desc")
+            ->orderBy("jobentries.workdate", "asc")
             ->get();
 		}
 		else{
 
 			$jobentries = \DB::table('jobentries')
             ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
-			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link')
-            ->orderBy("jobentries.updated_at", "desc")
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link','jobentries.workdate')
+            ->orderBy("jobentries.workdate", "asc")
             ->get();
 		}
 		

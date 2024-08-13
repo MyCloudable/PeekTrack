@@ -63,6 +63,36 @@ class TimesheetManagementConroller extends Controller
 
         return view('crew.crewindex', compact('query'));
     }
+	
+	public function summary()
+    {
+	$query = DB::table('timesheets')
+		->join('users as crewmembers', 'timesheets.user_id', '=', 'crewmembers.id')
+		->join('crews', 'timesheets.crew_id', '=', 'crews.id')
+		->join('users as superintendents', 'crews.superintendentId', '=', 'superintendents.id')
+		->join('jobs', 'timesheets.job_id', '=', 'jobs.id')
+		->leftJoin('time_types', 'timesheets.time_type_id', '=', 'time_types.id')
+		->select(
+			DB::raw('DATE(timesheets.clockin_time) as day'),
+			'crewmembers.name as crewmember_name',
+			DB::raw('SUM(TIMESTAMPDIFF(minute, timesheets.clockin_time, timesheets.clockout_time) / 60) as total_hours'),
+			'crewmembers.id as user_id',
+			'timesheets.crew_member_approval',
+		)
+		->groupBy(
+			'day',
+			'crewmembers.name',
+			'crewmembers.id',
+			'timesheets.crew_member_approval',
+		)
+		->orderBy('day', 'desc')
+		->get();
+
+
+
+
+        return view('crew.summary', compact('query'));
+    }
 
     public function getAll(Request $request)
     {   

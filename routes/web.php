@@ -50,7 +50,7 @@ Mail::to('qtconsultants@gmail.com')->send(new JobCardRejectionNotification());
 Route::get('/autocomplete', [SearchController::class, 'autocomplete'])->name('autocomplete');
 
 Route::get('crewmember', [TimesheetManagementConroller::class, 'crewindex'])->middleware('auth')->name('crew');
-
+Route::get('crewsummary', [TimesheetManagementConroller::class, 'summary'])->middleware('auth')->name('crew');
 
 
 Route::post('/jobs/shareJobcard', [JobsController::class, 'shareJobcard'])->name('jobs.shareJobcard');

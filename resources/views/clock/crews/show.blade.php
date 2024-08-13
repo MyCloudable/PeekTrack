@@ -29,18 +29,18 @@
 
 <script>
 $(document).ready(function(){
-  $("button.show-crew-members").click(function(){
+  $(document).on('click', 'button.show-crew-members', function(){
     axios.get('crews/' + $(this).attr('data-crew-id'))
           .then(res => {
-            let target = $('.modal-body')
-            target.empty()
+            let target = $('.modal-body');
+            target.empty();
             $.each(res.data, function(k, v) {
               target.append(`
               <div class="d-flex">
               <div>${v.name} &nbsp;&nbsp;||&nbsp;&nbsp; ${v.email}</div>
               </div>
-              `)
-              console.log(v['email'])
+              `);
+              console.log(v['email']);
           });
           })
           .catch(err => console.log(err));  
