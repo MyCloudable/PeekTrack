@@ -474,6 +474,11 @@ const handleScroll = (() => {
 .verify-crew-members {
     font-size: 14px;
     background: #1A2035 !important;
+    min-height: 300px; /* to fit date picker in all screens */
+}
+
+.verify-crew-members thead{
+    height: 100px; /* to fit date picker in all screens */
 }
 
 .modal-backdrop {

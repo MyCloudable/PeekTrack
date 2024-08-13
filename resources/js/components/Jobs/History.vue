@@ -1,4 +1,11 @@
 <template>
+
+    <!-- Custom filter div -->
+    <div id="custom-filters" class="custom-filters"></div>
+
+    <!-- Clear All Button -->
+    <button @click="clearAllFilters" class="btn btn-danger ms-2 mb-2">Clear All</button>
+
     <DataTable :options="tableOptions" ref="dataTableRef">
 
         <thead>
@@ -26,6 +33,8 @@ import DataTablesCore from 'datatables.net-bs5';
 DataTable.use(DataTablesCore);
 
 const dataTableRef = ref(null)
+
+const filterInputs = ref([]); // Store references to input fields
 
 const tableOptions = ref({
     processing: true,
@@ -78,7 +87,15 @@ const tableOptions = ref({
                 // Create input element
                 let input = document.createElement('input');
                 input.placeholder = title;
-                column.header().replaceChildren(input);
+
+
+                // column.header().replaceChildren(input);
+
+                // Append input to custom div 
+                filtersDiv.appendChild(input)
+
+                // Store reference to the input field
+                filterInputs.value.push({ input, column })
 
                 // Event listener for user input
                 input.addEventListener('keyup', () => {
@@ -101,6 +118,14 @@ const tableOptions = ref({
     }
 
 })
+
+
+const clearAllFilters = () => {
+    filterInputs.value.forEach(({ input, column }) => {
+        input.value = ''; // Clear input field
+        column.search('').draw(); // Clear the search and redraw the table
+    });
+}
 
 function debounce(func, wait) {
     let timeout;

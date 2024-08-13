@@ -1,4 +1,11 @@
 <template>
+
+    <!-- Custom filter div -->
+    <div id="custom-filters" class="custom-filters"></div>
+
+    <!-- Clear All Button -->
+    <button @click="clearAllFilters" class="btn btn-danger ms-2 mb-2">Clear All</button>
+
     <DataTable :options="tableOptions" ref="dataTableRef">
 
         <thead>
@@ -28,6 +35,8 @@ const props = defineProps({
 DataTable.use(DataTablesCore);
 
 const dataTableRef = ref(null)
+
+const filterInputs = ref([]); // Store references to input fields
 
 const tableOptions = ref({
     processing: true,
@@ -62,7 +71,9 @@ const tableOptions = ref({
     ],
 
     initComplete: function () {
-        const debounceDelay = 300; // Delay in milliseconds
+        const debounceDelay = 300 // Delay in milliseconds
+
+        const filtersDiv = document.getElementById('custom-filters')
 
         this.api()
             .columns()
@@ -78,7 +89,19 @@ const tableOptions = ref({
                 // Create input element
                 let input = document.createElement('input');
                 input.placeholder = title;
-                column.header().replaceChildren(input);
+
+                // Add Bootstrap margin classes
+                input.classList.add('ms-3', 'mb-4');
+
+
+                // Replacing input with header content
+                // column.header().replaceChildren(input);
+
+                // Append input to custom div 
+                filtersDiv.appendChild(input)
+
+                // Store reference to the input field
+                filterInputs.value.push({ input, column })
 
                 // Event listener for user input
                 input.addEventListener('keyup', () => {
@@ -108,6 +131,14 @@ const tableOptions = ref({
     }
 
 })
+
+
+const clearAllFilters = () => {
+    filterInputs.value.forEach(({ input, column }) => {
+        input.value = ''; // Clear input field
+        column.search('').draw(); // Clear the search and redraw the table
+    });
+}
 
 function debounce(func, wait) {
     let timeout;

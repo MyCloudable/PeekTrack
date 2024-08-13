@@ -21618,6 +21618,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     __expose();
     datatables_net_vue3__WEBPACK_IMPORTED_MODULE_2__["default"].use(datatables_net_bs5__WEBPACK_IMPORTED_MODULE_1__["default"]);
     var dataTableRef = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(null);
+    var filterInputs = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]); // Store references to input fields
+
     var tableOptions = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)({
       processing: true,
       serverSide: true,
@@ -21680,7 +21682,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           // Create input element
           var input = document.createElement('input');
           input.placeholder = title;
-          column.header().replaceChildren(input);
+
+          // column.header().replaceChildren(input);
+
+          // Append input to custom div 
+          filtersDiv.appendChild(input);
+
+          // Store reference to the input field
+          filterInputs.value.push({
+            input: input,
+            column: column
+          });
 
           // Event listener for user input
           input.addEventListener('keyup', function () {
@@ -21701,6 +21713,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
       }
     });
+    var clearAllFilters = function clearAllFilters() {
+      filterInputs.value.forEach(function (_ref2) {
+        var input = _ref2.input,
+          column = _ref2.column;
+        input.value = ''; // Clear input field
+        column.search('').draw(); // Clear the search and redraw the table
+      });
+    };
     function debounce(func, wait) {
       var timeout;
       return function () {
@@ -21733,7 +21753,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     })));
     var __returned__ = {
       dataTableRef: dataTableRef,
+      filterInputs: filterInputs,
       tableOptions: tableOptions,
+      clearAllFilters: clearAllFilters,
       debounce: debounce,
       ref: vue__WEBPACK_IMPORTED_MODULE_0__.ref,
       reactive: vue__WEBPACK_IMPORTED_MODULE_0__.reactive,
@@ -21789,6 +21811,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var props = __props;
     datatables_net_vue3__WEBPACK_IMPORTED_MODULE_2__["default"].use(datatables_net_bs5__WEBPACK_IMPORTED_MODULE_1__["default"]);
     var dataTableRef = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(null);
+    var filterInputs = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]); // Store references to input fields
+
     var tableOptions = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)({
       processing: true,
       serverSide: true,
@@ -21832,6 +21856,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       initComplete: function initComplete() {
         var debounceDelay = 300; // Delay in milliseconds
 
+        var filtersDiv = document.getElementById('custom-filters');
         this.api().columns().every(function () {
           var _this = this;
           var column = this;
@@ -21845,7 +21870,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           // Create input element
           var input = document.createElement('input');
           input.placeholder = title;
-          column.header().replaceChildren(input);
+
+          // Add Bootstrap margin classes
+          input.classList.add('ms-3', 'mb-4');
+
+          // Replacing input with header content
+          // column.header().replaceChildren(input);
+
+          // Append input to custom div 
+          filtersDiv.appendChild(input);
+
+          // Store reference to the input field
+          filterInputs.value.push({
+            input: input,
+            column: column
+          });
 
           // Event listener for user input
           input.addEventListener('keyup', function () {
@@ -21872,6 +21911,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         });
       }
     });
+    var clearAllFilters = function clearAllFilters() {
+      filterInputs.value.forEach(function (_ref2) {
+        var input = _ref2.input,
+          column = _ref2.column;
+        input.value = ''; // Clear input field
+        column.search('').draw(); // Clear the search and redraw the table
+      });
+    };
     function debounce(func, wait) {
       var timeout;
       return function () {
@@ -21906,7 +21953,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var __returned__ = {
       props: props,
       dataTableRef: dataTableRef,
+      filterInputs: filterInputs,
       tableOptions: tableOptions,
+      clearAllFilters: clearAllFilters,
       debounce: debounce,
       ref: vue__WEBPACK_IMPORTED_MODULE_0__.ref,
       reactive: vue__WEBPACK_IMPORTED_MODULE_0__.reactive,
@@ -23483,17 +23532,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
-var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Action"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Work date"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Job"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Name"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Branch"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Submission status"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Approval status"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Approval by")])], -1 /* HOISTED */);
+var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  id: "custom-filters",
+  "class": "custom-filters"
+}, null, -1 /* HOISTED */);
+var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Action"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Work date"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Job"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Name"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Branch"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Submission status"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Approval status"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Approval by")])], -1 /* HOISTED */);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["DataTable"], {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Custom filter div "), _hoisted_1, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Clear All Button "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    onClick: $setup.clearAllFilters,
+    "class": "btn btn-danger ms-2 mb-2"
+  }, "Clear All"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["DataTable"], {
     options: $setup.tableOptions,
     ref: "dataTableRef"
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [_hoisted_1];
+      return [_hoisted_2];
     }),
     _: 1 /* STABLE */
-  }, 8 /* PROPS */, ["options"]);
+  }, 8 /* PROPS */, ["options"])], 64 /* STABLE_FRAGMENT */);
 }
 
 /***/ }),
@@ -23511,17 +23567,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
-var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Action"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Job #"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Description"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "County"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Contractor"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Branch")])], -1 /* HOISTED */);
+var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  id: "custom-filters",
+  "class": "custom-filters"
+}, null, -1 /* HOISTED */);
+var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Action"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Job #"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Description"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "County"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Contractor"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Branch")])], -1 /* HOISTED */);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["DataTable"], {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Custom filter div "), _hoisted_1, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Clear All Button "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    onClick: $setup.clearAllFilters,
+    "class": "btn btn-danger ms-2 mb-2"
+  }, "Clear All"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["DataTable"], {
     options: $setup.tableOptions,
     ref: "dataTableRef"
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [_hoisted_1];
+      return [_hoisted_2];
     }),
     _: 1 /* STABLE */
-  }, 8 /* PROPS */, ["options"]);
+  }, 8 /* PROPS */, ["options"])], 64 /* STABLE_FRAGMENT */);
 }
 
 /***/ }),
@@ -24075,7 +24138,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.verify-crew-members {\n    font-size: 14px;\n    background: #1A2035 !important;\n}\n.modal-backdrop {\n    display: none;\n    z-index: 1040 !important;\n}\n.modal-content {\n    margin: 2px auto;\n    z-index: 1100 !important;\n}\n.table td,\n.table th {\n    text-align: center;\n}\n.clr-light {\n    color: rgba(255, 255, 255, 0.6) !important;\n}\n.dark-version .table tbody tr td {\n    color: #fff !important;\n}\n.dark-version .table thead tr th {\n    font-size: large !important;\n}\n\n/* to manage date picker  */\n.dp__pointer.dp__input_readonly{\n    min-width: 210px !important;\n}\n.dp__main{\n    position: static !important;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper{\n    top: 0 !important;\n    left: 35% !important;\n}\n/* to manage date picker ends  */\n\n\n/* to fit datepicker on mobile devices */\n@media (max-width: 767px) {\n.modal-dialog {\n    max-width: 100%;\n    margin: 0;\n}\n.modal-content {\n    border-radius: 0;\n}\n.responsive-datepicker {\n    width: 100%;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper{\n    left: 10% !important;\n    top: 30% !important;\n}\n.dp--menu-wrapper{\n    z-index: 9999999999 !important;\n}\n.dp__menu_inner{\n    position: relative;\n    z-index: 1200;\n}\n}\n/* to fit datepicker on mobile devices ends */\n@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {\n.modal-lg{\n        max-width: 100% !important;\n}\n}\n\n\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.verify-crew-members {\n    font-size: 14px;\n    background: #1A2035 !important;\n    min-height: 300px; /* to fit date picker in all screens */\n}\n.verify-crew-members thead{\n    height: 100px; /* to fit date picker in all screens */\n}\n.modal-backdrop {\n    display: none;\n    z-index: 1040 !important;\n}\n.modal-content {\n    margin: 2px auto;\n    z-index: 1100 !important;\n}\n.table td,\n.table th {\n    text-align: center;\n}\n.clr-light {\n    color: rgba(255, 255, 255, 0.6) !important;\n}\n.dark-version .table tbody tr td {\n    color: #fff !important;\n}\n.dark-version .table thead tr th {\n    font-size: large !important;\n}\n\n/* to manage date picker  */\n.dp__pointer.dp__input_readonly{\n    min-width: 210px !important;\n}\n.dp__main{\n    position: static !important;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper{\n    top: 0 !important;\n    left: 35% !important;\n}\n/* to manage date picker ends  */\n\n\n/* to fit datepicker on mobile devices */\n@media (max-width: 767px) {\n.modal-dialog {\n    max-width: 100%;\n    margin: 0;\n}\n.modal-content {\n    border-radius: 0;\n}\n.responsive-datepicker {\n    width: 100%;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper{\n    left: 10% !important;\n    top: 30% !important;\n}\n.dp--menu-wrapper{\n    z-index: 9999999999 !important;\n}\n.dp__menu_inner{\n    position: relative;\n    z-index: 1200;\n}\n}\n/* to fit datepicker on mobile devices ends */\n@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {\n.modal-lg{\n        max-width: 100% !important;\n}\n}\n\n\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
