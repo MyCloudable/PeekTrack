@@ -20650,6 +20650,9 @@ var scrollThreshold = 50; // Adjust the threshold as needed
     var crewTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)('');
     var enableCrewTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
     var departKey = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(0);
+
+    // Loading state
+    var isLoading = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
     (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)(function () {
       window.addEventListener('scroll', handleScroll);
       setCurrentDateTime();
@@ -20713,6 +20716,9 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       CrewMembersTobeVerified.value[index].isChecked = !CrewMembersTobeVerified.value[index].isChecked;
     };
     var verifyTeam = function verifyTeam() {
+      if (isLoading.value) return; // Prevent multiple clicks
+      isLoading.value = true; // Set loading to true
+
       submitCrewMembersToVerify.value = [];
       CrewMembersTobeVerified.value.map(function (member) {
         return member.hasOwnProperty('isChecked') && member.isChecked ? submitCrewMembersToVerify.value.push(member.id) : '';
@@ -20725,10 +20731,14 @@ var scrollThreshold = 50; // Adjust the threshold as needed
         return getCrewMembers();
       })["catch"](function (err) {
         return console.log(err);
-      });
+      })["finally"](function () {
+        return isLoading.value = false;
+      }); // Reset loading state
     };
     var clockinout = function clockinout(type) {
-      console.log('Attempting to send request...');
+      if (isLoading.value) return; // Prevent multiple clicks
+      isLoading.value = true; // Set loading to true
+
       var response = axios__WEBPACK_IMPORTED_MODULE_0___default().post('/clockinout-crew-members', {
         'crewId': crewId.value,
         'type': type,
@@ -20739,7 +20749,9 @@ var scrollThreshold = 50; // Adjust the threshold as needed
         console.log('bs kr');
         var errorMessage = error.response.data.message;
         errorMessage ? toast.error(errorMessage) : 'Something went wrong';
-      });
+      })["finally"](function () {
+        return isLoading.value = false;
+      }); // Reset loading state
     };
     var enableMenualClock = function enableMenualClock(id) {
       var isEnabled = false;
@@ -20758,6 +20770,9 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       });
     };
     var menualClockinout = function menualClockinout(event, timesheetId, type) {
+      if (isLoading.value) return; // Prevent multiple clicks
+      isLoading.value = true; // Set loading to true
+
       var formatedDateTime = (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.format)(event, dateTimeFormat); // to adjust formate of date picker
 
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/clockinout-crew-members', {
@@ -20772,7 +20787,9 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       })["catch"](function (error) {
         var errorMessage = error.response.data.message;
         errorMessage ? toast.error(errorMessage) : 'Something went wrong';
-      });
+      })["finally"](function () {
+        return isLoading.value = false;
+      }); // Reset loading state
     };
 
     // add new crew member
@@ -20783,6 +20800,9 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       createNewCrewForm.value[0].clockin_time = now.value;
     };
     var addNewCrew = function addNewCrew() {
+      if (isLoading.value) return; // Prevent multiple clicks
+      isLoading.value = true; // Set loading to true
+
       createNewCrewForm.value[0].clockin_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.format)(createNewCrewForm.value[0].clockin_time, dateTimeFormat); // adjust for date picker formate
 
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/add-new-crew-members', {
@@ -20794,7 +20814,9 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       })["catch"](function (error) {
         var errorMessage = error.response.data.message;
         errorMessage ? toast.error(errorMessage) : 'Something went wrong';
-      });
+      })["finally"](function () {
+        return isLoading.value = false;
+      }); // Reset loading state
     };
     var crewMemberDeleted = function crewMemberDeleted() {
       return getCrewMembers();
@@ -20807,22 +20829,32 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       return getCrewMembers();
     };
     var readyForVerification = function readyForVerification() {
+      if (isLoading.value) return; // Prevent multiple clicks
+      isLoading.value = true; // Set loading to true
+
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/ready-for-verification', {
         'crewId': crewId.value
       }).then(function (res) {
         getCrewMembers();
       })["catch"](function (err) {
         return console.log(err);
-      });
+      })["finally"](function () {
+        return isLoading.value = false;
+      }); // Reset loading state
     };
     var weatherEntry = function weatherEntry() {
+      if (isLoading.value) return; // Prevent multiple clicks
+      isLoading.value = true; // Set loading to true
+
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/wather-entry', {
         'crewId': crewId.value
       }).then(function (res) {
         getCrewMembers();
       })["catch"](function (err) {
         return console.log(err);
-      });
+      })["finally"](function () {
+        return isLoading.value = false;
+      }); // Reset loading state
     };
     var handleScroll = function handleScroll() {
       if (window.scrollY > scrollThreshold) {
@@ -20974,6 +21006,7 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       set departKey(v) {
         departKey = v;
       },
+      isLoading: isLoading,
       setCurrentDateTime: setCurrentDateTime,
       getCrewMembers: getCrewMembers,
       toggleCheckboxes: toggleCheckboxes,
@@ -21424,6 +21457,9 @@ __webpack_require__.r(__webpack_exports__);
       'jobId': '',
       'type': ''
     });
+
+    // Loading state
+    var isLoading = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
     (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)(function () {});
     var getAllJobs = function getAllJobs() {
       axios__WEBPACK_IMPORTED_MODULE_0___default().get('/getjobs-for-depart').then(function (res) {
@@ -21436,6 +21472,9 @@ __webpack_require__.r(__webpack_exports__);
     };
     var depart = function depart() {
       var eventOrValidation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      if (isLoading.value) return; // Prevent multiple clicks
+      isLoading.value = true; // Set loading to true
+
       // Determine if we should validate the job ID
       var shouldValidateJobId = eventOrValidation === true;
 
@@ -21457,7 +21496,9 @@ __webpack_require__.r(__webpack_exports__);
         if (shouldValidateJobId) emit('is-mobilization');
       })["catch"](function (err) {
         return console.log(err);
-      });
+      })["finally"](function () {
+        return isLoading.value = false;
+      }); // Reset loading state
     };
     var setType = function setType() {
       if (travelTime.value == null && isDepart.value) {
@@ -21510,6 +21551,7 @@ __webpack_require__.r(__webpack_exports__);
       set departForm(v) {
         departForm = v;
       },
+      isLoading: isLoading,
       getAllJobs: getAllJobs,
       depart: depart,
       setType: setType,

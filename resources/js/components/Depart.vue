@@ -64,6 +64,9 @@ let departForm = ref({
     'type': ''
 })
 
+// Loading state
+const isLoading = ref(false);
+
 onMounted(() => {
 
 })
@@ -79,6 +82,10 @@ const getAllJobs = () => {
 }
 
 const depart = (eventOrValidation = false) => {
+
+    if (isLoading.value) return // Prevent multiple clicks
+    isLoading.value = true // Set loading to true
+
 
     // Determine if we should validate the job ID
     const shouldValidateJobId = eventOrValidation === true;
@@ -108,6 +115,7 @@ const depart = (eventOrValidation = false) => {
 
         })
         .catch(err => console.log(err))
+        .finally(() => isLoading.value = false) // Reset loading state
 }
 
 const setType = () => {

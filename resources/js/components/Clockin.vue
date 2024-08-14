@@ -252,6 +252,10 @@ let enableCrewTypeId = ref(false)
 let departKey = ref(0)
 
 
+// Loading state
+const isLoading = ref(false);
+
+
 onMounted(() => {
     window.addEventListener('scroll', handleScroll)
 
@@ -327,6 +331,10 @@ const toggleSingleCheckbox = (index) => {
 }
 
 const verifyTeam = () => {
+
+    if (isLoading.value) return // Prevent multiple clicks
+    isLoading.value = true // Set loading to true
+
     submitCrewMembersToVerify.value = []
     CrewMembersTobeVerified.value.map(member => (member.hasOwnProperty('isChecked') && member.isChecked) ?
         submitCrewMembersToVerify.value.push(member.id) : '')
@@ -338,11 +346,14 @@ const verifyTeam = () => {
     })
         .then(res => getCrewMembers())
         .catch(err => console.log(err))
+        .finally(() => isLoading.value = false) // Reset loading state
 }
 
 const clockinout = (type) => {
 
-    console.log('Attempting to send request...');
+    if (isLoading.value) return // Prevent multiple clicks
+    isLoading.value = true // Set loading to true
+
     const response = axios.post('/clockinout-crew-members', {
         'crewId': crewId.value,
         'type': type,
@@ -354,6 +365,7 @@ const clockinout = (type) => {
             let errorMessage = error.response.data.message
             errorMessage ? toast.error(errorMessage) : 'Something went wrong'
         })
+        .finally(() => isLoading.value = false) // Reset loading state
 
 
 }
@@ -383,6 +395,9 @@ const enableMenualClock = (id) => {
 
 const menualClockinout = (event, timesheetId, type) => {
 
+    if (isLoading.value) return // Prevent multiple clicks
+    isLoading.value = true // Set loading to true
+
     const formatedDateTime = format(event, dateTimeFormat) // to adjust formate of date picker
 
     axios.post('/clockinout-crew-members', {
@@ -398,6 +413,7 @@ const menualClockinout = (event, timesheetId, type) => {
             let errorMessage = error.response.data.message
             errorMessage ? toast.error(errorMessage) : 'Something went wrong'
         })
+        .finally(() => isLoading.value = false) // Reset loading state
 }
 
 
@@ -411,6 +427,9 @@ const GetAllUsers = (users) => {
     createNewCrewForm.value[0].clockin_time = now.value
 }
 const addNewCrew = () => {
+
+    if (isLoading.value) return // Prevent multiple clicks
+    isLoading.value = true // Set loading to true
 
     createNewCrewForm.value[0].clockin_time = format(createNewCrewForm.value[0].clockin_time, dateTimeFormat) // adjust for date picker formate
 
@@ -426,6 +445,7 @@ const addNewCrew = () => {
             let errorMessage = error.response.data.message
             errorMessage ? toast.error(errorMessage) : 'Something went wrong'
         })
+        .finally(() => isLoading.value = false) // Reset loading state
 }
 
 const crewMemberDeleted = () => getCrewMembers()
@@ -438,6 +458,10 @@ const hfPerDiemDone = (status) => {
 const trackTimeDone = () => getCrewMembers()
 
 const readyForVerification = () => {
+
+    if (isLoading.value) return // Prevent multiple clicks
+    isLoading.value = true // Set loading to true
+
     axios.post('/ready-for-verification', {
         'crewId': crewId.value,
     })
@@ -445,9 +469,14 @@ const readyForVerification = () => {
             getCrewMembers()
         })
         .catch(err => console.log(err))
+        .finally(() => isLoading.value = false) // Reset loading state
 }
 
 const weatherEntry = () => {
+
+    if (isLoading.value) return // Prevent multiple clicks
+    isLoading.value = true // Set loading to true
+    
     axios.post('/wather-entry', {
         'crewId': crewId.value,
     })
@@ -455,6 +484,7 @@ const weatherEntry = () => {
             getCrewMembers()
         })
         .catch(err => console.log(err))
+        .finally(() => isLoading.value = false) // Reset loading state
 }
 
 
