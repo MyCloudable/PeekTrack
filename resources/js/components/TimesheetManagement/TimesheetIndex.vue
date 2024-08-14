@@ -1,5 +1,7 @@
 <template>
 
+    <LoadingOverlay />
+
     <div class="row">
         <div class="card card-frame">
             <div class="card-body">
@@ -38,11 +40,16 @@ import DataTablesCore from 'datatables.net-bs5';
 
 import { useToast } from "vue-toastification";
 
+import LoadingOverlay from '../shared/LoadingOverlay.vue'
+import {useLoading} from '../../composables/useLoading'
+
 
 import { createApp } from 'vue';
 import { result } from 'lodash';
 
 const toast = useToast();
+
+const { isLoading, setLoading } = useLoading()
 
 DataTable.use(DataTablesCore);
 
@@ -353,7 +360,9 @@ const handleFilter = (filter) => {
 
 
 const handleCheckboxChange = async (event) => {
-    console.log('handleCheckboxChange')
+    
+    setLoading(true)
+
     const checkbox = event.target
     if (checkbox.classList.contains('form-check-input')) {
         const id = checkbox.dataset.id
@@ -378,13 +387,16 @@ const handleCheckboxChange = async (event) => {
             }
         } catch (error) {
             this.$toast.error('An error occurred while updating approval status')
+        } finally {
+            setLoading(false)
         }
     }
 }
 
 
 const handleSelectAllPayrollApproval = async (event) => {
-    console.log('handleSelectAllPayrollApproval')
+    
+    setLoading(true)
     
     const checkbox = event.target
     const checkboxes = document.querySelectorAll('.payroll-approval-checkbox')
@@ -421,6 +433,8 @@ const handleSelectAllPayrollApproval = async (event) => {
         }
     } catch (error) {
          this.$toast.error('An error occurred while updating approval status')
+    } finally {
+        setLoading(false)
     }
 }
 
@@ -442,6 +456,8 @@ const handleEditClick = (event) => {
 
 
 const saveRow = async (id) => {
+
+    setLoading(true)
 
     const clockinInput = document.querySelector(`.clockin-time-input[data-id="${id}"]`)
     const clockoutInput = document.querySelector(`.clockout-time-input[data-id="${id}"]`)
@@ -480,6 +496,8 @@ const saveRow = async (id) => {
         // alert('here coming error')
         alert(`Error: ${error.response.data.message}`);
         this.$toast.error('An error occurred while updating the timesheet entry')
+    } finally {
+        setLoading(false)
     }
 }
 
@@ -488,6 +506,9 @@ const handleDeleteClick = async (event) => {
 
     if (confirm('Are you sure you want to delete this timesheet?')) {
         try {
+
+            setLoading(true)
+
             const response = await axios.delete(`/timesheets/${id}`);
 
             if (response.data.success) {
@@ -504,6 +525,8 @@ const handleDeleteClick = async (event) => {
         } catch (error) {
             let errorMessage = error.response.data.message
             errorMessage ? toast.error(errorMessage) : 'An error occurred while deleting the timesheet entry'
+        } finally {
+            setLoading(false)
         }
     }
 };

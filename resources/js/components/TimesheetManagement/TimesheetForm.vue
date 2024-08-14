@@ -63,6 +63,8 @@ import { ref, watch, onMounted, nextTick } from 'vue'
 
 import { useToast } from "vue-toastification";
 
+import {useLoading} from '../../composables/useLoading'
+
 const props = defineProps({
   users: Object,
   jobs: Object,
@@ -79,7 +81,9 @@ let select2SettingsCrews = ref({
     multiple: true
 })
 
-const toast = useToast();
+const toast = useToast()
+
+const { isLoading, setLoading } = useLoading()
 
 
 let showForm = ref(false)
@@ -102,6 +106,9 @@ const createTimesheet = async () => {
   }
 
   try {
+
+    setLoading(true)
+
     const response = await axios.post(`timesheet-management/store`, {
       formData: formData.value
     })
@@ -117,6 +124,8 @@ const createTimesheet = async () => {
     let errorMessage = error.response.data.message
 
     errorMessage ? toast.error(errorMessage) : 'Something went wrong'
+  } finally {
+    setLoading(false)
   }
 }
 

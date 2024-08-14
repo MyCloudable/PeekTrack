@@ -10,6 +10,8 @@
     import axios from 'axios';
     import { ref } from 'vue'
 
+    import {useLoading} from '../composables/useLoading'
+
     const props = defineProps({
         timesheetId: [Number, Array],
         perDiem: String
@@ -17,7 +19,11 @@
 
     const emit = defineEmits(['hf-per-diem-done'])
 
+    const { isLoading, setLoading } = useLoading()
+
     const hfPerDiem = (perDiem) => {
+
+        setLoading(true)
 
         axios.post('/hf-per-diem', {
         'timesheetId': props.timesheetId,
@@ -25,6 +31,7 @@
     })
         .then(res => emit('hf-per-diem-done', perDiem))
         .catch(err => console.log(err))
+        .finally(() => setLoading(false))
     }
     
     </script>

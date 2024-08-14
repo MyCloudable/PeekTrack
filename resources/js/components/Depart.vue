@@ -1,6 +1,8 @@
 <template>
     <div ref="departWrapper">
 
+        <!-- <LoadingOverlay /> -->
+
         <button type="button" class="btn btn-info p-3" @click="getAllJobs" v-if="(!isDepart && travelTime == null) ||
             (!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive)">
             MOBILIZATION</button>
@@ -36,6 +38,8 @@ import axios from 'axios';
 import { ref, onMounted } from 'vue'
 
 import { useToast } from "vue-toastification"
+// import LoadingOverlay from './shared/LoadingOverlay.vue'
+import {useLoading} from '../composables/useLoading'
 
 const props = defineProps({
     crewId: Number,
@@ -46,6 +50,8 @@ const props = defineProps({
 const emit = defineEmits(['track-time-done', 'is-mobilization'])
 
 const toast = useToast()
+
+const { isLoading, setLoading } = useLoading()
 
 const departWrapper = ref(null)
 let select2Settings = ref({
@@ -64,8 +70,6 @@ let departForm = ref({
     'type': ''
 })
 
-// Loading state
-const isLoading = ref(false);
 
 onMounted(() => {
 
@@ -83,9 +87,7 @@ const getAllJobs = () => {
 
 const depart = (eventOrValidation = false) => {
 
-    if (isLoading.value) return // Prevent multiple clicks
-    isLoading.value = true // Set loading to true
-
+    setLoading(true) // Enable loading
 
     // Determine if we should validate the job ID
     const shouldValidateJobId = eventOrValidation === true;
@@ -115,7 +117,9 @@ const depart = (eventOrValidation = false) => {
 
         })
         .catch(err => console.log(err))
-        .finally(() => isLoading.value = false) // Reset loading state
+        .finally(() => setLoading(false)) // Disable loading
+
+    
 }
 
 const setType = () => {
@@ -141,4 +145,5 @@ const setType = () => {
 
 </script>
 
-<style scoped></style>
+<style>
+</style>

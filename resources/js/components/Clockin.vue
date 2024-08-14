@@ -1,5 +1,7 @@
 <template>
 
+    <LoadingOverlay />
+
     <a href="javascript:;" class="nav-link text-body p-0" data-bs-toggle="modal" data-bs-target="#clockin"
         @click="getCrewMembers" v-if="iconVisible">
         <span class="sidenav-normal  ms-2  ps-1">
@@ -205,7 +207,12 @@ import Depart from './Depart'
 
 import { format, parse } from 'date-fns'
 
-const toast = useToast();
+import LoadingOverlay from './shared/LoadingOverlay.vue'
+import {useLoading} from '../composables/useLoading'
+
+const toast = useToast()
+
+const { isLoading, setLoading } = useLoading()
 
 const departWrapper = ref(null)
 let select2Settings = ref({
@@ -252,14 +259,29 @@ let enableCrewTypeId = ref(false)
 let departKey = ref(0)
 
 
-// Loading state
-const isLoading = ref(false);
+// things to manage multi tabs issue
+let initialLoad = true // Flag to handle initial load
 
+const setLocalStorageFlag = () => {
+        localStorage.setItem('crewMembersUpdated', Date.now())
+        getCrewMembers()
+    }
+
+window.addEventListener('storage', (event) => {
+    if (event.key === 'crewMembersUpdated' && !initialLoad) {
+        // Call getCrewMembers to update UI ( in other tabs if user open ) 
+        getCrewMembers()
+    }
+});
+// things to manage multi tabs issue end
 
 onMounted(() => {
     window.addEventListener('scroll', handleScroll)
 
     setCurrentDateTime()
+
+    // Reset initial load flag after mounted hook completes
+    initialLoad = false
 
 })
 onBeforeUnmount(() => {
@@ -316,6 +338,7 @@ const getCrewMembers = () => {
 
         })
         .catch(err => console.log(err))
+        
 }
 
 const toggleCheckboxes = () => {
@@ -332,8 +355,7 @@ const toggleSingleCheckbox = (index) => {
 
 const verifyTeam = () => {
 
-    if (isLoading.value) return // Prevent multiple clicks
-    isLoading.value = true // Set loading to true
+    setLoading(true)
 
     submitCrewMembersToVerify.value = []
     CrewMembersTobeVerified.value.map(member => (member.hasOwnProperty('isChecked') && member.isChecked) ?
@@ -344,28 +366,28 @@ const verifyTeam = () => {
         'crewMembers': submitCrewMembersToVerify.value,
         'crewTypeId': crewTypeId.value
     })
-        .then(res => getCrewMembers())
+        // .then(res => getCrewMembers()) call setLocalStorageFlag instead of getCrewMembers everywhere in then block
+        .then(res => setLocalStorageFlag())
         .catch(err => console.log(err))
-        .finally(() => isLoading.value = false) // Reset loading state
+        .finally(() => setLoading(false))
 }
 
 const clockinout = (type) => {
 
-    if (isLoading.value) return // Prevent multiple clicks
-    isLoading.value = true // Set loading to true
+    setLoading(true)
 
     const response = axios.post('/clockinout-crew-members', {
         'crewId': crewId.value,
         'type': type,
         'isMenual': false,
     })
-        .then(res => getCrewMembers())
+        .then(res => setLocalStorageFlag())
         .catch(error => {
             console.log('bs kr')
             let errorMessage = error.response.data.message
             errorMessage ? toast.error(errorMessage) : 'Something went wrong'
         })
-        .finally(() => isLoading.value = false) // Reset loading state
+        .finally(() => setLoading(false))
 
 
 }
@@ -395,8 +417,7 @@ const enableMenualClock = (id) => {
 
 const menualClockinout = (event, timesheetId, type) => {
 
-    if (isLoading.value) return // Prevent multiple clicks
-    isLoading.value = true // Set loading to true
+    setLoading(true)
 
     const formatedDateTime = format(event, dateTimeFormat) // to adjust formate of date picker
 
@@ -408,12 +429,12 @@ const menualClockinout = (event, timesheetId, type) => {
         // 'time': event.target.value
         'time': formatedDateTime
     })
-        .then(res => getCrewMembers())
+        .then(res => setLocalStorageFlag())
         .catch(error => {
             let errorMessage = error.response.data.message
             errorMessage ? toast.error(errorMessage) : 'Something went wrong'
         })
-        .finally(() => isLoading.value = false) // Reset loading state
+        .finally(() => setLoading(false))
 }
 
 
@@ -428,8 +449,7 @@ const GetAllUsers = (users) => {
 }
 const addNewCrew = () => {
 
-    if (isLoading.value) return // Prevent multiple clicks
-    isLoading.value = true // Set loading to true
+    setLoading(true)
 
     createNewCrewForm.value[0].clockin_time = format(createNewCrewForm.value[0].clockin_time, dateTimeFormat) // adjust for date picker formate
 
@@ -439,52 +459,50 @@ const addNewCrew = () => {
     })
         .then(res => {
             allUsers.value = []
-            getCrewMembers()
+            setLocalStorageFlag()
         })
         .catch(error => {
             let errorMessage = error.response.data.message
             errorMessage ? toast.error(errorMessage) : 'Something went wrong'
         })
-        .finally(() => isLoading.value = false) // Reset loading state
+        .finally(() => setLoading(false))
 }
 
-const crewMemberDeleted = () => getCrewMembers()
+const crewMemberDeleted = () => setLocalStorageFlag()
 
 const hfPerDiemDone = (status) => {
     allPerDiemStatus.value = status
-    getCrewMembers()
+    setLocalStorageFlag()
 }
 
-const trackTimeDone = () => getCrewMembers()
+const trackTimeDone = () => setLocalStorageFlag()
 
 const readyForVerification = () => {
 
-    if (isLoading.value) return // Prevent multiple clicks
-    isLoading.value = true // Set loading to true
+    setLoading(true)
 
     axios.post('/ready-for-verification', {
         'crewId': crewId.value,
     })
         .then(res => {
-            getCrewMembers()
+            setLocalStorageFlag()
         })
         .catch(err => console.log(err))
-        .finally(() => isLoading.value = false) // Reset loading state
+        .finally(() => setLoading(false))
 }
 
 const weatherEntry = () => {
 
-    if (isLoading.value) return // Prevent multiple clicks
-    isLoading.value = true // Set loading to true
-    
+    setLoading(true)
+
     axios.post('/wather-entry', {
         'crewId': crewId.value,
     })
         .then(res => {
-            getCrewMembers()
+            setLocalStorageFlag()
         })
         .catch(err => console.log(err))
-        .finally(() => isLoading.value = false) // Reset loading state
+        .finally(() => setLoading(false))
 }
 
 
