@@ -260,6 +260,7 @@ class TimesheetManagementConroller extends Controller
         $clockoutTime = $request->clockout_time;
         $jobNumber = $request->job_number;
         $timeType = $request->time_type;
+		$perDiem = $request->per_diem;
 
         try {
             // Fetch the timesheet record by ID
@@ -310,6 +311,7 @@ class TimesheetManagementConroller extends Controller
             $timesheet->clockout_time = $clockoutTime;
             $timesheet->job_id = $jobNumber;
             $timesheet->time_type_id = $timeType;
+			$timesheet->per_diem = $perDiem;
 
             // Save the changes
             $timesheet->save();

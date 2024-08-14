@@ -176,7 +176,22 @@ const tableOptions = ref({
                 return TimeConvert(data)
             }
         },
-        { data: 'per_diem', title: 'Per Diem' },
+        { 
+        data: 'per_diem', 
+        title: 'Per Diem',
+        orderable: true,
+            render: function (data, type, row) {
+                if (editingRows.has(row.timesheet_id)) {
+                    const options = `
+                    <option value="">Select per diem</option>
+                    <option value="h" ${'h' === row.per_diem ? 'selected' : ''}>h</option>
+                    <option value="f" ${'f' === row.per_diem ? 'selected' : ''}>f</option>`
+                    
+                    return `<select class="form-control bg-white per-diem-select" data-id="${row.timesheet_id}">${options}</select>`
+                }
+                return data
+            }
+        },
         {
             data: 'weekend_out',
             title: 'WO',
@@ -432,11 +447,13 @@ const saveRow = async (id) => {
     const clockoutInput = document.querySelector(`.clockout-time-input[data-id="${id}"]`)
     const jobNumberSelect = document.querySelector(`.job-number-select[data-id="${id}"]`);
     const timeTypeSelect = document.querySelector(`.time-type-select[data-id="${id}"]`);
+    const perDiemSelect = document.querySelector(`.per-diem-select[data-id="${id}"]`);
 
     const clockinTime = clockinInput ? clockinInput.value : null;
     const clockoutTime = clockoutInput ? clockoutInput.value : null;
     const jobNumber = jobNumberSelect ? jobNumberSelect.value : null;
     const timeType = timeTypeSelect ? timeTypeSelect.value : null;
+    const perDiem = perDiemSelect ? perDiemSelect.value : null;
 
     try {
         const response = await axios.post('/timesheet-management/update-times', {
@@ -444,7 +461,8 @@ const saveRow = async (id) => {
             clockin_time: clockinTime,
             clockout_time: clockoutTime,
             job_number: jobNumber,
-            time_type: timeType
+            time_type: timeType,
+            per_diem: perDiem
         })
 
         if (response.data.success) {
