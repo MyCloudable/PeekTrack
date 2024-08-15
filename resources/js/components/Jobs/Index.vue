@@ -1,10 +1,19 @@
 <template>
 
     <!-- Custom filter div -->
-    <div id="custom-filters" class="custom-filters"></div>
+    <div class="card card-frame">
+        <div class="card-body">
+            <div class="card-title">Advance Filter</div>
+            
+            <button class="btn btn-info" @click="showFilter = true" v-show="!showFilter">Show Filter</button>
+            <div v-show="showFilter">
+                <div id="custom-filters" class="custom-filters"></div>
+                <button @click="clearAllFilters" class="btn btn-danger btn-md mb-2 mt-2">Clear All</button>
+                <button class="btn btn-info btn-md ms-2 mb-2 mt-2" @click="showFilter = false">Hide Filter</button>
+            </div>
 
-    <!-- Clear All Button -->
-    <button @click="clearAllFilters" class="btn btn-danger ms-2 mb-2">Clear All</button>
+        </div>
+    </div>
 
     <DataTable :options="tableOptions" ref="dataTableRef">
 
@@ -37,6 +46,8 @@ DataTable.use(DataTablesCore);
 const dataTableRef = ref(null)
 
 const filterInputs = ref([]); // Store references to input fields
+
+let showFilter = ref(false)
 
 const tableOptions = ref({
     processing: true,
@@ -91,7 +102,7 @@ const tableOptions = ref({
                 input.placeholder = title;
 
                 // Add Bootstrap margin classes
-                input.classList.add('ms-3', 'mb-4');
+                input.classList.add('me-3', 'mb-4');
 
 
                 // Replacing input with header content

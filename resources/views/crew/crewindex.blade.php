@@ -51,7 +51,7 @@
                                         </td>
                                         <td class="text-md font-weight-bold"><h5>{{ $time->crewmember_name }}</h5></td>
                                         <td class="text-md font-weight-bold"><h5>{{ $time->day }}</h5></td>
-                                        <td class="text-md font-weight-bold"><h5>{{ number_format((float)($time->total_hours), 2, '.', '') }}</h5></td>
+                                        <td class="text-md font-weight-bold"><h5>{{ $time->total_hours }}:{{ $time->total_minutes }}</h5></td>
                                     </tr>
                                 @endif
                             @endforeach

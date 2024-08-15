@@ -14,7 +14,12 @@
     </div>
 
     <div class="row mt-5">
-        <timesheet-filter :users="props.users" :jobs="props.jobs" :authuser="authuser" @filter="handleFilter" />
+        <div class="card card-frame">
+            <div class="card-body">
+                <div class="card-title">Advance Filter</div>
+                    <timesheet-filter :users="props.users" :jobs="props.jobs" :authuser="authuser" @filter="handleFilter" />
+            </div>
+        </div>
 
     </div>
 
