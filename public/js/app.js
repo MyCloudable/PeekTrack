@@ -22137,7 +22137,9 @@ __webpack_require__.r(__webpack_exports__);
     var clear = function clear() {
       var superIntendentValue = filterData.value.superIntendent;
       filterData.value = {};
-      filterData.value.superIntendent = superIntendentValue;
+      if (props.authuser.role_id == 3)
+        // don't clear this if user is superintendent. clear this if user is not superintendent
+        filterData.value.superIntendent = superIntendentValue;
       emit('filter', filterData.value);
     };
     var __returned__ = {

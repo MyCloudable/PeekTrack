@@ -118,7 +118,9 @@ onMounted(() => {
 const clear = () => {
     const superIntendentValue = filterData.value.superIntendent
     filterData.value = {}
-    filterData.value.superIntendent = superIntendentValue
+
+    if(props.authuser.role_id == 3) // don't clear this if user is superintendent. clear this if user is not superintendent
+        filterData.value.superIntendent = superIntendentValue
 
     emit('filter', filterData.value)
 }

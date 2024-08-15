@@ -15,6 +15,7 @@
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Job #</th>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Description</th>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Branch</th>
+					<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Work Date</th>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Submitted On</th>
 					<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Submitted By</th>
                   </tr>
@@ -27,6 +28,7 @@
 				<td class="text-md font-weight-bold"><h5>{{ $job->job_number }}</h5></td>
                 <td class="text-sm font-weight-normal"><h5>{{ $job->description }}</h5></td>
                 <td class="text-sm font-weight-normal"><h5>{{ $job->branch }}<h5></td>
+				<td class="text-sm font-weight-normal"><h5>{{ $job->workdate }}</h5></td>
                 <td class="text-sm font-weight-normal"><h5>{{ $job->submitted_on }}</h5></td>
 				<td class="text-sm font-weight-normal"><h5>{{ $job->name }}</h5></td>
 				</tr>
