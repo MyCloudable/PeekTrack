@@ -17,7 +17,7 @@
         <div class="card card-frame">
             <div class="card-body">
                 <div class="card-title">Advance Filter</div>
-                    <timesheet-filter :users="props.users" :jobs="props.jobs" :authuser="authuser" @filter="handleFilter" />
+                <timesheet-filter :users="props.users" :jobs="props.jobs" :authuser="authuser" @filter="handleFilter" />
             </div>
         </div>
 
@@ -46,7 +46,7 @@ import DataTablesCore from 'datatables.net-bs5';
 import { useToast } from "vue-toastification";
 
 import LoadingOverlay from '../shared/LoadingOverlay.vue'
-import {useLoading} from '../../composables/useLoading'
+import { useLoading } from '../../composables/useLoading'
 
 
 import { createApp } from 'vue';
@@ -100,12 +100,12 @@ const tableOptions = ref({
             console.error('Ajax error:', error);
         },
         complete: function (response) {
-            console.log('complete function')
+
             // Optionally, handle after AJAX request completion
             nextTick(() => {
 
                 document.querySelectorAll('.edit-icon').forEach((el) => {
-                    el.addEventListener('click', handleEditClick);
+                    el.addEventListener('click', handleEditClick)
                 });
 
                 const selectAllCheckbox = document.getElementById('select-all-payroll-approval')
@@ -119,12 +119,27 @@ const tableOptions = ref({
                     })
 
                 document.querySelectorAll('.delete-icon').forEach((el) => {
-                    el.addEventListener('click', handleDeleteClick);
+                    el.addEventListener('click', handleDeleteClick)
                 });
 
             });
 
         }
+    },
+
+    drawCallback: function (settings) {
+
+        // event listeners for custom search on job number dropdown
+
+        document.querySelectorAll('.search-input').forEach((el) => {
+            const timesheetId = el.getAttribute('data-id')
+            el.addEventListener('keyup', (event) => handleFilterOptions(event, timesheetId))
+        });
+
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            const timesheetId = item.getAttribute('data-id')
+            item.addEventListener('click', (event) => selectOption(event, timesheetId))
+        });
     },
 
     columns: [
@@ -137,10 +152,24 @@ const tableOptions = ref({
             title: 'Job Number(County)',
             render: function (data, type, row) {
                 if (editingRows.has(row.timesheet_id)) {
+
+                    // const options = props.jobs.map(job =>
+                    //     `<option value="${job.id}" ${job.id === row.job_id ? 'selected' : ''}>${job.text}</option>`
+                    // ).join('');
+                    // return `<select class="form-control bg-white job-number-select" data-id="${row.timesheet_id}">${options}</select>`;
+
                     const options = props.jobs.map(job =>
-                        `<option value="${job.id}" ${job.id === row.job_id ? 'selected' : ''}>${job.text}</option>`
-                    ).join('');
-                    return `<select class="form-control bg-white job-number-select" data-id="${row.timesheet_id}">${options}</select>`;
+                        `<li class="dropdown-item" data-value="${job.id}" ${job.id === row.job_id ? 'selected' : ''} data-id="${row.timesheet_id}" >${job.text}</li>`
+                    ).join('')
+
+                    return `
+                    <div class="searchable-dropdown position-relative">
+                        <input type="text" class="form-control job-number-select search-input bg-white" placeholder="Search Job Number..." 
+                            data-id="${row.timesheet_id}" />
+                        <ul class="custom-dropdown-list" id="dropdown-list-${row.timesheet_id}">
+                            ${options}
+                        </ul>
+                    </div>`;
                 }
 
                 return data;
@@ -188,17 +217,17 @@ const tableOptions = ref({
                 return TimeConvert(data)
             }
         },
-        { 
-        data: 'per_diem', 
-        title: 'Per Diem',
-        orderable: true,
+        {
+            data: 'per_diem',
+            title: 'Per Diem',
+            orderable: true,
             render: function (data, type, row) {
                 if (editingRows.has(row.timesheet_id)) {
                     const options = `
                     <option value="">Select per diem</option>
                     <option value="h" ${'h' === row.per_diem ? 'selected' : ''}>h</option>
                     <option value="f" ${'f' === row.per_diem ? 'selected' : ''}>f</option>`
-                    
+
                     return `<select class="form-control bg-white per-diem-select" data-id="${row.timesheet_id}">${options}</select>`
                 }
                 return data
@@ -305,16 +334,16 @@ const tableOptions = ref({
                     //     (isSuperintendent || isReviewer || isPayrollAdmin);
 
 
-                    if(isCmaApproved){ // only reviewer and payroll admin can interact
-                        if((isReviewer || isPayrollAdmin) && (!isReviewerApproved && !isPayrollApproved)){
+                    if (isCmaApproved) { // only reviewer and payroll admin can interact
+                        if ((isReviewer || isPayrollAdmin) && (!isReviewerApproved && !isPayrollApproved)) {
                             return true
-                        }else{
+                        } else {
                             return false
                         }
-                    }else{ // all users, superintendent , reviewer and payroll admin can interact
-                        if((isSuperintendent || isReviewer || isPayrollAdmin) && (!isReviewerApproved && !isPayrollApproved)){
+                    } else { // all users, superintendent , reviewer and payroll admin can interact
+                        if ((isSuperintendent || isReviewer || isPayrollAdmin) && (!isReviewerApproved && !isPayrollApproved)) {
                             return true
-                        }else{
+                        } else {
                             return false
                         }
                     }
@@ -365,7 +394,7 @@ const handleFilter = (filter) => {
 
 
 const handleCheckboxChange = async (event) => {
-    
+
     setLoading(true)
 
     const checkbox = event.target
@@ -400,9 +429,9 @@ const handleCheckboxChange = async (event) => {
 
 
 const handleSelectAllPayrollApproval = async (event) => {
-    
+
     setLoading(true)
-    
+
     const checkbox = event.target
     const checkboxes = document.querySelectorAll('.payroll-approval-checkbox')
     const selectedIds = []
@@ -432,12 +461,12 @@ const handleSelectAllPayrollApproval = async (event) => {
                 dataTableRef.value.dt.ajax.reload(null, false)
                 // dataTableRef.value.reload()
             }
-             this.$toast.success('Approval status updated successfully')
+            this.$toast.success('Approval status updated successfully')
         } else {
-             this.$toast.error('Failed to update approval status')
+            this.$toast.error('Failed to update approval status')
         }
     } catch (error) {
-         this.$toast.error('An error occurred while updating approval status')
+        this.$toast.error('An error occurred while updating approval status')
     } finally {
         setLoading(false)
     }
@@ -472,7 +501,7 @@ const saveRow = async (id) => {
 
     const clockinTime = clockinInput ? clockinInput.value : null;
     const clockoutTime = clockoutInput ? clockoutInput.value : null;
-    const jobNumber = jobNumberSelect ? jobNumberSelect.value : null;
+    const jobNumber = jobNumberSelect ? jobNumberSelect.getAttribute('data-value') : null;
     const timeType = timeTypeSelect ? timeTypeSelect.value : null;
     const perDiem = perDiemSelect ? perDiemSelect.value : null;
 
@@ -559,6 +588,49 @@ onMounted(async () => {
 });
 
 
+
+
+// custom search on job number dropdown in a datatable
+
+function handleFilterOptions(event, timesheetId) {
+
+    const inputElement = event.target
+    let filter = inputElement.value.toUpperCase()
+    let dropdownList = document.getElementById(`dropdown-list-${timesheetId}`)
+    let options = dropdownList.getElementsByTagName("li")
+
+    // Show the dropdown list as the user types
+    dropdownList.style.display = "block"
+
+    for (let i = 0; i < options.length; i++) {
+        let optionText = options[i].textContent || options[i].innerText;
+        if (optionText.toUpperCase().indexOf(filter) > -1) {
+            options[i].style.display = ""
+        } else {
+            options[i].style.display = "none"
+        }
+    }
+}
+
+// Function to handle option selection
+function selectOption(event, timesheetId) {
+
+    let inputElement = document.querySelector(`input[data-id="${timesheetId}"]`)
+    let dropdownList = document.getElementById(`dropdown-list-${timesheetId}`)
+
+    // Set the input value to the selected option's text
+    inputElement.value = event.target.innerText
+
+    // Store the selected value for backend update
+    let selectedValue = event.target.getAttribute('data-value')
+    inputElement.setAttribute('data-value', selectedValue)
+
+    // Hide the dropdown list
+    dropdownList.style.display = "none"
+}
+
+
+
 </script>
 
 <style>
@@ -580,6 +652,27 @@ onMounted(async () => {
 body.dark-version table.dataTable tbody tr:nth-child(even) {
     background-color: #333;
     /* Darker shade for dark theme */
+
 }
 
+.custom-dropdown-list{
+        display:none; 
+        position: absolute; 
+        top: 100%; 
+        left: 0; 
+        max-height: 200px; 
+        overflow: auto; 
+        z-index: 1000; 
+        background-color: white; 
+        border: 1px solid #ccc; 
+        width: 100%;
+        padding-left:5px;
+        cursor: pointer;
+    }
+
+
+    .dropdown-item{
+        padding-left: 0;
+        font-size: 12px;
+    }
 </style>

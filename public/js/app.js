@@ -22532,7 +22532,6 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           console.error('Ajax error:', _error);
         },
         complete: function complete(response) {
-          console.log('complete function');
           // Optionally, handle after AJAX request completion
           (0,vue__WEBPACK_IMPORTED_MODULE_1__.nextTick)(function () {
             document.querySelectorAll('.edit-icon').forEach(function (el) {
@@ -22551,6 +22550,22 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           });
         }
       },
+      drawCallback: function drawCallback(settings) {
+        // event listeners for custom search on job number dropdown
+
+        document.querySelectorAll('.search-input').forEach(function (el) {
+          var timesheetId = el.getAttribute('data-id');
+          el.addEventListener('keyup', function (event) {
+            return handleFilterOptions(event, timesheetId);
+          });
+        });
+        document.querySelectorAll('.dropdown-item').forEach(function (item) {
+          var timesheetId = item.getAttribute('data-id');
+          item.addEventListener('click', function (event) {
+            return selectOption(event, timesheetId);
+          });
+        });
+      },
       columns: [{
         data: 'timesheet_id',
         title: 'Time Id'
@@ -22565,10 +22580,15 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         title: 'Job Number(County)',
         render: function render(data, type, row) {
           if (editingRows.has(row.timesheet_id)) {
+            // const options = props.jobs.map(job =>
+            //     `<option value="${job.id}" ${job.id === row.job_id ? 'selected' : ''}>${job.text}</option>`
+            // ).join('');
+            // return `<select class="form-control bg-white job-number-select" data-id="${row.timesheet_id}">${options}</select>`;
+
             var options = props.jobs.map(function (job) {
-              return "<option value=\"".concat(job.id, "\" ").concat(job.id === row.job_id ? 'selected' : '', ">").concat(job.text, "</option>");
+              return "<li class=\"dropdown-item\" data-value=\"".concat(job.id, "\" ").concat(job.id === row.job_id ? 'selected' : '', " data-id=\"").concat(row.timesheet_id, "\" >").concat(job.text, "</li>");
             }).join('');
-            return "<select class=\"form-control bg-white job-number-select\" data-id=\"".concat(row.timesheet_id, "\">").concat(options, "</select>");
+            return "\n                    <div class=\"searchable-dropdown position-relative\">\n                        <input type=\"text\" class=\"form-control job-number-select search-input bg-white\" placeholder=\"Search Job Number...\" \n                            data-id=\"".concat(row.timesheet_id, "\" />\n                        <ul class=\"custom-dropdown-list\" id=\"dropdown-list-").concat(row.timesheet_id, "\">\n                            ").concat(options, "\n                        </ul>\n                    </div>");
           }
           return data;
         }
@@ -22901,7 +22921,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
               perDiemSelect = document.querySelector(".per-diem-select[data-id=\"".concat(id, "\"]"));
               clockinTime = clockinInput ? clockinInput.value : null;
               clockoutTime = clockoutInput ? clockoutInput.value : null;
-              jobNumber = jobNumberSelect ? jobNumberSelect.value : null;
+              jobNumber = jobNumberSelect ? jobNumberSelect.getAttribute('data-value') : null;
               timeType = timeTypeSelect ? timeTypeSelect.value : null;
               perDiem = perDiemSelect ? perDiemSelect.value : null;
               _context3.prev = 11;
@@ -23020,6 +23040,42 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         }
       }, _callee5);
     })));
+
+    // custom search on job number dropdown in a datatable
+
+    function handleFilterOptions(event, timesheetId) {
+      var inputElement = event.target;
+      var filter = inputElement.value.toUpperCase();
+      var dropdownList = document.getElementById("dropdown-list-".concat(timesheetId));
+      var options = dropdownList.getElementsByTagName("li");
+
+      // Show the dropdown list as the user types
+      dropdownList.style.display = "block";
+      for (var i = 0; i < options.length; i++) {
+        var optionText = options[i].textContent || options[i].innerText;
+        if (optionText.toUpperCase().indexOf(filter) > -1) {
+          options[i].style.display = "";
+        } else {
+          options[i].style.display = "none";
+        }
+      }
+    }
+
+    // Function to handle option selection
+    function selectOption(event, timesheetId) {
+      var inputElement = document.querySelector("input[data-id=\"".concat(timesheetId, "\"]"));
+      var dropdownList = document.getElementById("dropdown-list-".concat(timesheetId));
+
+      // Set the input value to the selected option's text
+      inputElement.value = event.target.innerText;
+
+      // Store the selected value for backend update
+      var selectedValue = event.target.getAttribute('data-value');
+      inputElement.setAttribute('data-value', selectedValue);
+
+      // Hide the dropdown list
+      dropdownList.style.display = "none";
+    }
     var __returned__ = {
       toast: toast,
       isLoading: isLoading,
@@ -23038,6 +23094,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       saveRow: saveRow,
       handleDeleteClick: handleDeleteClick,
       TimesheetCreated: TimesheetCreated,
+      handleFilterOptions: handleFilterOptions,
+      selectOption: selectOption,
       get axios() {
         return (axios__WEBPACK_IMPORTED_MODULE_0___default());
       },
@@ -24519,7 +24577,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.page-item .page-link,\n.page-item span {\n    background: black !important;\n}\n.page-item.active .page-link,\n.page-item span {\n    background: orange !important;\n}\n.dt-search input,\n.dt-search input:focus {\n    background: white;\n}\nbody.dark-version table.dataTable tbody tr:nth-child(even) {\n    background-color: #333;\n    /* Darker shade for dark theme */\n}\n\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.page-item .page-link,\n.page-item span {\n    background: black !important;\n}\n.page-item.active .page-link,\n.page-item span {\n    background: orange !important;\n}\n.dt-search input,\n.dt-search input:focus {\n    background: white;\n}\nbody.dark-version table.dataTable tbody tr:nth-child(even) {\n    background-color: #333;\n    /* Darker shade for dark theme */\n}\n.custom-dropdown-list{\n        display:none; \n        position: absolute; \n        top: 100%; \n        left: 0; \n        max-height: 200px; \n        overflow: auto; \n        z-index: 1000; \n        background-color: white; \n        border: 1px solid #ccc; \n        width: 100%;\n        padding-left:5px;\n        cursor: pointer;\n}\n.dropdown-item{\n        padding-left: 0;\n        font-size: 12px;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 

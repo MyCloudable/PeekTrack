@@ -959,56 +959,145 @@ where je.workdate between ? and ? and je.approved = 1 and e.hours > 0', [$date1,
             return response()->stream($callback, 200, $headers);
             }
 			
-			if($request->check == 4){
+			if ($request->check == 4) {
     $twoDates = $request->daterange;
     $date1 = date('Y-m-d', strtotime(substr($twoDates, 0, 10)));
     $date2 = date('Y-m-d', strtotime(substr($twoDates, 13, 21)));
 
     try {
-        $equipment = \DB::select("select 
-            LEFT(t.clockout_time, 10) as timesheet_date,
-            t.user_id,
-            j.job_number,
-            tt.value,
-            '10' as blanka,
-            '0' as blankb,
-            TIMESTAMPDIFF(HOUR, t.clockin_time, t.clockout_time) AS hours,
-            '2' as employee_type,
-            t.user_id
-        from timesheets t
-        join jobs j on t.job_id = j.id
-        join time_types tt on t.time_type_id = tt.id
-        where payroll_approval = 1 and t.clockout_time between ? and ?", [$date1, $date2]);
+        // First query: Equipment
+        $equipment = \DB::select("
+            SELECT 
+                DATE_FORMAT(DATE(t.clockin_time), '%Y-%m-%d') AS workdate,
+                t.user_id,
+                j.job_number,
+                tt.value,
+                u.class,
+                u.pay_rate,
+                ROUND(
+                    TIMESTAMPDIFF(SECOND, 
+                        GREATEST(t.clockin_time, CONCAT(DATE(t.clockout_time), ' 00:00:00')), 
+                        LEAST(t.clockout_time, CONCAT(DATE(t.clockout_time), ' 23:59:59'))
+                    ) / 3600, 
+                2) AS hours,
+                t.user_id
+            FROM timesheets t
+            JOIN users u ON u.id = t.user_id
+            JOIN jobs j ON t.job_id = j.id
+            JOIN time_types tt ON t.time_type_id = tt.id
+            WHERE payroll_approval = 1 
+                AND t.clockin_time BETWEEN ? AND ?
+            ORDER BY t.user_id, workdate", [$date1, $date2]);
+
+        // Second query: Weekend out
+        $weekendout = \DB::select("
+            SELECT
+                DATE_FORMAT(DATE(t.clockin_time), '%Y-%m-%d') AS workdate,
+                t.user_id,
+                MAX(j.job_number) AS job_number,
+                MAX(tt.value) AS value,
+                MAX(u.class) AS class,
+                '25' as pay_rate,
+                '1' AS hours,
+                t.user_id
+            FROM timesheets t
+            JOIN users u ON u.id = t.user_id
+            JOIN jobs j ON t.job_id = j.id
+            JOIN time_types tt ON t.time_type_id = tt.id
+            WHERE payroll_approval = 1 
+                AND weekend_out = 1 
+                AND t.clockin_time BETWEEN ? AND ?
+            GROUP BY t.user_id, workdate
+            ORDER BY t.user_id, workdate", [$date1, $date2]);
+
+        // Third query: Per Diem
+        $perdiem = \DB::select("
+            SELECT
+                DATE_FORMAT(DATE(t.clockin_time), '%Y-%m-%d') AS workdate,
+                t.user_id,
+                MAX(j.job_number) AS job_number,
+                MAX(tt.value) AS value,
+                MAX(u.class) AS class,
+                '9' as pay_rate,
+                CASE
+                    WHEN MIN(t.per_diem) = 'h' THEN '0.50'
+                    WHEN MIN(t.per_diem) = 'f' THEN '1.00'
+                END AS hours,
+                t.user_id
+            FROM timesheets t
+            JOIN users u ON u.id = t.user_id
+            JOIN jobs j ON t.job_id = j.id
+            JOIN time_types tt ON t.time_type_id = tt.id
+            WHERE t.payroll_approval = 1 
+                AND t.per_diem IN ('h','f')
+                AND t.clockin_time BETWEEN ? AND ?
+            GROUP BY t.user_id, workdate
+            ORDER BY t.user_id, workdate", [$date1, $date2]);
+
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
     }
 
-    $csvFileName = 'payroll' . $date1 . '-' . $date2 . '.txt';
+    // File name and headers for CSV
+    $csvFileName = 'payroll_' . $date1 . '-' . $date2 . '.txt';
 
     $headers = [
         'Content-Type' => 'text/csv',
         'Content-Description' => 'File Transfer',
         'Cache-Control' => 'public',
-        'Content-Disposition' => 'attachment; filename="' . $date1 . '-' . $date2 . '-' . $csvFileName . '"',
+        'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
     ];
 
-    $callback = function() use ($equipment) {
+    // Callback function to write CSV
+    $callback = function() use ($equipment, $weekendout, $perdiem) {
         $handle = fopen('php://output', 'w');
 
+        // Write equipment data
         foreach ($equipment as $product) {
             fputcsv($handle, [
-                $product->clockout_time ?? '', 
+                $product->workdate ?? '', 
                 $product->user_id ?? '',
                 $product->job_number ?? '', 
                 $product->value ?? '', 
-                '10',
-				'0',
-				$product->hours ?? '',
-				'',
-				'',
-				'2',
-				$product->user_id ?? ''
-            ]); // Add more fields as needed
+                $product->class ?? '',
+                $product->pay_rate ?? '',
+                $product->hours ?? '',
+                '',
+                '',
+                $product->user_id ?? ''
+            ]);
+        }
+
+        // Write weekend out data
+        foreach ($weekendout as $product) {
+            fputcsv($handle, [
+                $product->workdate ?? '', 
+                $product->user_id ?? '',
+                $product->job_number ?? '', 
+                '', 
+                $product->class ?? '',
+                '25',
+                '1.00',
+                '',
+                '',
+                $product->user_id ?? ''
+            ]);
+        }
+
+        // Write per diem data
+        foreach ($perdiem as $product) {
+            fputcsv($handle, [
+                $product->workdate ?? '', 
+                $product->user_id ?? '',
+                '9-99-9998', 
+                '', 
+                $product->class ?? '',
+                '9',
+                $product->hours ?? '',
+                '',
+                '',
+                $product->user_id ?? ''
+            ]);
         }
 
         fclose($handle);
@@ -1016,6 +1105,8 @@ where je.workdate between ? and ? and je.approved = 1 and e.hours > 0', [$date1,
 
     return response()->stream($callback, 200, $headers);
 }
+
+
 
 			
         
