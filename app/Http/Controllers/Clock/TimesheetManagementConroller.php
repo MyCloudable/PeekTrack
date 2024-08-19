@@ -34,65 +34,175 @@ class TimesheetManagementConroller extends Controller
         return view('clock.timesheetManagement.index', compact('users', 'jobs', 'timeTypes', 'authuser', 'crewTypes', 'uniqueSuperintendents'));
     }
 	
-	    public function crewindex()
-    {
-	$query = DB::table('timesheets')
-		->join('users as crewmembers', 'timesheets.user_id', '=', 'crewmembers.id')
-		->join('crews', 'timesheets.crew_id', '=', 'crews.id')
-		->join('users as superintendents', 'crews.superintendentId', '=', 'superintendents.id')
-		->join('jobs', 'timesheets.job_id', '=', 'jobs.id')
-		->leftJoin('time_types', 'timesheets.time_type_id', '=', 'time_types.id')
-		->select(
-			DB::raw('DATE(timesheets.clockin_time) as day'),
-			'crewmembers.name as crewmember_name',
-			DB::raw('SUM(TIMESTAMPDIFF(minute, timesheets.clockin_time, timesheets.clockout_time) / 60) as total_hours'),
-			'crewmembers.id as user_id',
-			'timesheets.crew_member_approval',
-		)
-		->groupBy(
-			'day',
-			'crewmembers.name',
-			'crewmembers.id',
-			'timesheets.crew_member_approval',
-		)
-		->orderBy('day', 'desc')
-		->get();
+public function crewindex()
+{
+    $query = DB::table(DB::raw('(
+        SELECT
+            DATE(clockin_time) as day,
+            user_id,
+            crew_member_approval,
+            TIMESTAMPDIFF(MINUTE, clockin_time, LEAST(clockout_time, CONCAT(DATE(clockin_time), " 23:59:59"))) as total_minutes
+        FROM timesheets
+        WHERE DATE(clockin_time) = DATE(clockout_time)
 
+        UNION ALL
 
+        SELECT
+            DATE(clockin_time) as day,
+            user_id,
+            crew_member_approval,
+            TIMESTAMPDIFF(MINUTE, clockin_time, CONCAT(DATE(clockin_time), " 23:59:59")) as total_minutes
+        FROM timesheets
+        WHERE DATE(clockout_time) > DATE(clockin_time)
+          AND DATE(clockin_time) <> DATE(clockout_time)
 
+        UNION ALL
 
-        return view('crew.crewindex', compact('query'));
+        SELECT
+            DATE(clockout_time) as day,
+            user_id,
+            crew_member_approval,
+            TIMESTAMPDIFF(MINUTE, CONCAT(DATE(clockout_time), " 00:00:00"), clockout_time) as total_minutes
+    FROM timesheets
+    WHERE DATE(clockout_time) > DATE(clockin_time)
+      AND DATE(clockin_time) <> DATE(clockout_time)
+    ) as daily_totals'))
+    ->join('users as crewmembers', 'daily_totals.user_id', '=', 'crewmembers.id')
+    ->selectRaw('
+        daily_totals.day,
+        crewmembers.name as crewmember_name,
+        crewmembers.id as user_id,
+        MIN(daily_totals.crew_member_approval) AS crew_member_approval,
+        SUM(daily_totals.total_minutes) AS total_minutes
+    ')
+    ->whereRaw('daily_totals.day < CURDATE()')
+    ->groupBy(
+        'daily_totals.day',
+        'crewmembers.name',
+        'crewmembers.id'
+    )
+    ->havingRaw('MIN(daily_totals.crew_member_approval) = 0')
+    ->orderBy('daily_totals.day', 'desc')
+    ->get();
+
+    // Group by Sunday-Saturday week and user
+    $weeklySummary = $query->groupBy(function ($item) {
+        // Calculate the start of the week (Sunday)
+        $dayOfWeek = date('w', strtotime($item->day)); // 0 (for Sunday) through 6 (for Saturday)
+        $sunday = date('Y-m-d', strtotime($item->day . ' -' . $dayOfWeek . ' days'));
+
+        return $item->user_id . '-' . $sunday;
+    });
+
+    // Format total minutes into HH:MM and calculate weekly total
+    foreach ($weeklySummary as $weekGroup) {
+        $weeklyTotalMinutes = $weekGroup->sum('total_minutes');
+
+        foreach ($weekGroup as $record) {
+            $hours = floor($record->total_minutes / 60);
+            $minutes = $record->total_minutes % 60;
+            $record->formatted_time = sprintf('%02d:%02d', $hours, $minutes);
+
+            // Add day of the week
+            $record->day_of_week = date('l', strtotime($record->day));
+
+            // Add weekly total to the first record of the group
+            if ($record === $weekGroup->first()) {
+                $record->weekly_total_time = sprintf('%02d:%02d', floor($weeklyTotalMinutes / 60), $weeklyTotalMinutes % 60);
+                $record->week_rowspan = $weekGroup->count();
+            } else {
+                $record->weekly_total_time = null; // No display for other rows
+                $record->week_rowspan = null;
+            }
+        }
     }
+
+    return view('crew.crewindex', compact('weeklySummary'));
+}
+
+
 	
-	public function summary()
-    {
-	$query = DB::table('timesheets')
-		->join('users as crewmembers', 'timesheets.user_id', '=', 'crewmembers.id')
-		->join('crews', 'timesheets.crew_id', '=', 'crews.id')
-		->join('users as superintendents', 'crews.superintendentId', '=', 'superintendents.id')
-		->join('jobs', 'timesheets.job_id', '=', 'jobs.id')
-		->leftJoin('time_types', 'timesheets.time_type_id', '=', 'time_types.id')
-		->select(
-			DB::raw('DATE(timesheets.clockin_time) as day'),
-			'crewmembers.name as crewmember_name',
-			DB::raw('SUM(TIMESTAMPDIFF(minute, timesheets.clockin_time, timesheets.clockout_time) / 60) as total_hours'),
-			'crewmembers.id as user_id',
-			'timesheets.crew_member_approval',
-		)
-		->groupBy(
-			'day',
-			'crewmembers.name',
-			'crewmembers.id',
-			'timesheets.crew_member_approval',
-		)
-		->orderBy('day', 'desc')
-		->get();
+public function summary()
+{
+    $query = DB::table(DB::raw('(
+        SELECT
+            DATE(clockin_time) as day,
+            user_id,
+            crew_member_approval,
+            TIMESTAMPDIFF(MINUTE, clockin_time, LEAST(clockout_time, CONCAT(DATE(clockin_time), " 23:59:59"))) as total_minutes
+        FROM timesheets
+        WHERE DATE(clockin_time) = DATE(clockout_time)
 
+        UNION ALL
 
+        SELECT
+            DATE(clockin_time) as day,
+            user_id,
+            crew_member_approval,
+            TIMESTAMPDIFF(MINUTE, clockin_time, CONCAT(DATE(clockin_time), " 23:59:59")) as total_minutes
+        FROM timesheets
+        WHERE DATE(clockout_time) > DATE(clockin_time)
+          AND DATE(clockin_time) <> DATE(clockout_time)
 
+        UNION ALL
 
-        return view('crew.summary', compact('query'));
+        SELECT
+            DATE(clockout_time) as day,
+            user_id,
+            crew_member_approval,
+            TIMESTAMPDIFF(MINUTE, CONCAT(DATE(clockout_time), " 00:00:00"), clockout_time) as total_minutes
+    FROM timesheets
+    WHERE DATE(clockout_time) > DATE(clockin_time)
+      AND DATE(clockin_time) <> DATE(clockout_time)
+    ) as daily_totals'))
+    ->join('users as crewmembers', 'daily_totals.user_id', '=', 'crewmembers.id')
+    ->selectRaw('
+        daily_totals.day,
+        crewmembers.name as crewmember_name,
+        crewmembers.id as user_id,
+        MIN(daily_totals.crew_member_approval) AS crew_member_approval,
+        SUM(daily_totals.total_minutes) AS total_minutes
+    ')
+    ->whereRaw('daily_totals.day < CURDATE()')
+    ->groupBy(
+        'daily_totals.day',
+        'crewmembers.name',
+        'crewmembers.id'
+    )
+    ->havingRaw('MIN(daily_totals.crew_member_approval) = 1')
+    ->orderBy('daily_totals.day', 'desc')
+    ->get();
+
+    // Group by week and user
+    $weeklySummary = $query->groupBy(function ($item) {
+        return $item->user_id . '-' . date('W', strtotime($item->day));
+    });
+
+    // Format total minutes into HH:MM and calculate weekly total
+    foreach ($weeklySummary as $weekGroup) {
+        $weeklyTotalMinutes = $weekGroup->sum('total_minutes');
+
+        foreach ($weekGroup as $record) {
+            $hours = floor($record->total_minutes / 60);
+            $minutes = $record->total_minutes % 60;
+            $record->formatted_time = sprintf('%02d:%02d', $hours, $minutes);
+
+            // Add day of the week
+            $record->day_of_week = date('l', strtotime($record->day));
+
+            // Add weekly total to the first record of the group
+            if ($record === $weekGroup->first()) {
+                $record->weekly_total_time = sprintf('%02d:%02d', floor($weeklyTotalMinutes / 60), $weeklyTotalMinutes % 60);
+                $record->week_rowspan = $weekGroup->count();
+            } else {
+                $record->weekly_total_time = null; // No display for other rows
+                $record->week_rowspan = null;
+            }
+        }
     }
+
+    return view('crew.summary', compact('weeklySummary'));
+}
 
     public function getAll(Request $request)
     {   
