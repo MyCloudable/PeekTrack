@@ -609,5 +609,10 @@ const handleScroll = (() => {
     }
 }
 
+/* remove cross icon from date picker */
+.dp--clear-btn{
+    display: none !important;
+}
+
 
 </style>
