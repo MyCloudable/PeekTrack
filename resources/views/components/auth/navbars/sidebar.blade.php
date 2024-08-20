@@ -34,7 +34,7 @@
                                 <span class="sidenav-normal  ms-3  ps-1"> Manage Crews </span>
                             </a>
                         </li>
-						@if ( auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
+						@if ( auth()->user()->role_id != 6)
 						<li class="nav-item">
                             <a class="nav-link text-white " href="{{ route('widgets') }}">
                                 <span class="sidenav-mini-icon"> E </span>
@@ -42,7 +42,7 @@
                             </a>
                         </li>
 						@endif
-						@if ( auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
+						@if ( auth()->user()->role_id != 6)
 						<li class="nav-item"{{ $activeItem == 'reports' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white "
 								href="https://peektrack.com/reportico">
@@ -69,7 +69,7 @@
 				
             </li>
             <hr class="horizontal light mt-0">
-			@if ( auth()->user()->role_id < 6 || auth()->user()->role_id == 7)
+			@if ( auth()->user()->role_id != 6)
                         <li class="nav-item {{ $activeItem == 'dashboard' ? ' active ' : '' }}  ">
                             <a class="nav-link text-white {{ $activeItem == 'dashboard' ? ' active' : '' }}  "
                                 href="{{ route('dashboard') }}">
@@ -88,7 +88,7 @@
 								<span class="sidenav-normal  ms-2  ps-1"> <h5>Jobs</h5> </span>
 							</a>
                         </li>
-						@if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
+						@if ( auth()->user()->role_id != 6)
 						<li class="nav-item"{{ $activeItem == 'review' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white {{ $activeItem == 'review' ? ' active' : '' }}  "
 								href="{{ route('jobs.review') }}">
@@ -96,7 +96,7 @@
 							</a>
                         </li>
 						@endif
-						@if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2 || auth()->user()->role_id == 7)
+						@if ( auth()->user()->role_id != 6)
 						<li class="nav-item"{{ $activeItem == 'history' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white {{ $activeItem == 'history' ? ' active' : '' }}  "
 								href="{{ route('jobs.history') }}">
@@ -123,7 +123,7 @@
 							</a>
                         </li>
                         @endif
-						@if ( auth()->user()->role_id == 6)
+						@if ( auth()->user()->role_id == 6 || auth()->user()->role_id == 3)
 						<li class="nav-item"{{ $activeItem == 'reports' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white "
 								href="https://peektrack.com/crewmember">
@@ -132,7 +132,7 @@
 							</a>
                         </li>   
 						@endif
-						@if ( auth()->user()->role_id == 6)
+						@if ( auth()->user()->role_id == 6 || auth()->user()->role_id == 3)
 						<li class="nav-item"{{ $activeItem == 'reports' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white "
 								href="https://peektrack.com/crewsummary">
