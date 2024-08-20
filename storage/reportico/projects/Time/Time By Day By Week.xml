@@ -1,0 +1,51 @@
+<?xml version="1.0"?><Report><ReportQuery><Format><ReportTitle>Time By Day By Week</ReportTitle><ReportDescription></ReportDescription><PageSize>.DEFAULT</PageSize><PageOrientation>.DEFAULT</PageOrientation><PageFreezeColumns></PageFreezeColumns><TopMargin></TopMargin><BottomMargin></BottomMargin><RightMargin></RightMargin><LeftMargin></LeftMargin><AutoPaginate></AutoPaginate><PdfZoomFactor></PdfZoomFactor><HtmlZoomFactor></HtmlZoomFactor><PageTitleDisplay></PageTitleDisplay><PageLayout></PageLayout><pdfFont></pdfFont><pdfFontSize></pdfFontSize><PreExecuteCode>NONE</PreExecuteCode><formBetweenRows>solidline</formBetweenRows><gridDisplay>.DEFAULT</gridDisplay><gridSortable>.DEFAULT</gridSortable><gridSearchable>.DEFAULT</gridSearchable><gridPageable>.DEFAULT</gridPageable><gridPageSize>.DEFAULT</gridPageSize></Format><Datasource><SourceType>database</SourceType><SourceConnection></SourceConnection></Datasource><EntryForm><Query><TableSql></TableSql><WhereSql></WhereSql><GroupSql></GroupSql><RowSelection>all</RowSelection><SQL><QuerySql></QuerySql><SQLRaw>-- Daily totals
+SELECT 
+    u.name AS user_name,
+    DATE(t.clockin_time) AS workdate,
+    WEEK(t.clockin_time, 1) AS week_number,
+    YEAR(t.clockin_time) AS year,
+    ROUND(SUM(TIMESTAMPDIFF(SECOND, t.clockin_time, t.clockout_time)) / 3600, 2) AS total_hours
+FROM 
+    timesheets t
+JOIN 
+    users u ON u.id = t.user_id
+WHERE 
+    t.clockout_time IS NOT NULL
+GROUP BY 
+    u.name, 
+    YEAR(t.clockin_time), 
+    WEEK(t.clockin_time, 1), 
+    DATE(t.clockin_time)
+
+UNION ALL
+
+-- Weekly totals
+SELECT 
+    user_name,
+    CONCAT(&#039;Week &#039;, week_number, &#039; Total&#039;) AS workdate,
+    week_number,
+    year,
+    SUM(total_hours) AS total_hours
+FROM (
+    SELECT 
+        u.name AS user_name,
+        WEEK(t.clockin_time, 1) AS week_number,
+        YEAR(t.clockin_time) AS year,
+        ROUND(SUM(TIMESTAMPDIFF(SECOND, t.clockin_time, t.clockout_time)) / 3600, 2) AS total_hours
+    FROM 
+        timesheets t
+    JOIN 
+        users u ON u.id = t.user_id
+    WHERE 
+        t.clockout_time IS NOT NULL
+    GROUP BY 
+        u.name, 
+        YEAR(t.clockin_time), 
+        WEEK(t.clockin_time, 1)
+) AS weekly_summary
+GROUP BY 
+    user_name, week_number, year
+
+ORDER BY 
+    user_name, year, week_number, workdate;
+</SQLRaw></SQL><QueryColumns><QueryColumn><Name>user_name</Name><TableName></TableName><ColumnName>u.name AS</ColumnName><ColumnType>char</ColumnType><ColumnLength>30</ColumnLength><Format><column_display>show</column_display><content_type>plain</content_type><ColumnStartPDF></ColumnStartPDF><justify>left</justify><ColumnWidthPDF></ColumnWidthPDF><ColumnWidthHTML></ColumnWidthHTML><column_title></column_title><tooltip></tooltip><group_header_label></group_header_label><group_header_label_xpos></group_header_label_xpos><group_header_data_xpos></group_header_data_xpos><group_trailer_label></group_trailer_label></Format></QueryColumn><QueryColumn><Name>workdate</Name><TableName></TableName><ColumnName>DATE(t.clockin_time) AS</ColumnName><ColumnType>char</ColumnType><ColumnLength>30</ColumnLength><Format><column_display>show</column_display><content_type>plain</content_type><ColumnStartPDF></ColumnStartPDF><justify>left</justify><ColumnWidthPDF></ColumnWidthPDF><ColumnWidthHTML></ColumnWidthHTML><column_title></column_title><tooltip></tooltip><group_header_label></group_header_label><group_header_label_xpos></group_header_label_xpos><group_header_data_xpos></group_header_data_xpos><group_trailer_label></group_trailer_label></Format></QueryColumn><QueryColumn><Name>week_number</Name><TableName></TableName><ColumnName>WEEK(t.clockin_time, 1) AS</ColumnName><ColumnType>char</ColumnType><ColumnLength>30</ColumnLength><Format><column_display>show</column_display><content_type>plain</content_type><ColumnStartPDF></ColumnStartPDF><justify>left</justify><ColumnWidthPDF></ColumnWidthPDF><ColumnWidthHTML></ColumnWidthHTML><column_title></column_title><tooltip></tooltip><group_header_label></group_header_label><group_header_label_xpos></group_header_label_xpos><group_header_data_xpos></group_header_data_xpos><group_trailer_label></group_trailer_label></Format></QueryColumn><QueryColumn><Name>year</Name><TableName></TableName><ColumnName>YEAR(t.clockin_time) AS</ColumnName><ColumnType>char</ColumnType><ColumnLength>30</ColumnLength><Format><column_display>show</column_display><content_type>plain</content_type><ColumnStartPDF></ColumnStartPDF><justify>left</justify><ColumnWidthPDF></ColumnWidthPDF><ColumnWidthHTML></ColumnWidthHTML><column_title></column_title><tooltip></tooltip><group_header_label></group_header_label><group_header_label_xpos></group_header_label_xpos><group_header_data_xpos></group_header_data_xpos><group_trailer_label></group_trailer_label></Format></QueryColumn><QueryColumn><Name>total_hours</Name><TableName></TableName><ColumnName>ROUND(SUM(TIMESTAMPDIFF(SECOND, t.clockin_time, t.clockout_time)) / 3600, 2) AS</ColumnName><ColumnType>char</ColumnType><ColumnLength>30</ColumnLength><Format><column_display>show</column_display><content_type>plain</content_type><ColumnStartPDF></ColumnStartPDF><justify>left</justify><ColumnWidthPDF></ColumnWidthPDF><ColumnWidthHTML></ColumnWidthHTML><column_title></column_title><tooltip></tooltip><group_header_label></group_header_label><group_header_label_xpos></group_header_label_xpos><group_header_data_xpos></group_header_data_xpos><group_trailer_label></group_trailer_label></Format></QueryColumn></QueryColumns><OrderColumns></OrderColumns><PreSQLS></PreSQLS></Query><Assignments></Assignments><Criteria></Criteria><Output><PageHeaders></PageHeaders><PageFooters></PageFooters><DisplayOrders><DisplayOrder><ColumnName>user_name</ColumnName><OrderNumber>1</OrderNumber></DisplayOrder><DisplayOrder><ColumnName>workdate</ColumnName><OrderNumber>2</OrderNumber></DisplayOrder><DisplayOrder><ColumnName>week_number</ColumnName><OrderNumber>3</OrderNumber></DisplayOrder><DisplayOrder><ColumnName>year</ColumnName><OrderNumber>4</OrderNumber></DisplayOrder><DisplayOrder><ColumnName>total_hours</ColumnName><OrderNumber>5</OrderNumber></DisplayOrder></DisplayOrders><Groups></Groups><Graphs></Graphs></Output></EntryForm></ReportQuery></Report>

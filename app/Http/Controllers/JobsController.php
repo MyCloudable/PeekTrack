@@ -968,8 +968,9 @@ where je.workdate between ? and ? and je.approved = 1 and e.hours > 0', [$date1,
         // First query: Equipment
 $equipment = \DB::select("
     SELECT 
-        DATE_FORMAT(workdate, '%Y-%m-%d') AS workdate,
+        DATE_FORMAT(workdate, '%m-%d-%Y') AS workdate,
         user_id,
+		crew_type,
         job_number,
         value,
         class,
@@ -978,6 +979,7 @@ $equipment = \DB::select("
     FROM (
         SELECT 
             t.user_id,
+			ct.value as crew_type,
             j.job_number,
             tt.value,
             u.class,
@@ -1021,13 +1023,14 @@ $equipment = \DB::select("
         JOIN users u ON u.id = t.user_id
         JOIN jobs j ON t.job_id = j.id
         JOIN time_types tt ON t.time_type_id = tt.id
+		JOIN crew_types ct ON ct.id = t.crew_type_id
         WHERE payroll_approval = 1 
             AND (
                 t.clockin_time < DATE_ADD(DATE(?), INTERVAL 7 DAY)
                 AND t.clockout_time >= ?
             )
     ) AS ADJUSTED
-    GROUP BY workdate, user_id, job_number, value, class, pay_rate
+    GROUP BY workdate, user_id, crew_type, job_number, value, class, pay_rate
     ORDER BY user_id, workdate", 
     [
         $date1, $date1, // For clockin_time adjustment
@@ -1042,7 +1045,7 @@ $equipment = \DB::select("
         // Second query: Weekend out
 $weekendout = \DB::select("
     SELECT
-        DATE_FORMAT(DATE(t.clockin_time), '%Y-%m-%d') AS workdate,
+        DATE_FORMAT(DATE(t.clockin_time), '%m-%d-%Y') AS workdate,
         t.user_id,
         MAX(j.job_number) AS job_number,
         MAX(tt.value) AS value,
@@ -1064,7 +1067,7 @@ $weekendout = \DB::select("
         // Third query: Per Diem
         $perdiem = \DB::select("
             SELECT
-                DATE_FORMAT(DATE(t.clockin_time), '%Y-%m-%d') AS workdate,
+                DATE_FORMAT(DATE(t.clockin_time), '%m-%d-%Y') AS workdate,
                 t.user_id,
                 MAX(j.job_number) AS job_number,
                 MAX(tt.value) AS value,
@@ -1105,19 +1108,38 @@ $weekendout = \DB::select("
 
         // Write equipment data
         foreach ($equipment as $product) {
+			if($product->value == ''){
             fputcsv($handle, [
                 $product->workdate ?? '', 
                 $product->user_id ?? '',
-                $product->job_number ?? '', 
+                $product->job_number ?? '',
+                $product->crew_type ?? '', 
+                $product->class ?? '',
+                $product->pay_rate ?? '',
+                $product->hours ?? '',
+                '',
+                '1',
+                $product->user_id ?? ''
+            ]);
+        }
+		
+		else{
+			            fputcsv($handle, [
+                $product->workdate ?? '', 
+                $product->user_id ?? '',
+                $product->job_number ?? '',
                 $product->value ?? '', 
                 $product->class ?? '',
                 $product->pay_rate ?? '',
                 $product->hours ?? '',
                 '',
                 '',
+				'2',
                 $product->user_id ?? ''
             ]);
         }
+			
+		}
 
         // Write weekend out data
         foreach ($weekendout as $product) {
@@ -1131,6 +1153,7 @@ $weekendout = \DB::select("
                 '1.00',
                 '',
                 '',
+				'2',
                 $product->user_id ?? ''
             ]);
         }
@@ -1147,6 +1170,7 @@ $weekendout = \DB::select("
                 $product->hours ?? '',
                 '',
                 '',
+				'2',
                 $product->user_id ?? ''
             ]);
         }
