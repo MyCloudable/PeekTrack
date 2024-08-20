@@ -22588,7 +22588,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             var options = props.jobs.map(function (job) {
               return "<li class=\"dropdown-item\" data-value=\"".concat(job.id, "\" ").concat(job.id === row.job_id ? 'selected' : '', " data-id=\"").concat(row.timesheet_id, "\" >").concat(job.text, "</li>");
             }).join('');
-            return "\n                    <div class=\"searchable-dropdown position-relative\">\n                        <input type=\"text\" class=\"form-control job-number-select search-input bg-white\" placeholder=\"Search Job Number...\" \n                            data-id=\"".concat(row.timesheet_id, "\" />\n                        <ul class=\"custom-dropdown-list\" id=\"dropdown-list-").concat(row.timesheet_id, "\">\n                            ").concat(options, "\n                        </ul>\n                    </div>");
+            return "\n                    <div class=\"searchable-dropdown position-relative\">\n                        <input type=\"text\" class=\"form-control job-number-select search-input bg-white\" placeholder=\"Search Job Number...\" \n                            data-id=\"".concat(row.timesheet_id, "\" data-value=\"").concat(row.job_id, "\" value=\"").concat(data, "\" />\n                        <ul class=\"custom-dropdown-list\" id=\"dropdown-list-").concat(row.timesheet_id, "\">\n                            ").concat(options, "\n                        </ul>\n                    </div>");
           }
           return data;
         }

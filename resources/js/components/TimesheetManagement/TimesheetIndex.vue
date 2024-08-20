@@ -165,7 +165,7 @@ const tableOptions = ref({
                     return `
                     <div class="searchable-dropdown position-relative">
                         <input type="text" class="form-control job-number-select search-input bg-white" placeholder="Search Job Number..." 
-                            data-id="${row.timesheet_id}" />
+                            data-id="${row.timesheet_id}" data-value="${row.job_id}" value="${data}" />
                         <ul class="custom-dropdown-list" id="dropdown-list-${row.timesheet_id}">
                             ${options}
                         </ul>
