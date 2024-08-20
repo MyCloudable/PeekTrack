@@ -374,6 +374,7 @@ const tableOptions = ref({
             }
         },
     ],
+	order: [[7, 'asc']],
     footerCallback: function (tfoot, data, start, end, display) {
         totalTimeFooter.value = TimeConvert(data.reduce((acc, row) => acc + parseFloat(row.total_time), 0)) // Calculate total_time sum
     },

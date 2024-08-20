@@ -22766,6 +22766,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           return actionButtons;
         }
       }],
+      order: [[7, 'asc']],
       footerCallback: function footerCallback(tfoot, data, start, end, display) {
         totalTimeFooter.value = (0,_composables_TimeConvert__WEBPACK_IMPORTED_MODULE_4__["default"])(data.reduce(function (acc, row) {
           return acc + parseFloat(row.total_time);
