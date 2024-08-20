@@ -487,8 +487,9 @@ public function summary()
         
     }
 
-    private function validateTimesheetOverlap($user_id, $clockin_time, $clockout_time, $exclude_id = null)
+    public function validateTimesheetOverlap($user_id, $clockin_time, $clockout_time, $exclude_id = null)
     {
+        // dd($clockout_time);
 
         try {
             $query = Timesheet::where('user_id', $user_id)

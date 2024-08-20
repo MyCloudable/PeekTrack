@@ -1,3 +1,13 @@
+<style>
+.table-striped>tbody>tr:nth-child(odd)>td,
+tr.found{
+    background-color:#CECBCB;
+}
+.table-striped > tbody > tr > td.myclass{
+    background: blue;
+    --bs-table-bg-type: blue;
+}
+</style>
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
 <x-auth.navbars.sidebar activePage="Timesheet" activeItem="" activeSubitem=""></x-auth.navbars.sidebar>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="app">

@@ -1,3 +1,4 @@
+
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
 <x-auth.navbars.sidebar activePage="job card history" activeItem="" activeSubitem=""></x-auth.navbars.sidebar>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="app">

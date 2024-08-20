@@ -25,7 +25,7 @@
 
     <div class="row mt-5">
         <div class="col-md-12">
-            <DataTable :options="tableOptions" ref="dataTableRef" />
+            <DataTable :options="tableOptions" ref="dataTableRef" class="table table-hover"/>
 
             <span id="totalTimeFooter">Total time: {{ totalTimeFooter }}</span>
         </div>

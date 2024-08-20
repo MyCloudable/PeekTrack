@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <DataTable :options="tableOptions" ref="dataTableRef">
+    <DataTable :options="tableOptions" ref="dataTableRef" class="table table-hover table-striped">
 
         <thead>
             <tr>

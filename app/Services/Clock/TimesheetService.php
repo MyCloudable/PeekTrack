@@ -14,6 +14,7 @@ use App\Services\Clock\CrewService;
 use Illuminate\Support\Facades\Log;
 use App\Services\Clock\DepartService;
 use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\Clock\TimesheetManagementConroller;
 
 class TimesheetService {
     
@@ -231,16 +232,38 @@ class TimesheetService {
     private function menualClock($data)
     {
             $timesheet = Timesheet::where('id', $data['timesheetId'])->first();
+
+            // $timesheetManagementConroller = new TimesheetManagementConroller();
     
             if($data['type'] == 'clockin'){
+
                 $timesheet->clockin_time = $data['time'];
                 $this->validateClockInOut($data['time'], $timesheet->clockout_time);
+
+                $this->validateTimesheetOverlap(
+                    $timesheet->user_id,
+                    $data['time'],
+                    $timesheet->clockout_time,
+                    $timesheet->id // Exclude current timesheet ID from overlap check
+                );
+
+                
+
             }
             
     
             if($data['type'] == 'clockout'){
+
                 $timesheet->clockout_time = $data['time'];
                 $this->validateClockInOut($timesheet->clockin_time, $data['time']);
+
+                // $this->validateTimesheetOverlap(
+                //     $timesheet->user_id,
+                //     $timesheet->clockin_time,
+                //     $data['time'],
+                //     $timesheet->id // Exclude current timesheet ID from overlap check
+                // );
+
             }
             
             $timesheet->save();
@@ -261,6 +284,12 @@ class TimesheetService {
         if(!$isAlreadyClockedin){ // only create crew member and clock in if its not clocked in
 
             $this->validateClockInOut($data['createNewCrewForm']['clockin_time'], null);
+
+            $this->validateTimesheetOverlap(
+                    $timesheet->$data['createNewCrewForm']['crew_member_id'],
+                    $data['createNewCrewForm']['clockin_time'],
+                    null,
+                );
 
             $crewMembers = $this->getCrewMembersArray($crew->crew_members, $data['createNewCrewForm']['crew_member_id']);;
             $crew->crew_members = $crewMembers;
@@ -508,5 +537,71 @@ class TimesheetService {
         // If no validation errors, return true or perform further actions
         return true;
 
+    }
+
+    public function validateTimesheetOverlap($user_id, $clockin_time, $clockout_time, $exclude_id = null)
+    {
+        try{
+
+            // dd($clockout_time);
+
+            $query = Timesheet::where('user_id', $user_id);
+            
+
+            // If clockout_time is provided, add these constraints
+            if ($clockout_time) {
+                $query->whereDate('clockin_time', '<=', date('Y-m-d', strtotime($clockout_time)))
+                    ->whereDate('clockout_time', '>=', date('Y-m-d', strtotime($clockin_time)))
+                    ->where(function ($query) use ($clockin_time, $clockout_time) {
+                        $query->where(function ($query) use ($clockin_time, $clockout_time) {
+                            $query->where('clockin_time', '<', $clockout_time)
+                                    ->where(function ($query) use ($clockin_time) {
+                                        $query->where('clockout_time', '>', $clockin_time)
+                                            ->orWhereNull('clockout_time'); // Handle timesheets with null clockout_time
+                                    });
+                        })->orWhere(function ($query) use ($clockin_time, $clockout_time) {
+                            $query->where('clockin_time', '>=', $clockin_time)
+                                    ->where('clockout_time', '<=', $clockout_time);
+                        });
+                    });
+            } else {
+        
+                // If clockout_time is null, only check overlap based on clockin_time
+                $query->whereDate('clockout_time', '>=', date('Y-m-d', strtotime($clockin_time)))
+                    ->where(function ($query) use ($clockin_time) {
+                        $query->where(function ($query) use ($clockin_time) {
+                            $query->where('clockin_time', '<=', $clockin_time)
+                                ->where(function ($query) use ($clockin_time) {
+                                    $query->where('clockout_time', '>', $clockin_time)
+                                            ->orWhereNull('clockout_time'); // Handle timesheets with null clockout_time
+                                });
+                        })->orWhere('clockin_time', '>=', $clockin_time);
+                    });
+            }
+    
+            if ($exclude_id) {
+                $query->where('id', '!=', $exclude_id);
+            }
+    
+            $overlappingTimesheets = $query->get();
+    
+            if ($overlappingTimesheets->isNotEmpty()) {
+                // Prepare an array of overlapping timesheet IDs
+                $overlappingIds = $overlappingTimesheets->pluck('id')->toArray();
+    
+                // Get the user name
+                $userName = User::where('id', $user_id)->value('name');
+    
+                throw ValidationException::withMessages([
+                    // 'error' => 'Overlapping timesheets for user ' .  $userName .  ' with these ids. ' . implode(',', $overlappingIds),
+                    'error' => 'Overlapping timesheets for user ' .  $userName .  ' with other entries',
+                ]);
+            }
+    
+            return $overlappingTimesheets;
+
+        } catch(\Exception $e) {
+            throw $e;
+        }
     }
 }

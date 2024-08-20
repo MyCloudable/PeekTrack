@@ -966,49 +966,100 @@ where je.workdate between ? and ? and je.approved = 1 and e.hours > 0', [$date1,
 
     try {
         // First query: Equipment
-        $equipment = \DB::select("
-            SELECT 
-                DATE_FORMAT(DATE(t.clockin_time), '%Y-%m-%d') AS workdate,
-                t.user_id,
-                j.job_number,
-                tt.value,
-                u.class,
-                u.pay_rate,
-                ROUND(
-                    TIMESTAMPDIFF(SECOND, 
-                        GREATEST(t.clockin_time, CONCAT(DATE(t.clockout_time), ' 00:00:00')), 
-                        LEAST(t.clockout_time, CONCAT(DATE(t.clockout_time), ' 23:59:59'))
-                    ) / 3600, 
-                2) AS hours,
-                t.user_id
-            FROM timesheets t
-            JOIN users u ON u.id = t.user_id
-            JOIN jobs j ON t.job_id = j.id
-            JOIN time_types tt ON t.time_type_id = tt.id
-            WHERE payroll_approval = 1 
-                AND t.clockin_time BETWEEN ? AND ?
-            ORDER BY t.user_id, workdate", [$date1, $date2]);
+$equipment = \DB::select("
+    SELECT 
+        DATE_FORMAT(workdate, '%Y-%m-%d') AS workdate,
+        user_id,
+        job_number,
+        value,
+        class,
+        pay_rate,
+        ROUND(SUM(hours), 2) AS hours
+    FROM (
+        SELECT 
+            t.user_id,
+            j.job_number,
+            tt.value,
+            u.class,
+            u.pay_rate,
+            -- Adjust clockin_time to 12:00 AM if it starts before Sunday 12:00 AM
+            CASE 
+                WHEN t.clockin_time < ? THEN CONCAT(DATE(?), ' 00:00:00')
+                ELSE t.clockin_time 
+            END AS clockin_time,
+            -- Adjust clockout_time to 11:59 PM if it ends after Saturday 11:59 PM
+            CASE 
+                WHEN t.clockout_time > DATE_ADD(DATE(?), INTERVAL 6 DAY) THEN CONCAT(DATE_ADD(DATE(?), INTERVAL 6 DAY), ' 23:59:59')
+                ELSE t.clockout_time 
+            END AS clockout_time,
+            -- Set workdate as the adjusted clockin_date
+            DATE(GREATEST(
+                CASE 
+                    WHEN t.clockin_time < ? THEN CONCAT(DATE(?), ' 00:00:00')
+                    ELSE t.clockin_time 
+                END, 
+                t.clockin_time
+            )) AS workdate,
+            -- Calculate the hours within the adjusted times
+            TIMESTAMPDIFF(SECOND, 
+                GREATEST(
+                    CASE 
+                        WHEN t.clockin_time < ? THEN CONCAT(DATE(?), ' 00:00:00')
+                        ELSE t.clockin_time 
+                    END, 
+                    t.clockin_time
+                ), 
+                LEAST(
+                    CASE 
+                        WHEN t.clockout_time > DATE_ADD(DATE(?), INTERVAL 6 DAY) THEN CONCAT(DATE_ADD(DATE(?), INTERVAL 6 DAY), ' 23:59:59')
+                        ELSE t.clockout_time 
+                    END, 
+                    t.clockout_time
+                )
+            ) / 3600 AS hours
+        FROM timesheets t
+        JOIN users u ON u.id = t.user_id
+        JOIN jobs j ON t.job_id = j.id
+        JOIN time_types tt ON t.time_type_id = tt.id
+        WHERE payroll_approval = 1 
+            AND (
+                t.clockin_time < DATE_ADD(DATE(?), INTERVAL 7 DAY)
+                AND t.clockout_time >= ?
+            )
+    ) AS ADJUSTED
+    GROUP BY workdate, user_id, job_number, value, class, pay_rate
+    ORDER BY user_id, workdate", 
+    [
+        $date1, $date1, // For clockin_time adjustment
+        $date1, $date1, // For clockout_time adjustment
+        $date1, $date1, // For workdate calculation in GREATEST
+        $date1, $date1, // For hours calculation in TIMESTAMPDIFF (GREATEST)
+        $date1, $date1, // For hours calculation in TIMESTAMPDIFF (LEAST)
+        $date1, $date1, // For WHERE clause conditions
+    ]);
+
 
         // Second query: Weekend out
-        $weekendout = \DB::select("
-            SELECT
-                DATE_FORMAT(DATE(t.clockin_time), '%Y-%m-%d') AS workdate,
-                t.user_id,
-                MAX(j.job_number) AS job_number,
-                MAX(tt.value) AS value,
-                MAX(u.class) AS class,
-                '25' as pay_rate,
-                '1' AS hours,
-                t.user_id
-            FROM timesheets t
-            JOIN users u ON u.id = t.user_id
-            JOIN jobs j ON t.job_id = j.id
-            JOIN time_types tt ON t.time_type_id = tt.id
-            WHERE payroll_approval = 1 
-                AND weekend_out = 1 
-                AND t.clockin_time BETWEEN ? AND ?
-            GROUP BY t.user_id, workdate
-            ORDER BY t.user_id, workdate", [$date1, $date2]);
+$weekendout = \DB::select("
+    SELECT
+        DATE_FORMAT(DATE(t.clockin_time), '%Y-%m-%d') AS workdate,
+        t.user_id,
+        MAX(j.job_number) AS job_number,
+        MAX(tt.value) AS value,
+        MAX(u.class) AS class,
+        '25' as pay_rate,
+        '1' AS hours,
+        t.user_id
+    FROM timesheets t
+    JOIN users u ON u.id = t.user_id
+    JOIN jobs j ON t.job_id = j.id
+    JOIN time_types tt ON t.time_type_id = tt.id
+    WHERE payroll_approval = 1 
+        AND weekend_out = 1 
+        AND t.clockin_time BETWEEN CONCAT(DATE(?), ' 00:00:00') AND CONCAT(DATE(?), ' 23:59:59')
+    GROUP BY t.user_id, workdate
+    ORDER BY t.user_id, workdate", [$date1, $date2]);
+
 
         // Third query: Per Diem
         $perdiem = \DB::select("
@@ -1030,7 +1081,7 @@ where je.workdate between ? and ? and je.approved = 1 and e.hours > 0', [$date1,
             JOIN time_types tt ON t.time_type_id = tt.id
             WHERE t.payroll_approval = 1 
                 AND t.per_diem IN ('h','f')
-                AND t.clockin_time BETWEEN ? AND ?
+                AND t.clockin_time BETWEEN CONCAT(DATE(?), ' 00:00:00') AND CONCAT(DATE(?), ' 23:59:59')
             GROUP BY t.user_id, workdate
             ORDER BY t.user_id, workdate", [$date1, $date2]);
 

@@ -1,3 +1,4 @@
+
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
 
     <x-auth.navbars.sidebar activePage="jobs review" activeItem="analytics" activeSubitem=""></x-auth.navbars.sidebar>
@@ -8,7 +9,7 @@
         <div class="container-fluid py-4">
 		<input type="button" class="btn btn-warning btn-block mt-4" value="View All Branches" onClick="window.location.href='{{ route('jobs.globalreview') }}'">
 			<div class="table-responsive">
-              <table class="table table-flush" id="datatable-basic">
+              <table class="table table-hover" id="datatable-basic">
                 <thead class="thead-light">
                   <tr>
 				    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Action</th>
