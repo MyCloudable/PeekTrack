@@ -35,8 +35,11 @@ public function payrollSummary(Request $request)
     $startDate = $request->input('date1');
     $endDate = $request->input('date2');
 
+    // Pass dates to the view
     return view('reports.payrollsummary', compact('startDate', 'endDate'));
 }
+
+
 
 
 }

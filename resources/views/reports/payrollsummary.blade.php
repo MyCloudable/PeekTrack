@@ -22,20 +22,16 @@
                 <div class="card-body border-radius-lg p-3">
                     <div class="table-responsive">
                         <?php
-                        // Database connection settings
-                        $servername = "localhost";
-                        $username = "root"; // Replace with your MySQL username
-                        $password = "Cl0ud@bl3!"; // Replace with your MySQL password
-                        $dbname = "peektrackv2"; // Replace with your MySQL database name
-
                         try {
+                            // Database connection settings
+                            $servername = "localhost";
+                            $username = "root"; // Replace with your MySQL username
+                            $password = "Cl0ud@bl3!"; // Replace with your MySQL password
+                            $dbname = "peektrackv2"; // Replace with your MySQL database name
+
                             // Create connection
                             $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
                             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-                            // Use the startDate and endDate variables passed from the controller
-                            $startDate = $startDate ;
-                            $endDate = $endDate ;
 
                             // Call the stored procedure
                             $stmt = $conn->prepare("CALL GenerateWeeklyReport(:startDate, :endDate)");
@@ -46,23 +42,36 @@
                             // Fetch the data returned by the stored procedure
                             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                            // Display the result in an HTML table with DataTables and Buttons
-                            echo "<table id='crewTimeTable' class='table align-items-center table-striped mb-0' style='width:100%'>";
-                            // Output table header
-                            echo "<thead><tr>";
-                            foreach ($result[0] as $key => $value) {
-                                echo "<th><h5>" . ucfirst($key) . "</h5></th>"; // Capitalize the first letter of each column name
-                            }
-                            echo "</tr></thead><tbody>";
-                            // Output table data
-                            foreach ($result as $row) {
-                                echo "<tr>";
-                                foreach ($row as $key => $value) {
-                                    echo "<td><h6>$value</h6></td>";
+                            if (count($result) > 0) {
+                                echo "<table id='crewTimeTable' class='table align-items-center table-striped mb-0' style='width:100%'>";
+                                // Output table header
+                                echo "<thead><tr>";
+                                foreach ($result[0] as $key => $value) {
+                                    echo "<th><h5>" . ucfirst($key) . "</h5></th>"; // Capitalize the first letter of each column name
                                 }
-                                echo "</tr>";
+                                echo "<th><h5>Weekly Total</h5></th>"; // Add column for Weekly Total
+                                echo "</tr></thead><tbody>";
+
+                                // Output table data
+                                foreach ($result as $row) {
+                                    echo "<tr>";
+                                    $weeklyTotal = 0; // Initialize weekly total for this row
+                                    foreach ($row as $key => $value) {
+                                        // Display the value in the table
+                                        echo "<td><h6>$value</h6></td>";
+                                        // Add to weekly total if the key is a date column
+                                        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $key)) {
+                                            $weeklyTotal += (float)$value; // Sum up the daily hours
+                                        }
+                                    }
+                                    echo "<td><h6>$weeklyTotal</h6></td>"; // Display the weekly total
+                                    echo "</tr>";
+                                }
+
+                                echo "</tbody></table>";
+                            } else {
+                                echo "<p>No data available for the selected date range.</p>";
                             }
-                            echo "</tbody></table>";
 
                         } catch (PDOException $e) {
                             echo "Error: " . $e->getMessage();
