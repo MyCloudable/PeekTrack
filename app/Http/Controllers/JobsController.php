@@ -1058,7 +1058,7 @@ $weekendout = \DB::select("
     JOIN jobs j ON t.job_id = j.id
     JOIN time_types tt ON t.time_type_id = tt.id
     WHERE payroll_approval = 1 
-        AND weekend_out = 1 
+        AND weekend_out = 1 AND pay_rate = 0
         AND t.clockin_time BETWEEN CONCAT(DATE(?), ' 00:00:00') AND CONCAT(DATE(?), ' 23:59:59')
     GROUP BY t.user_id, workdate
     ORDER BY t.user_id, workdate", [$date1, $date2]);

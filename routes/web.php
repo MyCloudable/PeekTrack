@@ -107,7 +107,11 @@ Route::get('jobs/history', [JobsController::class, 'history'])->middleware('auth
 
 Route::get('schedule', [ScheduleController::class, 'index'])->middleware('auth')->name('schedule');
 
-Route::get('reports/{jobnumber}', [ReportsController::class, 'index'])->middleware('auth')->name('reports');
+Route::get('reports', [ReportsController::class, 'index'])->middleware('auth')->name('reports');
+
+Route::get('reports/{jobnumber}/jobsummary', [ReportsController::class, 'jobsummary'])->middleware('auth')->name('reports.jobsummary');
+
+Route::post('reports/payrollsummary', [ReportsController::class, 'payrollSummary'])->middleware('auth')->name('reports.payrollsummary');
 
 Route::get('/jobs/{id}/edit/{crewType}', [JobsController::class, 'edit'])->middleware('auth')->name('jobs.edit');
 

@@ -1,246 +1,64 @@
-<x-page-template bodyClass='g-sidenav-show bg-gray-600'>
+<x-page-template bodyClass='g-sidenav-show bg-gray-200'>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Include DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
     <!-- Include DataTables Buttons CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <!-- Include Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- Include Date Range Picker CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet" />
 
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <!-- Navbar -->
         <x-auth.navbars.navs.auth pageTitle="Reports"></x-auth.navbars.navs.auth>
         <!-- End Navbar -->
         <div class="container-fluid py-4">
-            <h3 style="color: #FFF;">Job Number - {{ $jobnumber }}</h3><br>
 
-            <!-- Production By Day Table -->
+            <!-- Job Number Dropdown and Report Button -->
             <div class="card">
                 <div class="card-header p-3 pb-0">
-                    <h4 class="mb-0">Production By Day</h4>
+                    <h4 class="mb-0">Job Work Summary</h4>
                     <p class="text-sm mb-0 text-capitalize font-weight-normal"></p>
                 </div>
                 <div class="card-body border-radius-lg p-3">
-                    <div class="table-responsive">
-                        <?php
-                        // Database connection settings
-                        $servername = "localhost";
-                        $username = "root"; // Replace with your MySQL username
-                        $password = "Cl0ud@bl3!"; // Replace with your MySQL password
-                        $dbname = "peektrack"; // Replace with your MySQL database name
-
-                        try {
-                            // Create connection
-                            $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-                            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-                            // Call the stored procedure
-                            $stmt = $conn->prepare("CALL BillingProductionByDay(:p_job_number)");
-                            $stmt->bindParam(':p_job_number', $jobnumber);
-                            $stmt->execute();
-
-                            // Fetch the data returned by the stored procedure
-                            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                            // Display the result in an HTML table with DataTables and Buttons
-                            echo "<table id='table3' class='table align-items-center table-striped mb-0' style='width:100%'>";
-                            // Output table header
-                            echo "<thead><tr>";
-                            foreach ($result[0] as $key => $value) {
-                                echo "<th><h5>" . ucfirst($key) . "</h5></th>"; // Capitalize the first letter of each column name
-                            }
-                            echo "</tr></thead><tbody>";
-                            // Output table data with conditional row coloring
-                            foreach ($result as $row) {
-                                // Check if "Est. Quantity" is less than "Actual Used"
-                                $rowClass = (isset($row['Est. Quantity']) && isset($row['Actual Used']) && $row['Est. Quantity'] < $row['Actual Used']) ? 'table-danger' : '';
-                                echo "<tr class='{$rowClass}'>";
-                                foreach ($row as $key => $value) {
-                                    echo "<td><h6>$value</h6></td>";
-                                }
-                                echo "</tr>";
-                            }
-                            echo "</tbody></table>";
-
-                        } catch (PDOException $e) {
-                            echo "Error: " . $e->getMessage();
-                        }
-
-                        // Close connection
-                        $conn = null;
-                        ?>
+                    <div class="form-group">
+                        <label for="jobnumber" style="color: #000;">Choose Job Number:</label>
+                        <select class="form-control" id="jobnumber" style="width: 100%; border: 1px solid #ccc;">
+                            @foreach($jobnumbers as $job)
+                                <option value="{{ $job->job_number }}">{{ $job->job_number }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                    <br>
+                    <button id="generateReport" class="btn btn-warning">Generate Report</button>
                 </div>
             </div>
 
-            <br>
-
-            <!-- Material By Day Table -->
-            <div class="card">
+            <!-- Date Range Picker and Submit Button -->
+            <div class="card mt-4">
                 <div class="card-header p-3 pb-0">
-                    <h4 class="mb-0">Material By Day</h4>
+                    <h4 class="mb-0">Payroll Summary</h4>
                     <p class="text-sm mb-0 text-capitalize font-weight-normal"></p>
                 </div>
                 <div class="card-body border-radius-lg p-3">
-                    <div class="table-responsive">
-                        <?php
-                        // Database connection settings
-
-                        try {
-                            // Create connection
-                            $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-                            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-                            // Call the stored procedure
-                            $stmt = $conn->prepare("CALL BillingMaterialByDay(:p_job_number)");
-                            $stmt->bindParam(':p_job_number', $jobnumber);
-                            $stmt->execute();
-
-                            // Fetch the data returned by the stored procedure
-                            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                            // Display the result in an HTML table with DataTables and Buttons
-                            echo "<table id='table4' class='table align-items-center table-striped mb-0' style='width:100%'>";
-                            // Output table header
-                            echo "<thead><tr>";
-                            foreach ($result[0] as $key => $value) {
-                                echo "<th><h5>" . ucfirst($key) . "</h5></th>"; // Capitalize the first letter of each column name
-                            }
-                            echo "</tr></thead><tbody>";
-                            // Output table data with conditional row coloring
-                            foreach ($result as $row) {
-                                // Check if "Est. Quantity" is less than "Actual Used"
-                                $rowClass = (isset($row['Est. Quantity']) && isset($row['Actual Used']) && $row['Est. Quantity'] < $row['Actual Used']) ? 'table-danger' : '';
-                                echo "<tr class='{$rowClass}'>";
-                                foreach ($row as $key => $value) {
-                                    echo "<td><h6>$value</h6></td>";
-                                }
-                                echo "</tr>";
-                            }
-                            echo "</tbody></table>";
-
-                        } catch (PDOException $e) {
-                            echo "Error: " . $e->getMessage();
-                        }
-
-                        // Close connection
-                        $conn = null;
-                        ?>
-                    </div>
-                </div>
-            </div>
-
-            <br>
-
-            <!-- Equipment By Day Table -->
-            <div class="card">
-                <div class="card-header p-3 pb-0">
-                    <h4 class="mb-0">Equipment By Day</h4>
-                    <p class="text-sm mb-0 text-capitalize font-weight-normal"></p>
-                </div>
-                <div class="card-body border-radius-lg p-3">
-                    <div class="table-responsive">
-                        <?php
-                        // Database connection settings
-
-                        try {
-                            // Create connection
-                            $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-                            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-                            // Call the stored procedure
-                            $stmt = $conn->prepare("CALL BillingEquipmentByDay(:p_job_number)");
-                            $stmt->bindParam(':p_job_number', $jobnumber);
-                            $stmt->execute();
-
-                            // Fetch the data returned by the stored procedure
-                            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                            // Display the result in an HTML table with DataTables and Buttons
-                            echo "<table id='table5' class='table align-items-center table-striped mb-0' style='width:100%'>";
-                            // Output table header
-                            echo "<thead><tr>";
-                            foreach ($result[0] as $key => $value) {
-                                echo "<th><h5>" . ucfirst($key) . "</h5></th>"; // Capitalize the first letter of each column name
-                            }
-                            echo "</tr></thead><tbody>";
-                            // Output table data
-                            foreach ($result as $row) {
-                                echo "<tr>";
-                                foreach ($row as $value) {
-                                    echo "<td><h6>$value</h6></td>";
-                                }
-                                echo "</tr>";
-                            }
-                            echo "</tbody></table>";
-
-                        } catch (PDOException $e) {
-                            echo "Error: " . $e->getMessage();
-                        }
-
-                        // Close connection
-                        $conn = null;
-                        ?>
-                    </div>
-                </div>
-            </div>
-
-            <br>
-
-            <!-- Notes Table -->
-            <div class="card">
-                <div class="card-header p-3 pb-0">
-                    <h4 class="mb-0">Notes</h4>
-                    <p class="text-sm mb-0 text-capitalize font-weight-normal"></p>
-                </div>
-                <div class="card-body border-radius-lg p-3">
-                    <div class="table-responsive">
-                        <?php
-                        // Database connection settings
-
-                        try {
-                            // Create connection
-                            $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-                            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-                            // Call the stored procedure
-                            $stmt = $conn->prepare("SELECT workdate, note FROM jobentries, job_notes WHERE jobentries.link = job_notes.link AND job_number = :p_job_number");
-                            $stmt->bindParam(':p_job_number', $jobnumber);
-                            $stmt->execute();
-
-                            // Fetch the data returned by the stored procedure
-                            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-							if ($result != null){
-                            // Display the result in an HTML table with DataTables and Buttons
-                            echo "<table id='table6' class='table align-items-center table-striped mb-0' style='width:100%'>";
-                            // Output table header
-                            echo "<thead><tr>";
-							
-                            foreach ($result[0] as $key => $value) {
-                                echo "<th><h5>" . ucfirst($key) . "</h5></th>"; // Capitalize the first letter of each column name
-                            }
-                            echo "</tr></thead><tbody>";
-                            // Output table data
-                            foreach ($result as $row) {
-                                echo "<tr>";
-                                foreach ($row as $value) {
-                                    echo "<td><h6>$value</h6></td>";
-                                }
-                                echo "</tr>";
-                            }
-                            echo "</tbody></table>";
-							}
-                        } catch (PDOException $e) {
-                            echo "Error: " . $e->getMessage();
-                        }
-
-                        // Close connection
-                        $conn = null;
-						
-                        ?>
-                    </div>
+                    <form id="payrollSummaryForm" action="{{ route('reports.payrollsummary') }}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label for="daterange" style="color: #000;">Select Date Range:</label>
+                            <input type="text" id="daterange" class="form-control" style="width: 100%; border: 1px solid #ccc;" />
+                            <input type="hidden" name="date1" id="date1">
+                            <input type="hidden" name="date2" id="date2">
+                        </div>
+                        <br>
+                        <button type="submit" class="btn btn-warning">Generate Payroll Summary</button>
+                    </form>
                 </div>
             </div>
         </div>
     </main>
     <x-auth.footers.auth.footer></x-auth.footers.auth.footer>
+
     @push('js')
     <script src="{{ asset('assets') }}/js/plugins/perfect-scrollbar.min.js"></script>
 
@@ -255,33 +73,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/vfs_fonts.js"></script>
 
+    <!-- Include Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <!-- Include Date Range Picker JS -->
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
     <script>
         $(document).ready(function() {
-            $('#table3, #table4, #table5, #table6').DataTable({
-                dom: 'Bfrtip', // Add the buttons to the DOM
-                buttons: [
-                    {
-                        extend: 'copyHtml5',
-                        text: 'Copy All'
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        text: 'Export to Excel'
-                    },
-                    {
-                        extend: 'csvHtml5',
-                        text: 'Export to CSV'
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        text: 'Export to PDF'
-                    },
-                    {
-                        extend: 'print',
-                        text: 'Print All'
-                    }
-                ],
-                autoWidth: true // Ensure that the table auto-sizes to the content
+            // Initialize Select2 on the jobnumber dropdown
+            $('#jobnumber').select2({
+                placeholder: "Select a job number",
+                allowClear: true
+            });
+
+            $('#generateReport').click(function() {
+                var jobNumber = $('#jobnumber').val();
+                if (jobNumber) {
+                    window.location.href = `https://www.peektrack.com/reports/${jobNumber}/jobsummary`;
+                } else {
+                    alert('Please select a job number.');
+                }
+            });
+
+            // Initialize Date Range Picker
+            $('#daterange').daterangepicker({
+                opens: 'left'
+            }, function(start, end, label) {
+                $('#date1').val(start.format('YYYY-MM-DD'));
+                $('#date2').val(end.format('YYYY-MM-DD'));
             });
         });
     </script>

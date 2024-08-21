@@ -6,12 +6,37 @@ use Illuminate\Http\Request;
 
 class ReportsController extends Controller
 {
-    public function index($jobnumber)
+    public function index()
+    {
+		
+		$jobnumbers = \DB::table('jobentries')
+			->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+			->select('jobentries.job_number')
+			->where('jobentries.approved', 1)
+			->groupBy("jobentries.job_number")
+			->get();
+
+        
+        // Pass the jobnumber directly to the view
+        return view('reports.index', compact('jobnumbers'));
+    }
+
+        public function jobsummary($jobnumber)
     {
         // Log the job number to ensure it is correct
         \Log::info('Job Number: ' . $jobnumber);
 
         // Pass the jobnumber directly to the view
-        return view('reports.index', compact('jobnumber'));
+        return view('reports.jobsummary', compact('jobnumber'));
     }
+	
+public function payrollSummary(Request $request)
+{
+    $startDate = $request->input('date1');
+    $endDate = $request->input('date2');
+
+    return view('reports.payrollsummary', compact('startDate', 'endDate'));
+}
+
+
 }

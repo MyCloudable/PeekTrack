@@ -50,6 +50,13 @@
                                 <span class="sidenav-normal  ms-3  ps-1"> Reports</span>
 							</a>
                         </li>   
+												<li class="nav-item"{{ $activeItem == 'newreports' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white "
+								href="https://peektrack.com/reports">
+								<span class="sidenav-mini-icon"> R </span>
+                                <span class="sidenav-normal  ms-3  ps-1"> New Reports</span>
+							</a>
+                        </li>   
 						@endif
 						@endif
 						
