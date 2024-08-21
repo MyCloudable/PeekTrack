@@ -6,8 +6,12 @@ use Illuminate\Http\Request;
 
 class ReportsController extends Controller
 {
-    public function index(){
+    public function index($jobnumber)
+    {
+        // Log the job number to ensure it is correct
+        \Log::info('Job Number: ' . $jobnumber);
 
-        return view('reports.index');
+        // Pass the jobnumber directly to the view
+        return view('reports.index', compact('jobnumber'));
     }
 }
