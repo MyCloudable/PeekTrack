@@ -356,81 +356,133 @@ public function summary()
 
     public function updateTimes(Request $request)
     {
+        // dd($request->all());
+
+        // $request->validate([
+        //     'id' => 'required|exists:timesheets,id',
+        //     'clockin_time' => 'required',
+        //     'clockout_time' => 'required',
+        //     'job_number' => 'required|exists:jobs,id',
+        // ]);
+
+
+        // // Retrieve inputs from the request
+        // $id = $request->id;
+        // $clockinTime = $request->clockin_time;
+        // $clockoutTime = $request->clockout_time;
+        // $jobNumber = $request->job_number;
+        // $timeType = $request->time_type;
+        // $perDiem = $request->per_diem;
+
+        // try {
+           
+        //     $timesheet = Timesheet::findOrFail($id);
+
+        //     // validate clockin and clockout
+        //     (new TimesheetService())->validateClockInOut($request->clockin_time, $request->clockout_time);
+
+        //     // Validate overlap using custom method
+        //     $this->validateTimesheetOverlap(
+        //         $timesheet->user_id,
+        //         $request->clockin_time,
+        //         $request->clockout_time,
+        //         $timesheet->id // Exclude current timesheet ID from overlap check
+        //     );
+
+
+        //     // Update the timesheet data
+        //     $timesheet->clockin_time = $clockinTime;
+        //     $timesheet->clockout_time = $clockoutTime;
+        //     $timesheet->job_id = $jobNumber;
+        //     $timesheet->time_type_id = $timeType;
+		// 	$timesheet->per_diem = $perDiem;
+
+        //     $timesheet->save();
+
+        //     return response()->json(['success' => true]);
+        // } catch (\Exception $e) {
+            
+        //     return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        // }
+
+        // dd($request->all());
+
 
         $request->validate([
-            'id' => 'required|exists:timesheets,id',
-            'clockin_time' => 'required',
-            'clockout_time' => 'required',
-            'job_number' => 'required|exists:jobs,id',
+            // 'rows' => 'required|array',
+            'rows.*.id' => 'required|exists:timesheets,id',
+            'rows.*.clockin_time' => 'required',
+            'rows.*.clockout_time' => 'required',
+            'rows.*.job_number' => 'required|exists:jobs,id',
         ]);
 
-        // Retrieve inputs from the request
-        $id = $request->id;
-        $clockinTime = $request->clockin_time;
-        $clockoutTime = $request->clockout_time;
-        $jobNumber = $request->job_number;
-        $timeType = $request->time_type;
-		$perDiem = $request->per_diem;
 
-        try {
-            // Fetch the timesheet record by ID
-            $timesheet = Timesheet::findOrFail($id);
-            // dd($timesheet);
+        // to manage errors for all rows, if error comes for a specific row then skip exucution and go to next, throws errors at then end
+        // but save all of those rows without erros
 
-            // // Validate against nearest timesheet entry with same crew and date
-            // $nearestTimesheet = Timesheet::where('crew_id', $timesheet->crew_id)
-            // ->where('user_id', $timesheet->user_id)
-            // ->whereDate('clockin_time', '=', date('Y-m-d', strtotime($timesheet->clockin_time)))
-            // ->where('id', '<>', $timesheet->id)
-            // ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, clockin_time, ?))', [$clockinTime])
-            // ->first();
+        $errors = []; 
 
-            // if ($nearestTimesheet) {
-            //     // Check if updating clock out time is not greater than nearest record clock in time
-            //     if (strtotime($clockoutTime) > strtotime($nearestTimesheet->clockin_time)) {
-            //         return response()->json([
-            //             'success' => false,
-            //             'message' => 'Updating clock out time cannot be greater than nearest record clock in time with id ' . $nearestTimesheet->id
-            //         ], 422);
-            //     }
+        try{
+
+            // dd($request->all());
+
+            foreach ($request->rows as $row) {
+
+                // dd('dd0');
     
-            //     // Check if updating clockin time is not less than nearest record clock out time
-            //     if (strtotime($clockinTime) < strtotime($nearestTimesheet->clockout_time)) {
-            //         return response()->json([
-            //             'success' => false,
-            //             'message' => 'Updating clockin time cannot be less than nearest record clock out time with id ' . $nearestTimesheet->id
-            //         ], 422);
-            //     }
-            // }
+                $timesheet = Timesheet::findOrFail($row['id']);
 
+                // Validate clockin and clockout
+                $error = (new TimesheetService())->validateClockInOut($row['clockin_time'], $row['clockout_time']);
+                if($error){
+                    $errors[] = $error;
+                    // dd('dd1');
+                    continue; // Skip further processing for this row
+                }
 
-            // validate clockin and clockout
-            (new TimesheetService())->validateClockInOut($request->clockin_time, $request->clockout_time);
+                // Validate overlap using custom method
+                $overlapError = $this->validateTimesheetOverlap(
+                    $timesheet->user_id,
+                    $row['clockin_time'],
+                    $row['clockout_time'],
+                    $timesheet->id // Exclude current timesheet ID from overlap check
+                );
 
-            // Validate overlap using custom method
-            $this->validateTimesheetOverlap(
-                $timesheet->user_id,
-                $request->clockin_time,
-                $request->clockout_time,
-                $timesheet->id // Exclude current timesheet ID from overlap check
-            );
+                if ($overlapError) {
+                    $errors[] = $overlapError;
+                    // dd('dd2');
+                    continue; // Skip further processing for this row
+                }
 
+                // dd('dd3');
 
-            // Update the timesheet data
-            $timesheet->clockin_time = $clockinTime;
-            $timesheet->clockout_time = $clockoutTime;
-            $timesheet->job_id = $jobNumber;
-            $timesheet->time_type_id = $timeType;
-			$timesheet->per_diem = $perDiem;
+                // Update the timesheet data
+                $timesheet->clockin_time = $row['clockin_time'];
+                $timesheet->clockout_time = $row['clockout_time'];
+                $timesheet->job_id = $row['job_number'];
+                $timesheet->time_type_id = $row['time_type'];
+                $timesheet->per_diem = $row['per_diem'];
 
-            // Save the changes
-            $timesheet->save();
+                // dd($timesheet);
+                $timesheet->save();
+    
+            }
 
-            return response()->json(['success' => true]);
+            // If there are any errors, return them
+            if (!empty($errors)) {
+                return response()->json(['success' => false, 'message' => '', 'errors' => $errors], 422);
+            }
+            
+            // dd('dd4');
+
+            return response()->json(['success' => true, 'message' => 'Timesheets updated successfully']);
+
         } catch (\Exception $e) {
-            // Handle any exceptions (e.g., database errors)
+            
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+
+
     }
 
     public function deleteTimesheet($id)
@@ -464,11 +516,18 @@ public function summary()
 
             // Validate overlap using custom method (for each crew member)
             foreach ($userIds as $userId) {
-                $this->validateTimesheetOverlap(
+                
+                $error = $this->validateTimesheetOverlap(
                     $data['user_id'],
                     $data['clockin_time'],
                     $data['clockout_time'],
                 );
+
+                if($error){
+                    throw ValidationException::withMessages([
+                        'error' => $error,
+                    ]);
+                }
             }
 
             // If validation passes for all user_ids, proceed to save
@@ -520,13 +579,18 @@ public function summary()
                 // Get the user name
                 $userName = User::where('id', $user_id)->value('name');
 
-                throw ValidationException::withMessages([
-                    'error' => 'Overlapping timesheets for user ' .  $userName .  ' with these ids. ' . implode(',', $overlappingIds),
-                    // 'overlapping_ids' => $overlappingIds
-                ]);
+                // throw ValidationException::withMessages([
+                //     'error' => 'Overlapping timesheets for user ' .  $userName .  ' with these ids. ' . implode(',', $overlappingIds),
+                // ]);
+
+                // Return the error message instead of throwing it
+                return 'Overlapping timesheets for user ' . $userName . ' with these ids: ' . implode(',', $overlappingIds);
             }
     
-            return $overlappingTimesheets;
+            // return $overlappingTimesheets;
+
+            return null; // No overlap
+
         } catch(\Exception $e) {
             throw $e;
         }

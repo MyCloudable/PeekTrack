@@ -25,7 +25,9 @@
 
     <div class="row mt-5">
         <div class="col-md-12">
-            <DataTable :options="tableOptions" ref="dataTableRef" class="table table-hover"/>
+            <button class="btn btn-secondary mb-5" v-if="editingRows.size > 0" @click="updateAllRows(null)">Update
+                All</button>
+            <DataTable :options="tableOptions" ref="dataTableRef" class="table table-hover" />
 
             <span id="totalTimeFooter">Total time: {{ totalTimeFooter }}</span>
         </div>
@@ -416,12 +418,12 @@ const handleCheckboxChange = async (event) => {
                     console.log('12')
                     dataTableRef.value.dt.ajax.reload(null, false) // Reload table data without resetting pagination
                 }
-                this.$toast.success('Approval status updated successfully')
+                toast.success('Approval status updated successfully')
             } else {
-                this.$toast.error('Failed to update approval status')
+                toast.error('Failed to update approval status')
             }
         } catch (error) {
-            this.$toast.error('An error occurred while updating approval status')
+            toast.error('An error occurred while updating approval status')
         } finally {
             setLoading(false)
         }
@@ -462,12 +464,12 @@ const handleSelectAllPayrollApproval = async (event) => {
                 dataTableRef.value.dt.ajax.reload(null, false)
                 // dataTableRef.value.reload()
             }
-            this.$toast.success('Approval status updated successfully')
+            toast.success('Approval status updated successfully')
         } else {
-            this.$toast.error('Failed to update approval status')
+            toast.error('Failed to update approval status')
         }
     } catch (error) {
-        this.$toast.error('An error occurred while updating approval status')
+        toast.error('An error occurred while updating approval status')
     } finally {
         setLoading(false)
     }
@@ -478,15 +480,18 @@ const handleEditClick = (event) => {
 
     const id = event.target.getAttribute('data-id')
     if (editingRows.has(parseInt(id))) {
-        editingRows.delete(parseInt(id))
-        saveRow(id)
+        // editingRows.delete(parseInt(id))
+        // saveRow(id)
+        updateAllRows(id)
     } else {
         editingRows.add(parseInt(id))
     }
+
     if (dataTableRef.value && dataTableRef.value.dt) {
         console.log('14')
         dataTableRef.value.dt.ajax.reload(null, false)
     }
+
 }
 
 
@@ -521,20 +526,112 @@ const saveRow = async (id) => {
                 console.log('15')
                 dataTableRef.value.dt.ajax.reload(null, false); // Reload table data without resetting pagination
             }
-            this.$toast.success('Timesheet entry updated successfully')
+            toast.success('Timesheet entry updated successfully')
         } else {
-            this.$toast.error('Failed to updated timesheet entry')
+            toast.error('Failed to updated timesheet entry')
         }
         alert(response.data.message)
 
     } catch (error) {
         // alert('here coming error')
         alert(`Error: ${error.response.data.message}`);
-        this.$toast.error('An error occurred while updating the timesheet entry')
+        toast.error('An error occurred while updating the timesheet entry')
     } finally {
         setLoading(false)
     }
 }
+
+
+
+
+const updateAllRows = async (singleRowId) => {
+
+    setLoading(true)
+
+    const rowsData = []
+
+    console.log('ahh')
+    console.log(editingRows)
+
+    editingRows.forEach(id => {
+
+        // alert('here ' + id)
+
+        const clockinInput = document.querySelector(`.clockin-time-input[data-id="${id}"]`)
+        const clockoutInput = document.querySelector(`.clockout-time-input[data-id="${id}"]`)
+        const jobNumberSelect = document.querySelector(`.job-number-select[data-id="${id}"]`)
+        const timeTypeSelect = document.querySelector(`.time-type-select[data-id="${id}"]`)
+        const perDiemSelect = document.querySelector(`.per-diem-select[data-id="${id}"]`)
+
+        rowsData.push({
+            id: id,
+            clockin_time: clockinInput ? clockinInput.value : null,
+            clockout_time: clockoutInput ? clockoutInput.value : null,
+            job_number: jobNumberSelect ? jobNumberSelect.getAttribute('data-value') : null,
+            time_type: timeTypeSelect ? timeTypeSelect.value : null,
+            per_diem: perDiemSelect ? perDiemSelect.value : null
+        })
+
+    })
+
+    console.table(rowsData)
+
+    // return
+
+
+    try {
+        const response = await axios.post('/timesheet-management/update-times', {
+            rows: rowsData
+        })
+
+        if (response.data.success) {
+            if (dataTableRef.value && dataTableRef.value.dt) {
+                console.log('15')
+                dataTableRef.value.dt.ajax.reload(null, false); // Reload table data without resetting pagination
+            }
+            toast.success('Timesheet entry updated successfully')
+        } else {
+            toast.error('Failed to updated timesheet entry')
+        }
+        // alert(response.data.message)
+
+    } catch (error) {
+
+        (error.response.data.message) ? toast.error(error.response.data.message) : ''
+
+        // toast.error('An error occurred while updating the timesheet entry')
+        console.table(error.response.data.errors)
+
+        error.response.data.errors.forEach((error) => {
+            toast.error(error)
+        });
+    } finally {
+
+        // (singleRowId) ? editingRows.delete(parseInt(singleRowId)) : editingRows.clear()
+
+        // (singleRowId) ? console.log('remove single') : console.log('remove all')
+        // if(singleRowId){
+        //     console.log('if condition ' + singleRowId)
+        // }else{
+        //     console.log('else condition ' + singleRowId)
+        // }
+        setLoading(false)
+
+        console.log('finally block')
+        // if (dataTableRef.value && dataTableRef.value.dt) {
+        //     console.log('14')
+        //     dataTableRef.value.dt.ajax.reload(null, false)
+        // }
+
+    }
+
+
+
+
+}
+
+
+
 
 const handleDeleteClick = async (event) => {
     const id = event.target.getAttribute('data-id');
@@ -656,24 +753,24 @@ body.dark-version table.dataTable tbody tr:nth-child(even) {
 
 }
 
-.custom-dropdown-list{
-        display:none; 
-        position: absolute; 
-        top: 100%; 
-        left: 0; 
-        max-height: 200px; 
-        overflow: auto; 
-        z-index: 1000; 
-        background-color: white; 
-        border: 1px solid #ccc; 
-        width: 100%;
-        padding-left:5px;
-        cursor: pointer;
-    }
+.custom-dropdown-list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    max-height: 200px;
+    overflow: auto;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid #ccc;
+    width: 100%;
+    padding-left: 5px;
+    cursor: pointer;
+}
 
 
-    .dropdown-item{
-        padding-left: 0;
-        font-size: 12px;
-    }
+.dropdown-item {
+    padding-left: 0;
+    font-size: 12px;
+}
 </style>

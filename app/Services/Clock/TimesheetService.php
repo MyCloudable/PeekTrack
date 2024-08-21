@@ -255,7 +255,14 @@ class TimesheetService {
             if($data['type'] == 'clockout'){
 
                 $timesheet->clockout_time = $data['time'];
-                $this->validateClockInOut($timesheet->clockin_time, $data['time']);
+                $error = $this->validateClockInOut($timesheet->clockin_time, $data['time']);
+                
+
+                if($error){
+                    throw ValidationException::withMessages([
+                        'error' => $error,
+                    ]);
+                }
 
                 // $this->validateTimesheetOverlap(
                 //     $timesheet->user_id,
@@ -286,7 +293,7 @@ class TimesheetService {
             $this->validateClockInOut($data['createNewCrewForm']['clockin_time'], null);
 
             $this->validateTimesheetOverlap(
-                    $timesheet->$data['createNewCrewForm']['crew_member_id'],
+                    $data['createNewCrewForm']['crew_member_id'],
                     $data['createNewCrewForm']['clockin_time'],
                     null,
                 );
@@ -514,28 +521,32 @@ class TimesheetService {
             // Validate that clockout is not less than clockin
             if ($clockout->lessThan($clockin)) {
                 // dd('1');
-                throw ValidationException::withMessages([
-                    'clockout' => 'Clockout time should not be less than Clockin time.',
-                ]);
+                return 'Clockout time should not be less than Clockin time.';
+
+                // throw ValidationException::withMessages([
+                //     'clockout' => 'Clockout time should not be less than Clockin time.',
+                // ]);
             }
 
             // Validate that clockin is not greater than clockout
             if ($clockin->greaterThan($clockout)) {
-                throw ValidationException::withMessages([
-                    'clockin' => 'Clockin time should not be greater than Clockout time.',
-                ]);
+                return 'Clockin time should not be greater than Clockout time.';
+                // throw ValidationException::withMessages([
+                //     'clockin' => 'Clockin time should not be greater than Clockout time.',
+                // ]);
             }
         }
 
         // Validate that clockin is not greater than current time
         if ($clockin && $now->lessThan($clockin)) {
-            throw ValidationException::withMessages([
-                'clockin' => 'Clockin time should not be greater than the current time.',
-            ]);
+            return 'Clockin time should not be greater than the current time.';
+            // throw ValidationException::withMessages([
+            //     'clockin' => 'Clockin time should not be greater than the current time.',
+            // ]);
         }
 
-        // If no validation errors, return true or perform further actions
-        return true;
+        // If no validation errors
+        return '';
 
     }
 

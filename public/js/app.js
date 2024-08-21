@@ -22498,7 +22498,6 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     uniqueSuperintendents: Object
   },
   setup: function setup(__props, _ref) {
-    var _this = this;
     var __expose = _ref.expose;
     __expose();
     var toast = (0,vue_toastification__WEBPACK_IMPORTED_MODULE_6__.useToast)();
@@ -22811,16 +22810,16 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                   console.log('12');
                   dataTableRef.value.dt.ajax.reload(null, false); // Reload table data without resetting pagination
                 }
-                _this.$toast.success('Approval status updated successfully');
+                toast.success('Approval status updated successfully');
               } else {
-                _this.$toast.error('Failed to update approval status');
+                toast.error('Failed to update approval status');
               }
               _context.next = 16;
               break;
             case 13:
               _context.prev = 13;
               _context.t0 = _context["catch"](6);
-              _this.$toast.error('An error occurred while updating approval status');
+              toast.error('An error occurred while updating approval status');
             case 16:
               _context.prev = 16;
               setLoading(false);
@@ -22871,16 +22870,16 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                   dataTableRef.value.dt.ajax.reload(null, false);
                   // dataTableRef.value.reload()
                 }
-                _this.$toast.success('Approval status updated successfully');
+                toast.success('Approval status updated successfully');
               } else {
-                _this.$toast.error('Failed to update approval status');
+                toast.error('Failed to update approval status');
               }
               _context2.next = 17;
               break;
             case 14:
               _context2.prev = 14;
               _context2.t0 = _context2["catch"](7);
-              _this.$toast.error('An error occurred while updating approval status');
+              toast.error('An error occurred while updating approval status');
             case 17:
               _context2.prev = 17;
               setLoading(false);
@@ -22898,8 +22897,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     var handleEditClick = function handleEditClick(event) {
       var id = event.target.getAttribute('data-id');
       if (editingRows.has(parseInt(id))) {
-        editingRows["delete"](parseInt(id));
-        saveRow(id);
+        // editingRows.delete(parseInt(id))
+        // saveRow(id)
+        updateAllRows(id);
       } else {
         editingRows.add(parseInt(id));
       }
@@ -22942,9 +22942,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                   console.log('15');
                   dataTableRef.value.dt.ajax.reload(null, false); // Reload table data without resetting pagination
                 }
-                _this.$toast.success('Timesheet entry updated successfully');
+                toast.success('Timesheet entry updated successfully');
               } else {
-                _this.$toast.error('Failed to updated timesheet entry');
+                toast.error('Failed to updated timesheet entry');
               }
               alert(response.data.message);
               _context3.next = 23;
@@ -22954,7 +22954,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
               _context3.t0 = _context3["catch"](11);
               // alert('here coming error')
               alert("Error: ".concat(_context3.t0.response.data.message));
-              _this.$toast.error('An error occurred while updating the timesheet entry');
+              toast.error('An error occurred while updating the timesheet entry');
             case 23:
               _context3.prev = 23;
               setLoading(false);
@@ -22969,23 +22969,109 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         return _ref4.apply(this, arguments);
       };
     }();
-    var handleDeleteClick = /*#__PURE__*/function () {
-      var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(event) {
-        var id, response, errorMessage;
+    var updateAllRows = /*#__PURE__*/function () {
+      var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(singleRowId) {
+        var rowsData, response;
         return _regeneratorRuntime().wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
+              setLoading(true);
+              rowsData = [];
+              console.log('ahh');
+              console.log(editingRows);
+              editingRows.forEach(function (id) {
+                // alert('here ' + id)
+
+                var clockinInput = document.querySelector(".clockin-time-input[data-id=\"".concat(id, "\"]"));
+                var clockoutInput = document.querySelector(".clockout-time-input[data-id=\"".concat(id, "\"]"));
+                var jobNumberSelect = document.querySelector(".job-number-select[data-id=\"".concat(id, "\"]"));
+                var timeTypeSelect = document.querySelector(".time-type-select[data-id=\"".concat(id, "\"]"));
+                var perDiemSelect = document.querySelector(".per-diem-select[data-id=\"".concat(id, "\"]"));
+                rowsData.push({
+                  id: id,
+                  clockin_time: clockinInput ? clockinInput.value : null,
+                  clockout_time: clockoutInput ? clockoutInput.value : null,
+                  job_number: jobNumberSelect ? jobNumberSelect.getAttribute('data-value') : null,
+                  time_type: timeTypeSelect ? timeTypeSelect.value : null,
+                  per_diem: perDiemSelect ? perDiemSelect.value : null
+                });
+              });
+              console.table(rowsData);
+
+              // return
+              _context4.prev = 6;
+              _context4.next = 9;
+              return axios__WEBPACK_IMPORTED_MODULE_0___default().post('/timesheet-management/update-times', {
+                rows: rowsData
+              });
+            case 9:
+              response = _context4.sent;
+              if (response.data.success) {
+                if (dataTableRef.value && dataTableRef.value.dt) {
+                  console.log('15');
+                  dataTableRef.value.dt.ajax.reload(null, false); // Reload table data without resetting pagination
+                }
+                toast.success('Timesheet entry updated successfully');
+              } else {
+                toast.error('Failed to updated timesheet entry');
+              }
+              // alert(response.data.message)
+              _context4.next = 18;
+              break;
+            case 13:
+              _context4.prev = 13;
+              _context4.t0 = _context4["catch"](6);
+              _context4.t0.response.data.message ? toast.error(_context4.t0.response.data.message) : '';
+
+              // toast.error('An error occurred while updating the timesheet entry')
+              console.table(_context4.t0.response.data.errors);
+              _context4.t0.response.data.errors.forEach(function (error) {
+                toast.error(error);
+              });
+            case 18:
+              _context4.prev = 18;
+              // (singleRowId) ? editingRows.delete(parseInt(singleRowId)) : editingRows.clear()
+
+              // (singleRowId) ? console.log('remove single') : console.log('remove all')
+              // if(singleRowId){
+              //     console.log('if condition ' + singleRowId)
+              // }else{
+              //     console.log('else condition ' + singleRowId)
+              // }
+              setLoading(false);
+              console.log('finally block');
+              // if (dataTableRef.value && dataTableRef.value.dt) {
+              //     console.log('14')
+              //     dataTableRef.value.dt.ajax.reload(null, false)
+              // }
+              return _context4.finish(18);
+            case 22:
+            case "end":
+              return _context4.stop();
+          }
+        }, _callee4, null, [[6, 13, 18, 22]]);
+      }));
+      return function updateAllRows(_x4) {
+        return _ref5.apply(this, arguments);
+      };
+    }();
+    var handleDeleteClick = /*#__PURE__*/function () {
+      var _ref6 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(event) {
+        var id, response, errorMessage;
+        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          while (1) switch (_context5.prev = _context5.next) {
+            case 0:
               id = event.target.getAttribute('data-id');
               if (!confirm('Are you sure you want to delete this timesheet?')) {
-                _context4.next = 17;
+                _context5.next = 17;
                 break;
               }
-              _context4.prev = 2;
+              _context5.prev = 2;
               setLoading(true);
-              _context4.next = 6;
+              _context5.next = 6;
               return axios__WEBPACK_IMPORTED_MODULE_0___default()["delete"]("/timesheets/".concat(id));
             case 6:
-              response = _context4.sent;
+              response = _context5.sent;
               if (response.data.success) {
                 if (dataTableRef.value && dataTableRef.value.dt) {
                   console.log('16');
@@ -22997,25 +23083,25 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                 toast.error('Failed to delete timesheet entry');
                 alert(response.data.message);
               }
-              _context4.next = 14;
+              _context5.next = 14;
               break;
             case 10:
-              _context4.prev = 10;
-              _context4.t0 = _context4["catch"](2);
-              errorMessage = _context4.t0.response.data.message;
+              _context5.prev = 10;
+              _context5.t0 = _context5["catch"](2);
+              errorMessage = _context5.t0.response.data.message;
               errorMessage ? toast.error(errorMessage) : 'An error occurred while deleting the timesheet entry';
             case 14:
-              _context4.prev = 14;
+              _context5.prev = 14;
               setLoading(false);
-              return _context4.finish(14);
+              return _context5.finish(14);
             case 17:
             case "end":
-              return _context4.stop();
+              return _context5.stop();
           }
-        }, _callee4, null, [[2, 10, 14, 17]]);
+        }, _callee5, null, [[2, 10, 14, 17]]);
       }));
-      return function handleDeleteClick(_x4) {
-        return _ref5.apply(this, arguments);
+      return function handleDeleteClick(_x5) {
+        return _ref6.apply(this, arguments);
       };
     }();
     var TimesheetCreated = function TimesheetCreated() {
@@ -23025,9 +23111,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         dataTableRef.value.dt.ajax.reload(null, false);
       }
     };
-    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-        while (1) switch (_context5.prev = _context5.next) {
+    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+        while (1) switch (_context6.prev = _context6.next) {
           case 0:
             try {
               console.log('18');
@@ -23037,9 +23123,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             }
           case 1:
           case "end":
-            return _context5.stop();
+            return _context6.stop();
         }
-      }, _callee5);
+      }, _callee6);
     })));
 
     // custom search on job number dropdown in a datatable
@@ -23093,6 +23179,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       handleSelectAllPayrollApproval: handleSelectAllPayrollApproval,
       handleEditClick: handleEditClick,
       saveRow: saveRow,
+      updateAllRows: updateAllRows,
       handleDeleteClick: handleDeleteClick,
       TimesheetCreated: TimesheetCreated,
       handleFilterOptions: handleFilterOptions,
@@ -24253,7 +24340,13 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     jobs: $setup.props.jobs,
     authuser: $props.authuser,
     onFilter: $setup.handleFilter
-  }, null, 8 /* PROPS */, ["users", "jobs", "authuser"])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_10, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["DataTable"], {
+  }, null, 8 /* PROPS */, ["users", "jobs", "authuser"])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_10, [$setup.editingRows.size > 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+    key: 0,
+    "class": "btn btn-secondary mb-5",
+    onClick: _cache[0] || (_cache[0] = function ($event) {
+      return $setup.updateAllRows(null);
+    })
+  }, "Update All")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["DataTable"], {
     options: $setup.tableOptions,
     ref: "dataTableRef",
     "class": "table table-hover"
@@ -24581,7 +24674,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.page-item .page-link,\n.page-item span {\n    background: black !important;\n}\n.page-item.active .page-link,\n.page-item span {\n    background: orange !important;\n}\n.dt-search input,\n.dt-search input:focus {\n    background: white;\n}\nbody.dark-version table.dataTable tbody tr:nth-child(even) {\n    background-color: #333;\n    /* Darker shade for dark theme */\n}\n.custom-dropdown-list{\n        display:none; \n        position: absolute; \n        top: 100%; \n        left: 0; \n        max-height: 200px; \n        overflow: auto; \n        z-index: 1000; \n        background-color: white; \n        border: 1px solid #ccc; \n        width: 100%;\n        padding-left:5px;\n        cursor: pointer;\n}\n.dropdown-item{\n        padding-left: 0;\n        font-size: 12px;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.page-item .page-link,\n.page-item span {\n    background: black !important;\n}\n.page-item.active .page-link,\n.page-item span {\n    background: orange !important;\n}\n.dt-search input,\n.dt-search input:focus {\n    background: white;\n}\nbody.dark-version table.dataTable tbody tr:nth-child(even) {\n    background-color: #333;\n    /* Darker shade for dark theme */\n}\n.custom-dropdown-list {\n    display: none;\n    position: absolute;\n    top: 100%;\n    left: 0;\n    max-height: 200px;\n    overflow: auto;\n    z-index: 1000;\n    background-color: white;\n    border: 1px solid #ccc;\n    width: 100%;\n    padding-left: 5px;\n    cursor: pointer;\n}\n.dropdown-item {\n    padding-left: 0;\n    font-size: 12px;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
