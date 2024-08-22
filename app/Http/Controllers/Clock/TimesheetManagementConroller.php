@@ -208,26 +208,33 @@ public function summary()
     {   
         
         
-        $query = DB::table('timesheets')
-                    ->join('users as crewmembers', 'timesheets.user_id', '=', 'crewmembers.id')
-                    ->join('crews', 'timesheets.crew_id', '=', 'crews.id')
-                    ->join('users as superintendents', 'crews.superintendentId', '=', 'superintendents.id')
-                    ->join('jobs', 'timesheets.job_id', '=', 'jobs.id')
-                    ->leftJoin('time_types', 'timesheets.time_type_id', '=', 'time_types.id')
-                    ->select(
-                        'timesheets.*',
-                        DB::raw("DATE_FORMAT(clockin_time, '%Y-%m-%d %H:%i') as clockin_time"), 
-                        DB::raw("DATE_FORMAT(clockout_time, '%Y-%m-%d %H:%i') as clockout_time"), 
-                        DB::raw("TIMESTAMPDIFF(minute,clockin_time,clockout_time) as total_time"),
-                        'crewmembers.name as crewmember_name', 
-                        'crewmembers.location as crewmember_location',
-                        DB::raw("CONCAT(jobs.job_number,' ',jobs.county) as job_number_county"), 
-                        'superintendents.id', 
-                        'superintendents.name as superintendent_name', 
-                        'superintendents.location as superintendent_location',
-                        'time_types.name as time_type_name',
-                        'timesheets.id as timesheet_id' 
-                    );
+$query = DB::table('timesheets')
+    ->join('users as crewmembers', 'timesheets.user_id', '=', 'crewmembers.id')
+    ->join('crews', 'timesheets.crew_id', '=', 'crews.id')
+    ->join('users as superintendents', 'crews.superintendentId', '=', 'superintendents.id')
+    ->join('jobs', 'timesheets.job_id', '=', 'jobs.id')
+    ->leftJoin('time_types', 'timesheets.time_type_id', '=', 'time_types.id')
+    ->leftJoin('users as creators', 'timesheets.created_by', '=', 'creators.id')  // Self-join to get the creator's name
+    ->select(
+        'timesheets.*',
+        DB::raw("DATE_FORMAT(clockin_time, '%Y-%m-%d %H:%i') as clockin_time"), 
+        DB::raw("DATE_FORMAT(clockout_time, '%Y-%m-%d %H:%i') as clockout_time"), 
+        DB::raw("TIMESTAMPDIFF(minute, clockin_time, clockout_time) as total_time"),
+		DB::raw("CONCAT('(',crewmembers.id, ') ', crewmembers.name) as crewmember_name"),		
+        'crewmembers.location as crewmember_location',
+        DB::raw("CONCAT(jobs.job_number, ' ', jobs.county) as job_number_county"), 
+        'superintendents.id', 
+        'superintendents.name as superintendent_name', 
+        'superintendents.location as superintendent_location',
+        'time_types.name as time_type_name',
+        'timesheets.id as timesheet_id',
+        DB::raw("CASE 
+                    WHEN creators.name != superintendents.name THEN creators.name 
+                    ELSE ''
+                 END as created_by")
+    );
+
+
 
         if(is_array($request->filterData)){
             // dd($request->filterData['superIntendent']);

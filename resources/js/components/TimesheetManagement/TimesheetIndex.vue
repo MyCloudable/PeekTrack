@@ -145,13 +145,20 @@ const tableOptions = ref({
     },
 
     columns: [
-        { data: 'timesheet_id', title: 'Time Id' },
+{
+        data: 'created_by',
+        title: 'Created By',
+        render: function(data, type, row, meta) {
+            return `<small><small><small>${data}</small></small></small>`;
+        }
+    },
+        { data: 'timesheet_id', title: 'ID' },
         { data: 'crewmember_name', title: 'Crew Member' },
         { data: 'superintendent_name', title: 'Superintendent' },
 
         {
             data: 'job_number_county',
-            title: 'Job Number(County)',
+            title: 'Job #(County)',
             render: function (data, type, row) {
                 if (editingRows.has(row.timesheet_id)) {
 
@@ -174,13 +181,13 @@ const tableOptions = ref({
                     </div>`;
                 }
 
-                return data;
+                return `<small><small><small>${data}</small></small></small>`;
             }
         },
 
         {
             data: 'time_type_name',
-            title: 'Time Type',
+            title: 'Type',
             render: function (data, type, row, meta) {
                 if (editingRows.has(row.timesheet_id)) {
                     const options = props.timetypes.map(time_type =>
@@ -221,7 +228,7 @@ const tableOptions = ref({
         },
         {
             data: 'per_diem',
-            title: 'Per Diem',
+            title: 'PD',
             orderable: true,
             render: function (data, type, row) {
                 if (editingRows.has(row.timesheet_id)) {
@@ -237,7 +244,7 @@ const tableOptions = ref({
         },
         {
             data: 'weekend_out',
-            title: 'WO',
+            title: 'WEO',
             orderable: true,
             render: function (data, type, row) {
                 return `<input type="checkbox" class="form-check-input weekend-out-approval-checkbox" data-id="${row.timesheet_id}" data-type="weekend_out" ${data ? 'checked' : ''} ${props.authuser.role_id == 2 ? '' : 'disabled'} '' />`

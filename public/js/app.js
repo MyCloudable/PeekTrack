@@ -22566,8 +22566,14 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         });
       },
       columns: [{
+        data: 'created_by',
+        title: 'Created By',
+        render: function render(data, type, row, meta) {
+          return "<small><small><small>".concat(data, "</small></small></small>");
+        }
+      }, {
         data: 'timesheet_id',
-        title: 'Time Id'
+        title: 'ID'
       }, {
         data: 'crewmember_name',
         title: 'Crew Member'
@@ -22576,7 +22582,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         title: 'Superintendent'
       }, {
         data: 'job_number_county',
-        title: 'Job Number(County)',
+        title: 'Job #(County)',
         render: function render(data, type, row) {
           if (editingRows.has(row.timesheet_id)) {
             // const options = props.jobs.map(job =>
@@ -22589,11 +22595,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             }).join('');
             return "\n                    <div class=\"searchable-dropdown position-relative\">\n                        <input type=\"text\" class=\"form-control job-number-select search-input bg-white\" placeholder=\"Search Job Number...\" \n                            data-id=\"".concat(row.timesheet_id, "\" data-value=\"").concat(row.job_id, "\" value=\"").concat(data, "\" />\n                        <ul class=\"custom-dropdown-list\" id=\"dropdown-list-").concat(row.timesheet_id, "\">\n                            ").concat(options, "\n                        </ul>\n                    </div>");
           }
-          return data;
+          return "<small><small><small>".concat(data, "</small></small></small>");
         }
       }, {
         data: 'time_type_name',
-        title: 'Time Type',
+        title: 'Type',
         render: function render(data, type, row, meta) {
           if (editingRows.has(row.timesheet_id)) {
             var options = props.timetypes.map(function (time_type) {
@@ -22629,7 +22635,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         }
       }, {
         data: 'per_diem',
-        title: 'Per Diem',
+        title: 'PD',
         orderable: true,
         render: function render(data, type, row) {
           if (editingRows.has(row.timesheet_id)) {
@@ -22640,7 +22646,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         }
       }, {
         data: 'weekend_out',
-        title: 'WO',
+        title: 'WEO',
         orderable: true,
         render: function render(data, type, row) {
           return "<input type=\"checkbox\" class=\"form-check-input weekend-out-approval-checkbox\" data-id=\"".concat(row.timesheet_id, "\" data-type=\"weekend_out\" ").concat(data ? 'checked' : '', " ").concat(props.authuser.role_id == 2 ? '' : 'disabled', " '' />");

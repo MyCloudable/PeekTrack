@@ -23,11 +23,13 @@ class ReportsController extends Controller
 
         public function jobsummary($jobnumber)
     {
-        // Log the job number to ensure it is correct
-        \Log::info('Job Number: ' . $jobnumber);
+        $status = \DB::table('jobs')
+			->select('status')
+			->where('job_number', $jobnumber)
+			->get();
 
         // Pass the jobnumber directly to the view
-        return view('reports.jobsummary', compact('jobnumber'));
+        return view('reports.jobsummary', compact('jobnumber','status'));
     }
 	
 public function payrollSummary(Request $request)
