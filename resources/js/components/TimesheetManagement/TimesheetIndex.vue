@@ -557,12 +557,13 @@ const updateAllRows = async (singleRowId) => {
 
     const rowsData = []
 
-    console.log('ahh')
-    console.log(editingRows)
+    // Determine which rows to process
+    const rowIds = singleRowId !== null ? [singleRowId] : Array.from(editingRows);
 
-    editingRows.forEach(id => {
+    console.log('oh')
+    console.log(rowIds)
 
-        // alert('here ' + id)
+    rowIds.forEach(id => {
 
         const clockinInput = document.querySelector(`.clockin-time-input[data-id="${id}"]`)
         const clockoutInput = document.querySelector(`.clockout-time-input[data-id="${id}"]`)
@@ -597,6 +598,7 @@ const updateAllRows = async (singleRowId) => {
                 dataTableRef.value.dt.ajax.reload(null, false); // Reload table data without resetting pagination
             }
             toast.success('Timesheet entry updated successfully')
+            editingRows.clear()
         } else {
             toast.error('Failed to updated timesheet entry')
         }
@@ -609,9 +611,23 @@ const updateAllRows = async (singleRowId) => {
         // toast.error('An error occurred while updating the timesheet entry')
         console.table(error.response.data.errors)
 
+        const errorIds = new Set();
+
         error.response.data.errors.forEach((error) => {
-            toast.error(error)
-        });
+            toast.error(error.message)
+            errorIds.add(error.id);
+        })
+
+        console.log('errorIds')
+        console.table(errorIds)
+
+        // Filter the editingRows Set to keep only those with errors
+        editingRows.forEach(id => {
+            if (!errorIds.has(id)) {
+                editingRows.delete(id);
+            }
+        })
+
     } finally {
 
         // (singleRowId) ? editingRows.delete(parseInt(singleRowId)) : editingRows.clear()
@@ -625,10 +641,10 @@ const updateAllRows = async (singleRowId) => {
         setLoading(false)
 
         console.log('finally block')
-        // if (dataTableRef.value && dataTableRef.value.dt) {
-        //     console.log('14')
-        //     dataTableRef.value.dt.ajax.reload(null, false)
-        // }
+        if (dataTableRef.value && dataTableRef.value.dt) {
+            console.log('16')
+            dataTableRef.value.dt.ajax.reload(null, false)
+        }
 
     }
 

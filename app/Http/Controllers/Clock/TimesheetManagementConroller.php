@@ -442,7 +442,11 @@ $query = DB::table('timesheets')
                 // Validate clockin and clockout
                 $error = (new TimesheetService())->validateClockInOut($row['clockin_time'], $row['clockout_time']);
                 if($error){
-                    $errors[] = $error;
+                    // $errors[] = $error;
+                    $errors[] = [
+                        'id' => $row['id'],
+                        'message' => $error,
+                    ];
                     // dd('dd1');
                     continue; // Skip further processing for this row
                 }
@@ -456,7 +460,11 @@ $query = DB::table('timesheets')
                 );
 
                 if ($overlapError) {
-                    $errors[] = $overlapError;
+                    // $errors[] = $overlapError;
+                    $errors[] = [
+                        'id' => $row['id'],
+                        'message' => $overlapError,
+                    ];
                     // dd('dd2');
                     continue; // Skip further processing for this row
                 }
