@@ -152,9 +152,13 @@ const tableOptions = ref({
             return `<small><small><small>${data}</small></small></small>`;
         }
     },
-        { data: 'timesheet_id', title: 'ID' },
+        { data: 'timesheet_id', title: 'ID',render: function(data, type, row, meta) {
+            return `<small><small><small>${data}</small></small></small>`;
+        } },
         { data: 'crewmember_name', title: 'Crew Member' },
-        { data: 'superintendent_name', title: 'Superintendent' },
+        { data: 'superintendent_name', title: 'Superintendent',render: function(data, type, row, meta) {
+            return `<small><small><small>${data}</small></small></small>`;
+        } },
 
         {
             data: 'job_number_county',
@@ -181,7 +185,7 @@ const tableOptions = ref({
                     </div>`;
                 }
 
-                return `<small><small><small>${data}</small></small></small>`;
+                return `${data}`;
             }
         },
 

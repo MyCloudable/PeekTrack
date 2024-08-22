@@ -208,7 +208,7 @@ public function summary()
     {   
         
         
-$query = DB::table('timesheets')
+	$query = DB::table('timesheets')
     ->join('users as crewmembers', 'timesheets.user_id', '=', 'crewmembers.id')
     ->join('crews', 'timesheets.crew_id', '=', 'crews.id')
     ->join('users as superintendents', 'crews.superintendentId', '=', 'superintendents.id')
@@ -228,10 +228,7 @@ $query = DB::table('timesheets')
         'superintendents.location as superintendent_location',
         'time_types.name as time_type_name',
         'timesheets.id as timesheet_id',
-        DB::raw("CASE 
-                    WHEN creators.name != superintendents.name THEN creators.name 
-                    ELSE ''
-                 END as created_by")
+        'creators.name as created_by'
     );
 
 

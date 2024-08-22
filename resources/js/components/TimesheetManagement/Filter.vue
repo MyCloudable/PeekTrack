@@ -107,7 +107,7 @@ onMounted(() => {
         }
 
 
-        (user.role_id == 6) ? crewMembers.value.push(user) : '';
+        (user.role_id == 6 || user.role_id == 3) ? crewMembers.value.push(user) : '';
 
 
         let el = locations.value.filter(el => {
