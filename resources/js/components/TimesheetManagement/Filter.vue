@@ -13,6 +13,7 @@
                 <label for="">Crew Member</label>
                 <Select2 :options="crewMembers" v-model="filterData.crewMember" />
             </div>
+            <i class="fas fa-times cursor-pointer mt-1" @click="clearField('crewMember')"></i>
         </div>
 
         <div class="col-md-2">
@@ -27,6 +28,7 @@
                 <label for="">Job</label>
                 <Select2 :options="props.jobs" v-model="filterData.job" />
             </div>
+            <i class="fas fa-times cursor-pointer mt-1" @click="clearField('job')"></i>
         </div>
 
         <div class="col-md-2">
@@ -34,6 +36,7 @@
                 <label for="">Location</label>
                 <Select2 :options="locations" v-model="filterData.location" />
             </div>
+            <i class="fas fa-times cursor-pointer mt-1" @click="clearField('location')"></i>
         </div>
 
         <div class="col-md-2">
@@ -41,12 +44,14 @@
                 <label for="">From Period</label>
                 <input type="date" class="form-control bg-white" v-model="filterData.from">
             </div>
+            <i class="fas fa-times cursor-pointer mt-1" @click="clearField('from')"></i>
         </div>
         <div class="col-md-2">
             <div class="form-group">
                 <label for="">To Period</label>
                 <input type="date" class="form-control bg-white" v-model="filterData.to">
             </div>
+            <i class="fas fa-times cursor-pointer mt-1" @click="clearField('to')"></i>
         </div>
 
 
@@ -133,6 +138,12 @@ const clear = () => {
         filterData.value.superIntendent = superIntendentValue
 
     emit('filter', filterData.value)
+}
+
+const clearField = (field) => {
+
+    delete filterData.value[field];
+    
 }
 
 

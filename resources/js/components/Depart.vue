@@ -40,6 +40,7 @@ import { ref, onMounted } from 'vue'
 import { useToast } from "vue-toastification"
 // import LoadingOverlay from './shared/LoadingOverlay.vue'
 import {useLoading} from '../composables/useLoading'
+import { toInteger } from 'lodash';
 
 const props = defineProps({
     crewId: Number,
@@ -87,7 +88,7 @@ const getAllJobs = () => {
 
 const depart = (eventOrValidation = false) => {
 
-    setLoading(true) // Enable loading
+    
 
     // Determine if we should validate the job ID
     const shouldValidateJobId = eventOrValidation === true;
@@ -102,7 +103,11 @@ const depart = (eventOrValidation = false) => {
     if (shouldValidateJobId)
         departForm.value.crewTypeId = props.crewTypeId
 
-    setType()
+    setType()    
+
+    if (!confirm(`Are you sure you want to ${departForm.value.type.split('_').join(' ')} ${getSelectedJobContent()}?`)) return
+
+    setLoading(true) // Enable loading
 
     axios.post('/track-time-travel', {
         departForm: departForm.value
@@ -141,6 +146,20 @@ const setType = () => {
         departForm.value.type = 'arrive_for_office'
         departForm.value.travelTimeId = travelTime.value.id
     }
+}
+
+const getSelectedJobContent = () => {
+
+    let jobContent = ''
+    if(departForm.value.type == 'depart_for_job'){
+        
+        jobs.value.map(job => {
+            if(job.id === toInteger(departForm.value.jobId)) jobContent = job.text
+        })
+    }
+
+    return jobContent
+
 }
 
 </script>

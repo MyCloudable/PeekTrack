@@ -355,6 +355,8 @@ const toggleSingleCheckbox = (index) => {
 
 const verifyTeam = () => {
 
+    if (!confirm('Are you sure you want to verify the crew?')) return
+
     setLoading(true)
 
     submitCrewMembersToVerify.value = []
@@ -373,6 +375,8 @@ const verifyTeam = () => {
 }
 
 const clockinout = (type) => {
+
+    if (!confirm(`Are you sure you want to ${type} ?`)) return
 
     setLoading(true)
 
@@ -479,6 +483,8 @@ const trackTimeDone = () => setLocalStorageFlag()
 
 const readyForVerification = () => {
 
+    if (!confirm('Are you sure you are ready for verification?')) return
+
     setLoading(true)
 
     axios.post('/ready-for-verification', {
@@ -492,6 +498,8 @@ const readyForVerification = () => {
 }
 
 const weatherEntry = () => {
+
+    if (!confirm('Are you sure you want to add weather time for this crew?')) return
 
     setLoading(true)
 
