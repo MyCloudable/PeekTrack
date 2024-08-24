@@ -126,7 +126,7 @@
                                                 @click="toggleSingleCheckbox(index)"></div>
                                     </td>
                                     <td>
-                                        <div>{{ member.name }}</div>
+                                        <div>{{ member.name }} ({{member.total_time_all}})</div>
                                     </td>
 
                                     <td v-if="isAlreadyClockedin || isAlreadyClockedout">
@@ -314,6 +314,8 @@ const getCrewMembers = () => {
             crewTypes.value = res.data.crewTypes
             crewTypeId.value = res.data.crewTypeId
 
+            const totalTimes = new Map(); // to store total time all per user_id
+
             timesheet.value.map(time => {
 
                 CrewMembersTobeVerified.value.map(member => {
@@ -332,9 +334,25 @@ const getCrewMembers = () => {
                 })
 
                 allPerDiemTimesheetIds.value.push(time.id)
+
+                // Aggregate total time all for each user_id
+                if (!totalTimes.has(time.user_id)) {
+                    totalTimes.set(time.user_id, 0)
+                }
+                totalTimes.set(time.user_id, totalTimes.get(time.user_id) + time.total_time)
+
             })
 
             departKey.value++ //this will causes Vue to recreate the depart component
+
+            // After processing all timesheets, assign the total time all to each member
+            CrewMembersTobeVerified.value.forEach(member => {
+                if (totalTimes.has(member.id)) {
+                    member.total_time_all = TimeConvert(totalTimes.get(member.id));
+                } else {
+                    member.total_time_all = '0'; // or any default value if no time is found
+                }
+            });
 
         })
         .catch(err => console.log(err))

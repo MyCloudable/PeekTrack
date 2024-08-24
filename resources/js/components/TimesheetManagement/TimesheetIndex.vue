@@ -75,7 +75,7 @@ const filterData = ref('')
 const dataTableRef = ref(null)
 const editingRows = reactive(new Set())
 
-const selectAllPayrollApproval = ref(false)
+const selectAllApproval = ref(false)
 
 const totalTimeFooter = ref('')
 
@@ -110,10 +110,16 @@ const tableOptions = ref({
                     el.addEventListener('click', handleEditClick)
                 });
 
-                const selectAllCheckbox = document.getElementById('select-all-payroll-approval')
-                if (selectAllCheckbox) {
-                    selectAllCheckbox.addEventListener('change', handleSelectAllPayrollApproval)
-                }
+                // const selectAllCheckbox = document.querySelector('.select-all-approval')
+                // if (selectAllCheckbox) {
+                //     console.log('checkbox exist ' + selectAllCheckbox)
+                //     selectAllCheckbox.addEventListener('change', handleSelectAllApproval)
+                // }
+
+                document.querySelectorAll('.select-all-approval')
+                    .forEach((checkbox) => {
+                        checkbox.addEventListener('change', handleSelectAllApproval)
+                    })
 
                 document.querySelectorAll('.payroll-approval-checkbox, .crew-member-approval-checkbox, .reviewer-approval-checkbox, .weekend-out-approval-checkbox')
                     .forEach((checkbox) => {
@@ -264,7 +270,7 @@ const tableOptions = ref({
         },
         {
             data: 'reviewer_approval',
-            title: 'RA',
+            title: '<input type="checkbox" class="form-check-input select-all-approval" data-type="reviewer_approval" data-el="reviewer-approval-checkbox" /> RA',
             orderable: true,
             render: function (data, type, row) {
                 return `<input type="checkbox" class="form-check-input reviewer-approval-checkbox" data-id="${row.timesheet_id}" data-type="reviewer_approval" ${data ? 'checked' : ''} ${props.authuser.role_id == 2 ? '' : 'disabled'} />`
@@ -273,7 +279,7 @@ const tableOptions = ref({
 
         {
             data: 'payroll_approval',
-            title: '<input type="checkbox" class="form-check-input" id="select-all-payroll-approval" data-type="payroll_approval" /> PA',
+            title: '<input type="checkbox" class="form-check-input select-all-approval" data-type="payroll_approval" data-el="payroll-approval-checkbox" /> PA',
             orderable: false,
             render: function (data, type, row) {
                 return `<input type="checkbox" class="form-check-input payroll-approval-checkbox" data-id="${row.timesheet_id}" data-type="payroll_approval" ${data ? 'checked' : ''} ${props.authuser.role_id == 5 ? '' : 'disabled'} />`
@@ -442,20 +448,22 @@ const handleCheckboxChange = async (event) => {
 }
 
 
-const handleSelectAllPayrollApproval = async (event) => {
+const handleSelectAllApproval = async (event) => {
+
+    console.log('handleSelectAllApproval')
 
     setLoading(true)
 
     const checkbox = event.target
-    const checkboxes = document.querySelectorAll('.payroll-approval-checkbox')
+    const checkboxes = document.querySelectorAll(`.${checkbox.dataset.el}`)
     const selectedIds = []
 
-    selectAllPayrollApproval.value = checkbox.checked
+    selectAllApproval.value = checkbox.checked
     const type = checkbox.dataset.type
 
     checkboxes.forEach(checkbox => {
         if (!checkbox.disabled) { // Check if the checkbox is not disabled
-            checkbox.checked = selectAllPayrollApproval.value
+            checkbox.checked = selectAllApproval.value
             selectedIds.push({
                 id: checkbox.dataset.id,
             })
@@ -465,7 +473,7 @@ const handleSelectAllPayrollApproval = async (event) => {
     try {
         const response = await axios.post('/timesheet-management/update-checkbox-approval-bulk', {
             selectedIds: selectedIds,
-            approved: selectAllPayrollApproval.value,
+            approved: selectAllApproval.value,
             type: type
         })
 

@@ -21,12 +21,13 @@ class DashboardController extends Controller
         $Jobcards = Jobentry::where('name', '=', Auth::user()->name)->get();
 
         // Fetch the most recent crew status for each superintendent and their location
-        $crews = Timesheet::select('crews.superintendentId', 'users.name as superintendent_name', 'users.location', 'time_types.name as time_type', 'time_types.value as time_value', DB::raw('MAX(timesheets.clockin_time) as last_clockin_time'))
+        $crews = Timesheet::select('crews.superintendentId', 'users.name as superintendent_name', 'users.location', 'time_types.name as time_type', 'time_types.value as time_value', DB::raw('MAX(timesheets.clockin_time) as last_clockin_time'),'jobs.job_number','jobs.location','jobs.branch')
             ->join('crews', 'timesheets.crew_id', '=', 'crews.id')
             ->join('time_types', 'timesheets.time_type_id', '=', 'time_types.id')
             ->join('users', 'crews.superintendentId', '=', 'users.id')
+			->leftjoin('jobs', 'jobs.id', '=', 'timesheets.job_id')
             ->whereNull('timesheets.clockout_time') // Only consider those who are clocked in
-            ->groupBy('crews.superintendentId', 'users.name', 'users.location', 'time_types.name', 'time_types.value')
+            ->groupBy('crews.superintendentId', 'users.name', 'users.location', 'time_types.name', 'time_types.value','jobs.job_number','jobs.location','jobs.branch')
             ->orderBy('users.location')
             ->orderBy('last_clockin_time', 'desc')
 			->orderBy('time_types.id', 'desc')

@@ -1,3 +1,8 @@
+@if (auth()->user()->role_id == 6)
+    <script type="text/javascript">
+        window.location = "{{ url('/crewmember') }}";
+    </script>
+@endif
 <x-page-template bodyClass='g-sidenav-show bg-gray-200 dark-version'>
     <x-auth.navbars.sidebar activePage="dashboard" activeItem="analytics" activeSubitem=""></x-auth.navbars.navs.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="app">
@@ -12,7 +17,7 @@
                         <!-- Card 1: Active Jobs -->
                         <a href="{{ route('jobs.jobcardview', [ 'id' => Auth::user()->id ]) }}">
                             <div class="col-lg-3 col-md-6 col-sm-6">
-                                <div class="card  mb-2">
+                                <div class="card mb-2">
                                     <div class="card-header p-3 pt-2">
                                         <div class="icon icon-lg icon-shape bg-gradient-warning shadow-dark shadow text-center border-radius-xl mt-n4 position-absolute">
                                             <i class="material-icons opacity-10">engineering</i>
@@ -33,7 +38,7 @@
                         <!-- Card 2: Unsubmitted Job Cards -->
                         <div class="col-lg-3 col-md-6 col-sm-6 mt-sm-0 mt-4">
                             <a href="{{ route('jobs.jobcardview', [ 'id' => Auth::user()->id ]) }}">
-                                <div class="card  mb-2">
+                                <div class="card mb-2">
                                     <div class="card-header p-3 pt-2">
                                         <div class="icon icon-lg icon-shape bg-gradient-warning shadow-primary shadow text-center border-radius-xl mt-n4 position-absolute">
                                             <i class="material-icons opacity-10">pending</i>
@@ -54,7 +59,7 @@
                         <!-- Card 3: Rejected Job Cards -->
                         <div class="col-lg-3 col-md-6 col-sm-6 mt-lg-0 mt-4">
                             <a href="{{ route('jobs.jobcardview', [ 'id' => Auth::user()->id ]) }}">
-                                <div class="card  mb-2">
+                                <div class="card mb-2">
                                     <div class="card-header p-3 pt-2 bg-transparent">
                                         <div class="icon icon-lg icon-shape bg-gradient-warning shadow-success text-center border-radius-xl mt-n4 position-absolute">
                                             <i class="material-icons opacity-10">sync_problem</i>
@@ -75,7 +80,7 @@
                         <!-- Card 4: My Job Cards -->
                         <div class="col-lg-3 col-md-6 col-sm-6 mt-lg-0 mt-4">
                             <a href="{{ route('jobs.myjobcards', [ 'id' => Auth::user()->id ]) }}">
-                                <div class="card  mb-2">
+                                <div class="card mb-2">
                                     <div class="card-header p-3 pt-2 bg-transparent">
                                         <div class="icon icon-lg icon-shape bg-gradient-warning shadow-success text-center border-radius-xl mt-n4 position-absolute">
                                             <i class="material-icons opacity-10">work</i>
@@ -99,120 +104,137 @@
                 <div class="row mt-4">
                     <h3 class="mb-4">Current Crew Status</h3>
 
-                    @foreach ($crews->groupBy('location') as $location => $locationCrews)
-                        @if(Auth::user()->role_id == 3 && Auth::user()->location == $location)
-                            <!-- Superintendents (role_id 3) see only their crew -->
-                            <h4 class="mb-4">{{ $location }}</h4>
-                            <div class="row">
-                                @foreach ($locationCrews->where('superintendent_id', Auth::user()->id) as $crew)
-                                    @php
-                                        $nameColor = '';
-                                        switch (strtolower(trim($crew->time_type))) {
-                                            case 'shop':
-                                                $nameColor = '#dc3545'; // Red for shop
-                                                break;
-                                            case 'mobilization':
-                                                $nameColor = '#ffc107'; // Orange for mobilization
-                                                break;
-                                            case 'production':
-                                                $nameColor = '#28a745'; // Green for production
-                                                break;
-                                            default:
-                                                $nameColor = '#6c757d'; // Default color (secondary)
-                                                break;
-                                        }
-                                    @endphp
-                                    <div class="col-lg-3 col-md-6 col-sm-6">
-                                        <div class="card mb-2">
-                                            <div class="card-header p-3 pt-2 bg-gradient-secondary text-white">
-                                                <div class="text-end pt-1">
-                                                    <h5 class="mb-0" style="color: {{ $nameColor }} !important;">{{ $crew->superintendent_name }}</h5>
-                                                    <p class="text-sm mb-0">{{ $crew->time_type }}</p>
-                                                </div>
-                                            </div>
-                                            <div class="card-footer p-3">
-                                                <p class="mb-0">Last Clock-In: {{ \Carbon\Carbon::parse($crew->last_clockin_time)->format('Y-m-d H:i') }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @elseif(in_array(Auth::user()->role_id, [2, 7]) && Auth::user()->location == $location)
-                            <!-- Reviewers and managers (role_id 2, 7) see superintendents in their location -->
-                            <h4 class="mb-4">{{ $location }}</h4>
-                            <div class="row">
-                                @foreach ($locationCrews as $crew)
-                                    @php
-                                        $nameColor = '';
-                                        switch (strtolower(trim($crew->time_type))) {
-                                            case 'shop':
-                                                $nameColor = '#dc3545'; // Red for shop
-                                                break;
-                                            case 'mobilization':
-                                                $nameColor = '#ffc107'; // Orange for mobilization
-                                                break;
-                                            case 'production':
-                                                $nameColor = '#28a745'; // Green for production
-                                                break;
-                                            default:
-                                                $nameColor = '#6c757d'; // Default color (secondary)
-                                                break;
-                                        }
-                                    @endphp
-                                    <div class="col-lg-3 col-md-6 col-sm-6">
-                                        <div class="card mb-2">
-                                            <div class="card-header p-3 pt-2 bg-gradient-secondary text-white">
-                                                <div class="text-end pt-1">
-                                                    <h5 class="mb-0" style="color: {{ $nameColor }} !important;">{{ $crew->superintendent_name }}</h5>
-                                                    <p class="text-sm mb-0">{{ $crew->time_type }}</p>
-                                                </div>
-                                            </div>
-                                            <div class="card-footer p-3">
-                                                <p class="mb-0">Last Clock-In: {{ \Carbon\Carbon::parse($crew->last_clockin_time)->format('Y-m-d H:i') }}</p>
+                    <!-- First show "Shop Time" group -->
+@if ($crews->where('branch', 'Please Select')->isNotEmpty())
+    <div class="accordion" id="accordionShopTime">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingShopTime">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShopTime" aria-expanded="true" aria-controls="collapseShopTime">
+                    Shop Time
+                </button>
+            </h2>
+            <div id="collapseShopTime" class="accordion-collapse collapse show" aria-labelledby="headingShopTime" data-bs-parent="#accordionShopTime">
+                <div class="accordion-body">
+                    @foreach ($crews->where('branch', 'Please Select')->groupBy('location') as $location => $locationCrews)
+                        <h5 class="mb-3">{{ $location }}</h5>
+                        <div class="row">
+                            @foreach ($locationCrews->sortBy('superintendent_name') as $crew)
+                                @php
+                                    $nameColor = '';
+                                    switch (strtolower(trim($crew->time_type))) {
+                                        case 'shop':
+                                            $nameColor = '#dc3545'; // Red for shop
+                                            break;
+                                        case 'mobilization':
+                                            $nameColor = '#ffc107'; // Orange for mobilization
+                                            break;
+                                        case 'production':
+                                            $nameColor = '#28a745'; // Green for production
+                                            break;
+                                        default:
+                                            $nameColor = '#6c757d'; // Default color (secondary)
+                                            break;
+                                    }
+
+                                    $lastClockInTime = \Carbon\Carbon::parse($crew->last_clockin_time);
+                                    $currentTime = \Carbon\Carbon::now();
+                                    $timeDifference = $currentTime->diffForHumans($lastClockInTime, true);
+                                    $isWarning = $currentTime->diffInHours($lastClockInTime) > 12;
+                                @endphp
+                                <div class="col-lg-3 col-md-6 col-sm-6">
+                                    <div class="card mb-2">
+                                        <div class="card-header p-3 pt-2 bg-gradient-secondary text-white">
+                                            <div class="text-end pt-1">
+                                                <h5 class="mb-0" style="color: {{ $nameColor }} !important;">{{ $crew->superintendent_name }}</h5>
+                                                <p class="text-sm mb-0">{{ $crew->time_type }} - {{ $crew->job_number }}</p>
                                             </div>
                                         </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @elseif(in_array(Auth::user()->role_id, [1, 4]))
-                            <!-- Admin and finance (role_id 1, 4) see all locations -->
-                            <h4 class="mb-4">{{ $location }}</h4>
-                            <div class="row">
-                                @foreach ($locationCrews as $crew)
-                                    @php
-                                        $nameColor = '';
-                                        switch (strtolower(trim($crew->time_type))) {
-                                            case 'shop':
-                                                $nameColor = '#dc3545'; // Red for shop
-                                                break;
-                                            case 'mobilization':
-                                                $nameColor = '#ffc107'; // Orange for mobilization
-                                                break;
-                                            case 'production':
-                                                $nameColor = '#28a745'; // Green for production
-                                                break;
-                                            default:
-                                                $nameColor = '#6c757d'; // Default color (secondary)
-                                                break;
-                                        }
-                                    @endphp
-                                    <div class="col-lg-3 col-md-6 col-sm-6">
-                                        <div class="card mb-2">
-                                            <div class="card-header p-3 pt-2 bg-gradient-secondary text-white">
-                                                <div class="text-end pt-1">
-                                                    <h5 class="mb-0" style="color: {{ $nameColor }} !important;">{{ $crew->superintendent_name }}</h5>
-                                                    <p class="text-sm mb-0">{{ $crew->time_type }}</p>
-                                                </div>
-                                            </div>
-                                            <div class="card-footer p-3">
-                                                <p class="mb-0">Last Clock-In: {{ \Carbon\Carbon::parse($crew->last_clockin_time)->format('Y-m-d H:i') }}</p>
-                                            </div>
+                                        <div class="card-footer p-3">
+                                            <p class="mb-0">
+                                                Started At: 
+                                                <span style="{{ $isWarning ? 'color: #FFFF00;' : '' }}">
+                                                    {{ $lastClockInTime->format('Y-m-d H:i') }} ({{ $timeDifference }})
+                                                    @if($isWarning)
+                                                        <strong>Warning</strong>
+                                                    @endif
+                                                </span>
+                                            </p>
                                         </div>
                                     </div>
-                                @endforeach
-                            </div>
-                        @endif
+                                </div>
+                            @endforeach
+                        </div>
                     @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
+
+                    <!-- Now show other groups -->
+                    <div class="accordion" id="accordionBranches">
+                        @foreach ($crews->where('branch', '!=', 'Please Select')->groupBy('branch') as $branch => $branchCrews)
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ Str::slug($branch) }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ Str::slug($branch) }}" aria-expanded="false" aria-controls="collapse{{ Str::slug($branch) }}">
+                                        {{ $branch }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ Str::slug($branch) }}" class="accordion-collapse collapse" aria-labelledby="heading{{ Str::slug($branch) }}" data-bs-parent="#accordionBranches">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            @foreach ($branchCrews as $crew)
+                                                @php
+                                                    $nameColor = '';
+                                                    switch (strtolower(trim($crew->time_type))) {
+                                                        case 'shop':
+                                                            $nameColor = '#dc3545'; // Red for shop
+                                                            break;
+                                                        case 'mobilization':
+                                                            $nameColor = '#ffc107'; // Orange for mobilization
+                                                            break;
+                                                        case 'production':
+                                                            $nameColor = '#28a745'; // Green for production
+                                                            break;
+                                                        default:
+                                                            $nameColor = '#6c757d'; // Default color (secondary)
+                                                            break;
+                                                    }
+
+                                                    $lastClockInTime = \Carbon\Carbon::parse($crew->last_clockin_time);
+                                                    $currentTime = \Carbon\Carbon::now();
+                                                    $timeDifference = $currentTime->diffForHumans($lastClockInTime, true);
+                                                    $isWarning = $currentTime->diffInHours($lastClockInTime) > 12;
+                                                @endphp
+                                                <div class="col-lg-3 col-md-6 col-sm-6">
+                                                    <div class="card mb-2">
+                                                        <div class="card-header p-3 pt-2 bg-gradient-secondary text-white">
+                                                            <div class="text-end pt-1">
+                                                                <h5 class="mb-0" style="color: {{ $nameColor }} !important;">{{ $crew->superintendent_name }}</h5>
+                                                                <p class="text-sm mb-0">{{ $crew->time_type }} - {{ $crew->job_number }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-footer p-3">
+                                                            <p class="mb-0">
+                                                                Started At: 
+                                                                <span style="{{ $isWarning ? 'color: #FFFF00;' : '' }}">
+                                                                    {{ $lastClockInTime->format('Y-m-d H:i') }} ({{ $timeDifference }})
+                                                                    @if($isWarning)
+                                                                        <strong>Warning</strong>
+                                                                    @endif
+                                                                </span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
                 <!-- End of Crew Status Visualization -->
             </div>

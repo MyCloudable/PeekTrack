@@ -22,6 +22,7 @@
                 <Select2 :options="superIntendents" v-model="filterData.superIntendent"
                     :disabled="superintendentDisabled" />
             </div>
+            <i class="fas fa-times cursor-pointer mt-1" v-if="authuser.role_id !== 3" @click="clearField('superIntendent')"></i>
         </div>
         <div class="col-md-2">
             <div class="form-group">

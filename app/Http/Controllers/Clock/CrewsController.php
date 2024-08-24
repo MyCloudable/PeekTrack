@@ -29,6 +29,7 @@ class CrewsController extends Controller
 
     public function store(StoreCrewRequest $request)
     {   
+        // dd($request->all());
         $this->crewService->store($request->validated());
 
         return response()->json(['success' => true, 

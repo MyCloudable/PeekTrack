@@ -336,12 +336,13 @@ public function summary()
 
     public function updateCheckboxApprovalBulk(Request $request)
     {
+        // dd($request->all());
 
         $request->validate([
             'selectedIds' => 'required|array',
             'selectedIds.*.id' => 'required|integer',
             'approved' => 'required|boolean',
-            'type' => 'required|in:payroll_approval',
+            'type' => 'required|in:payroll_approval,reviewer_approval',
         ]);
 
         // If validation passes, proceed with updating records
@@ -351,7 +352,16 @@ public function summary()
             $id = $selectedId['id'];
 
             $timesheet = Timesheet::find($id);
-            $timesheet->payroll_approval = $request->approved;
+            
+            switch($request->type){
+                case 'payroll_approval':
+                    $timesheet->payroll_approval = $request->approved;
+                    break;
+                case 'reviewer_approval':
+                    $timesheet->reviewer_approval = $request->approved;
+                    break;
+            }
+
             $timesheet->save();
         }
 
