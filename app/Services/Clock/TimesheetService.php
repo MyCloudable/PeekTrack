@@ -290,6 +290,13 @@ class TimesheetService {
 
         if(!$isAlreadyClockedin){ // only create crew member and clock in if its not clocked in
 
+            $error = $this->validateIFCrewMemberAlreadyLoggedInSomewhereElse($data['createNewCrewForm']['crew_member_id']);
+            if($error){
+                throw ValidationException::withMessages([
+                    'error' => $error,
+                ]);
+            }
+
             $this->validateClockInOut($data['createNewCrewForm']['clockin_time'], null);
 
             $this->validateTimesheetOverlap(
@@ -614,5 +621,17 @@ class TimesheetService {
         } catch(\Exception $e) {
             throw $e;
         }
+    }
+
+    public function validateIFCrewMemberAlreadyLoggedInSomewhereElse($user_id)
+    {
+        $timesheet = Timesheet::where('user_id', $user_id)->whereNull('clockout_time')->first();
+
+        if($timesheet){
+            return 'This Crew member is already logged in somewhere else';
+        }
+
+        return '';
+
     }
 }
