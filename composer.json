@@ -7,6 +7,7 @@
     "require": {
         "php": "^7.3|^8.0",
         "creagia/laravel-sign-pad": "^2.1",
+        "doctrine/dbal": "^4.1",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.4",
         "laravel/framework": "^9.0",

@@ -21310,18 +21310,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     });
     var submit = /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-        var response, errorMessage;
+        var payload, response, errorMessage;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               _context.prev = 0;
-              _context.next = 3;
-              return axios.put("/crews/".concat(props.crew.id), {
+              payload = {
                 crew_type_id: formData.value.crew_type_id,
                 superintendentId: formData.value.superintendentId,
-                crew_members: formData.value.crew_members
-              });
-            case 3:
+                crew_members: formData.value.crew_members.length ? formData.value.crew_members : null // or []
+              };
+              _context.next = 4;
+              return axios.put("/crews/".concat(props.crew.id), payload);
+            case 4:
               response = _context.sent;
               if (response.data.success) {
                 toast.success(response.data.message);
@@ -21331,18 +21332,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               } else {
                 toast.error('Failed to create crew');
               }
-              _context.next = 11;
+              _context.next = 12;
               break;
-            case 7:
-              _context.prev = 7;
+            case 8:
+              _context.prev = 8;
               _context.t0 = _context["catch"](0);
               errorMessage = _context.t0.response.data.message;
               errorMessage ? toast.error(errorMessage) : 'Something went wrong';
-            case 11:
+            case 12:
             case "end":
               return _context.stop();
           }
-        }, _callee, null, [[0, 7]]);
+        }, _callee, null, [[0, 8]]);
       }));
       return function submit() {
         return _ref2.apply(this, arguments);
