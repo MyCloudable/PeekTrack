@@ -1,3 +1,8 @@
+@if (auth()->user()->role_id == 6)
+    <script type="text/javascript">
+        window.location = "{{ url('/crewmember') }}";
+    </script>
+@endif
 <style>
 .table-striped>tbody>tr:nth-child(odd)>td,
 tr.found{

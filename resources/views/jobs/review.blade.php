@@ -1,3 +1,8 @@
+@if (auth()->user()->role_id == 6)
+    <script type="text/javascript">
+        window.location = "{{ url('/crewmember') }}";
+    </script>
+@endif
 
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
 

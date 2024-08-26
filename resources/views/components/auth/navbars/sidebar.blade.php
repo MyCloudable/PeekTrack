@@ -95,7 +95,7 @@
 								<span class="sidenav-normal  ms-2  ps-1"> <h5>Jobs</h5> </span>
 							</a>
                         </li>
-						@if ( auth()->user()->role_id != 6)
+						@if ( auth()->user()->role_id == 2)
 						<li class="nav-item"{{ $activeItem == 'review' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white {{ $activeItem == 'review' ? ' active' : '' }}  "
 								href="{{ route('jobs.review') }}">
