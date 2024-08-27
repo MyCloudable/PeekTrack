@@ -1146,7 +1146,7 @@ $weekendout = \DB::select("
             fputcsv($handle, [
                 $product->workdate ?? '', 
                 $product->user_id ?? '',
-                $product->job_number ?? '', 
+                '', 
                 '', 
                 $product->class ?? '',
                 '25',

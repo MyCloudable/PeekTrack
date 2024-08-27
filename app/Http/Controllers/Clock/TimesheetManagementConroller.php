@@ -173,9 +173,12 @@ public function summary()
     ->orderBy('daily_totals.day', 'desc')
     ->get();
 
-    // Group by week and user
+    // Group by week (starting on Sunday) and user
     $weeklySummary = $query->groupBy(function ($item) {
-        return $item->user_id . '-' . date('W', strtotime($item->day));
+        $timestamp = strtotime($item->day);
+        // Adjust the timestamp to the previous Sunday if the current day is not Sunday
+        $sundayTimestamp = strtotime('last Sunday', $timestamp + 86400); // Add 86400 seconds to include Sunday itself
+        return $item->user_id . '-' . date('oW', $sundayTimestamp); // Use ISO-8601 week number
     });
 
     // Format total minutes into HH:MM and calculate weekly total
@@ -203,6 +206,7 @@ public function summary()
 
     return view('crew.summary', compact('weeklySummary'));
 }
+
 
     public function getAll(Request $request)
     {   
