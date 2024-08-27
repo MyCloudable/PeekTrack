@@ -73,7 +73,7 @@ class DepartService {
                 'crew_type_id' => $crew->crew_type_id,
                 'time_type_id' => (isset($data['time_type_id'])) ? $data['time_type_id'] : NULL,
                 'type' => $data['type'],
-                'depart' => (isset($data['depart'])) ? $data['depart'] : Carbon::now(),
+                'depart' => (isset($data['depart'])) ? $data['depart'] : Carbon::now()->format('Y-m-d H:i:00'),
                 'arrive' => (isset($data['arrive'])) ? $data['arrive'] : NULL,
                 'created_by' => auth()->id(),
                 'modified_by' =>  auth()->id()
@@ -87,7 +87,7 @@ class DepartService {
     private function updateTravelTime($data)
     {
         TravelTime::where('id', $data['travelTimeId'])->update([
-            'arrive' => Carbon::now(),
+            'arrive' => Carbon::now()->format('Y-m-d H:i:00'),
             'modified_by' =>  auth()->id()
         ]);
 
@@ -111,7 +111,7 @@ class DepartService {
             $record['jobId'] = Job::where('job_number', '9-99-9998')->first()->id;
             $record['type'] = 'indirect_time';
             $record['time_type_id'] = TimeType::where('name', 'Shop')->first()->id;
-            $record['arrive'] = Carbon::now();
+            $record['arrive'] = Carbon::now()->format('Y-m-d H:i:00');
     
             if(!$time){ // when first time depart for job
                 $record['depart'] = Timesheet::where('crew_id', $crew->id)->where('created_at', '>=', $crew->last_verified_date)->first()->clockin_time;

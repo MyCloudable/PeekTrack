@@ -149,7 +149,7 @@ class TimesheetService {
         return Crew::where('id', $data['crewId'])->where('superintendentId', auth()->id())
                 ->update([
                     'crew_members' => $data['crewMembers'],
-                    'last_verified_date' => Carbon::now(),
+                    'last_verified_date' => Carbon::now()->format('Y-m-d H:i:00'),
                     'modified_by' => auth()->id(),
                     'is_ready_for_verification' => 0,
                     'crew_type_id' => $data['crewTypeId']
@@ -181,7 +181,7 @@ class TimesheetService {
                     'crew_id' => $crew->id,
                     'crew_type_id' => $crew->crew_type_id,
                     'user_id' => $member,
-                    'clockin_time' => Carbon::now(),
+                    'clockin_time' => Carbon::now()->format('Y-m-d H:i:00'),
                     'job_id' => Job::where('job_number', '9-99-9998')->first()->id,
                     'time_type_id' => TimeType::where('name', 'Shop')->first()->id,
                     'created_by' => auth()->id(),
@@ -210,7 +210,7 @@ class TimesheetService {
                 ->whereNull('clockout_time')
                 ->where('created_at', '>=', $crew->last_verified_date)
                 ->update([
-                    'clockout_time' => Carbon::now(),
+                    'clockout_time' => Carbon::now()->format('Y-m-d H:i:00'),
                     'modified_by' => auth()->id(),
                 ]);
                 
@@ -501,8 +501,8 @@ class TimesheetService {
                     'crew_id' => $crew->id,
                     'crew_type_id' => $crew->crew_type_id,
                     'user_id' => $member,
-                    'clockin_time' => Carbon::now(),
-                    'clockout_time' => Carbon::now()->addMinute(),
+                    'clockin_time' => Carbon::now()->format('Y-m-d H:i:00'),
+                    'clockout_time' => Carbon::now()->format('Y-m-d H:i:00')->addMinute(),
                     'job_id' => Job::where('job_number', '9-99-9998')->first()->id,
                     'time_type_id' => TimeType::where('name', 'Weather')->first()->id,
                     'created_by' => auth()->id(),
