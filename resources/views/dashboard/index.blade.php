@@ -3,6 +3,7 @@
         window.location = "{{ url('/crewmember') }}";
     </script>
 @endif
+
 <x-page-template bodyClass='g-sidenav-show bg-gray-200 dark-version'>
     <x-auth.navbars.sidebar activePage="dashboard" activeItem="analytics" activeSubitem=""></x-auth.navbars.navs.sidebar>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="app">
@@ -115,8 +116,8 @@
             </h2>
             <div id="collapseShopTime" class="accordion-collapse collapse show" aria-labelledby="headingShopTime" data-bs-parent="#accordionShopTime">
                 <div class="accordion-body">
-                    @foreach ($crews->where('branch', 'Please Select')->groupBy('location') as $location => $locationCrews)
-                        <h5 class="mb-3">{{ $location }}</h5>
+                    @foreach ($crews->where('branch', 'Please Select')->groupBy('location_group') as $locationGroup => $locationCrews)
+                        <h5 class="mb-3">{{ $locationGroup }}</h5>
                         <div class="row">
                             @foreach ($locationCrews->sortBy('superintendent_name') as $crew)
                                 @php
@@ -171,10 +172,9 @@
     </div>
 @endif
 
-
                     <!-- Now show other groups -->
                     <div class="accordion" id="accordionBranches">
-                        @foreach ($crews->where('branch', '!=', 'Please Select')->groupBy('branch') as $branch => $branchCrews)
+                        @foreach ($crews->where('branch', '!=', 'Please Select')->groupBy('location_group') as $branch => $branchCrews)
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="heading{{ Str::slug($branch) }}">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ Str::slug($branch) }}" aria-expanded="false" aria-controls="collapse{{ Str::slug($branch) }}">
