@@ -20,6 +20,7 @@ class DashboardController extends Controller
         $rejectedJobcards = Jobentry::where('approved', '=', 2)->where('name', '=', Auth::user()->name)->get();
         $Jobcards = Jobentry::where('name', '=', Auth::user()->name)->get();
  $userLocation = auth()->user()->location; // Get the logged-in user's location
+ 
         // Fetch the most recent crew status for each superintendent and their location
 $crews = Timesheet::select(
         'crews.superintendentId', 

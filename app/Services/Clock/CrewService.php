@@ -70,12 +70,17 @@ class CrewService {
     private function mergeDataBeforeSaveUpdate(array $data, $isUpdate = false)
     {
 
-        if(!isset($data['crew_memebes'])) // save empty array if none crew members coming
-        $data['crew_members'] = [];
+
+        // save empty array if none crew members coming
+        if(!isset($data['crew_members'])){
+            $data['crew_members'] = [];
+        } 
+            
 
         (!$isUpdate) ? $data['last_verified_date'] = NULL : '';
         $data['created_by'] = auth()->id(); 
         $data['modified_by'] = auth()->id();
+
         return $data;
     }
 
