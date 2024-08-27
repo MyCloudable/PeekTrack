@@ -117,53 +117,68 @@
             <div id="collapseShopTime" class="accordion-collapse collapse show" aria-labelledby="headingShopTime" data-bs-parent="#accordionShopTime">
                 <div class="accordion-body">
                     @foreach ($crews->where('branch', 'Please Select')->groupBy('location_group') as $locationGroup => $locationCrews)
-                        <h5 class="mb-3">{{ $locationGroup }}</h5>
-                        <div class="row">
-                            @foreach ($locationCrews->sortBy('superintendent_name') as $crew)
-                                @php
-                                    $nameColor = '';
-                                    switch (strtolower(trim($crew->time_type))) {
-                                        case 'shop':
-                                            $nameColor = '#dc3545'; // Red for shop
-                                            break;
-                                        case 'mobilization':
-                                            $nameColor = '#ffc107'; // Orange for mobilization
-                                            break;
-                                        case 'production':
-                                            $nameColor = '#28a745'; // Green for production
-                                            break;
-                                        default:
-                                            $nameColor = '#6c757d'; // Default color (secondary)
-                                            break;
-                                    }
+                        <div class="accordion-item">
+                            <h5 class="mb-3 accordion-header" id="heading{{ Str::slug($locationGroup) }}">
+                                <button class="accordion-button @if($userLocation != $locationGroup) collapsed @endif" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ Str::slug($locationGroup) }}" aria-expanded="@if($userLocation == $locationGroup) true @else false @endif" aria-controls="collapse{{ Str::slug($locationGroup) }}">
+                                    {{ $locationGroup }}
+                                </button>
+                            </h5>
+                            <div id="collapse{{ Str::slug($locationGroup) }}" class="accordion-collapse collapse @if($userLocation == $locationGroup) show @endif" aria-labelledby="heading{{ Str::slug($locationGroup) }}" data-bs-parent="#accordionShopTime">
+                                <div class="accordion-body">
+                                    @foreach ($locationCrews->groupBy('user_location') as $userLocationGroup => $crewsByUserLocation)
+                                        @if (auth()->user()->location == $userLocationGroup || auth()->user()->role_id == 1 || auth()->user()->role_id == 4)
+                                            <h6 class="mb-3">{{ $userLocationGroup }}</h6>
+                                            <div class="row">
+                                                @foreach ($crewsByUserLocation->sortBy('superintendent_name') as $crew)
+                                                    @php
+                                                        $nameColor = '';
+                                                        switch (strtolower(trim($crew->time_type))) {
+                                                            case 'shop':
+                                                                $nameColor = '#dc3545'; // Red for shop
+                                                                break;
+                                                            case 'mobilization':
+                                                                $nameColor = '#ffc107'; // Orange for mobilization
+                                                                break;
+                                                            case 'production':
+                                                                $nameColor = '#28a745'; // Green for production
+                                                                break;
+                                                            default:
+                                                                $nameColor = '#6c757d'; // Default color (secondary)
+                                                                break;
+                                                        }
 
-                                    $lastClockInTime = \Carbon\Carbon::parse($crew->last_clockin_time);
-                                    $currentTime = \Carbon\Carbon::now();
-                                    $timeDifference = $currentTime->diffForHumans($lastClockInTime, true);
-                                    $isWarning = $currentTime->diffInHours($lastClockInTime) > 12;
-                                @endphp
-                                <div class="col-lg-3 col-md-6 col-sm-6">
-                                    <div class="card mb-2">
-                                        <div class="card-header p-3 pt-2 bg-gradient-secondary text-white">
-                                            <div class="text-end pt-1">
-                                                <h5 class="mb-0" style="color: {{ $nameColor }} !important;">{{ $crew->superintendent_name }}</h5>
-                                                <p class="text-sm mb-0">{{ $crew->time_type }} - {{ $crew->job_number }}</p>
+                                                        $lastClockInTime = \Carbon\Carbon::parse($crew->last_clockin_time);
+                                                        $currentTime = \Carbon\Carbon::now();
+                                                        $timeDifference = $currentTime->diffForHumans($lastClockInTime, true);
+                                                        $isWarning = $currentTime->diffInHours($lastClockInTime) > 12;
+                                                    @endphp
+                                                    <div class="col-lg-3 col-md-6 col-sm-6">
+                                                        <div class="card mb-2">
+                                                            <div class="card-header p-3 pt-2 bg-gradient-secondary text-white">
+                                                                <div class="text-end pt-1">
+                                                                    <h5 class="mb-0" style="color: {{ $nameColor }} !important;">{{ $crew->superintendent_name }}</h5>
+                                                                    <p class="text-sm mb-0">{{ $crew->time_type }} - {{ $crew->job_number }}</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-footer p-3">
+                                                                <p class="mb-0">
+                                                                    Started At: 
+                                                                    <span style="{{ $isWarning ? 'color: #FFFF00;' : '' }}">
+                                                                        {{ $lastClockInTime->format('Y-m-d H:i') }} ({{ $timeDifference }})
+                                                                        @if($isWarning)
+                                                                            <strong>Warning</strong>
+                                                                        @endif
+                                                                    </span>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
                                             </div>
-                                        </div>
-                                        <div class="card-footer p-3">
-                                            <p class="mb-0">
-                                                Started At: 
-                                                <span style="{{ $isWarning ? 'color: #FFFF00;' : '' }}">
-                                                    {{ $lastClockInTime->format('Y-m-d H:i') }} ({{ $timeDifference }})
-                                                    @if($isWarning)
-                                                        <strong>Warning</strong>
-                                                    @endif
-                                                </span>
-                                            </p>
-                                        </div>
-                                    </div>
+                                        @endif
+                                    @endforeach
                                 </div>
-                            @endforeach
+                            </div>
                         </div>
                     @endforeach
                 </div>

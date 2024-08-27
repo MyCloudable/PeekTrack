@@ -19,7 +19,7 @@ class DashboardController extends Controller
         $unsubmitCards = Jobentry::where('submitted', '=', 0)->where('name', '=', Auth::user()->name)->get();
         $rejectedJobcards = Jobentry::where('approved', '=', 2)->where('name', '=', Auth::user()->name)->get();
         $Jobcards = Jobentry::where('name', '=', Auth::user()->name)->get();
-
+ $userLocation = auth()->user()->location; // Get the logged-in user's location
         // Fetch the most recent crew status for each superintendent and their location
 $crews = Timesheet::select(
         'crews.superintendentId', 
@@ -30,12 +30,12 @@ $crews = Timesheet::select(
         DB::raw('MAX(timesheets.clockin_time) as last_clockin_time'),
         'jobs.job_number',
         DB::raw("CASE 
-                    WHEN locations.id BETWEEN 1 AND 9 THEN 'Columbus'
-                    WHEN locations.id IN (11, 16) THEN 'Cartersville'
-                    WHEN locations.id IN (12, 13, 14, 15, 18) THEN 'Locust Grove'
-                    WHEN locations.id IN (22, 24, 25) THEN 'Remerton'
-                    WHEN locations.id BETWEEN 32 AND 35 THEN 'Byron'
-                    WHEN locations.id IN (42, 43) THEN 'Columbia'
+                    WHEN LPAD(locations.id, 2, '0') BETWEEN '01' AND '09' THEN 'Columbus'
+                    WHEN LPAD(locations.id, 2, '0') IN ('11', '16') THEN 'Cartersville'
+                    WHEN LPAD(locations.id, 2, '0') IN ('12', '13', '14', '15', '18') THEN 'Locust Grove'
+                    WHEN LPAD(locations.id, 2, '0') IN ('22', '24', '25') THEN 'Remerton'
+                    WHEN LPAD(locations.id, 2, '0') BETWEEN '32' AND '35' THEN 'Byron'
+                    WHEN LPAD(locations.id, 2, '0') IN ('42', '43') THEN 'Columbia'
                     ELSE 'Other'
                 END as location_group"),
         'jobs.branch'
@@ -62,8 +62,9 @@ $crews = Timesheet::select(
     ->get();
 
 
+
         $deadDate = date('d/m/Y', strtotime("+30 days"));
 
-        return view('dashboard.index', compact('job', 'deadDate', 'rejectedJobcards', 'unsubmitCards', 'Jobcards', 'crews'));
+        return view('dashboard.index', compact('job', 'deadDate', 'rejectedJobcards', 'unsubmitCards', 'Jobcards', 'crews','userLocation'));
     }
 }
