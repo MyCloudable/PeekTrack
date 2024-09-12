@@ -149,7 +149,7 @@ class TimesheetService {
         return Crew::where('id', $data['crewId'])->where('superintendentId', auth()->id())
                 ->update([
                     'crew_members' => $data['crewMembers'],
-                    'last_verified_date' => Carbon::now()->format('Y-m-d H:i:00'),
+                    'last_verified_date' => Carbon::now()->format('Y-m-d H:i:s'),
                     'modified_by' => auth()->id(),
                     'is_ready_for_verification' => 0,
                     'crew_type_id' => $data['crewTypeId']
@@ -171,6 +171,8 @@ class TimesheetService {
 
     private function allClock($data)
     {
+        // dd($data);
+
         $crew = Crew::find($data['crewId']);
 
         $crewMembersArray = $this->getCrewMembersArray($crew->crew_members, $crew->superintendentId);
@@ -181,7 +183,7 @@ class TimesheetService {
                     'crew_id' => $crew->id,
                     'crew_type_id' => $crew->crew_type_id,
                     'user_id' => $member,
-                    'clockin_time' => Carbon::now()->format('Y-m-d H:i:00'),
+                    'clockin_time' => $data['lateEntryTime'] ? $data['lateEntryTime'] : Carbon::now()->format('Y-m-d H:i:00'),
                     'job_id' => Job::where('job_number', '9-99-9998')->first()->id,
                     'time_type_id' => TimeType::where('name', 'Shop')->first()->id,
                     'created_by' => auth()->id(),
@@ -209,10 +211,17 @@ class TimesheetService {
                 $timesheet = Timesheet::where('crew_id', $data['crewId'])
                 ->whereNull('clockout_time')
                 ->where('created_at', '>=', $crew->last_verified_date)
-                ->update([
-                    'clockout_time' => Carbon::now()->format('Y-m-d H:i:00'),
-                    'modified_by' => auth()->id(),
-                ]);
+                // ->update([
+                //     'clockout_time' => Carbon::now()->format('Y-m-d H:i:00'),
+                //     'modified_by' => auth()->id(),
+                // ]);
+                ->first();
+
+                // dd($timesheet);
+                //check and handle midnight split
+                if($timesheet){
+                    $this->handleMidnightSplit($timesheet, $data['lateEntryTime'] ? $data['lateEntryTime'] : Carbon::now()->format('Y-m-d H:i:00'));
+                }
                 
             }
 
@@ -254,15 +263,22 @@ class TimesheetService {
     
             if($data['type'] == 'clockout'){
 
-                $timesheet->clockout_time = $data['time'];
                 $error = $this->validateClockInOut($timesheet->clockin_time, $data['time']);
-                
 
                 if($error){
                     throw ValidationException::withMessages([
                         'error' => $error,
                     ]);
                 }
+
+                // $timesheet->clockout_time = $data['time']; // no need to put here, will updated in handleMidnightSplit
+
+                //check and handle midnight split
+                $this->handleMidnightSplit($timesheet, $data['time']);
+                // $this->handleMidnightSplit($timesheet, '2024-09-11 02:47:00');
+                return;
+
+
 
                 // $this->validateTimesheetOverlap(
                 //     $timesheet->user_id,
@@ -346,8 +362,11 @@ class TimesheetService {
     {   
         $has_array = is_array($data['timesheetId']);
 
+        if(!$has_array){
+            $timesheetBeforeUpdate = Timesheet::find($data['timesheetId']);
+        }
+
         Timesheet::
-        // where('id', $data['timesheetId'])
         when(!$has_array, function ($query, $has_array) use($data) {
             $query->where('id', $data['timesheetId']);
         })
@@ -357,6 +376,11 @@ class TimesheetService {
         ->update([
             'per_diem' => $data['perDiem']
         ]);
+
+
+        if(!$has_array){
+            $this->updatePdForAllEntriesOfTheDay($timesheetBeforeUpdate->user_id, $timesheetBeforeUpdate->clockin_time, $data['perDiem']);
+        }
 
         return true;
     }
@@ -634,4 +658,74 @@ class TimesheetService {
         return '';
 
     }
+
+
+
+    public static function handleMidnightSplit(Timesheet $entry, $newClockout)
+    {
+        $previousClockin = Carbon::parse($entry->clockin_time);
+        $newClockout = Carbon::parse($newClockout);
+
+        // Check if the previous entry crosses midnight
+        if ($previousClockin->format('Y-m-d') !== $newClockout->format('Y-m-d')) {
+            // Split the previous entry into two
+
+            // Update the original entry's clockout_time to midnight (end of the day)
+            $entry->update([
+                'clockout_time' => $previousClockin->copy()->setTime(23, 59, 0)->toDateTimeString(), // 23:59:00
+                'modified_by' => auth()->id(),
+            ]);
+
+            // Create a new entry for the next day starting at midnight
+            Timesheet::create([
+                'crew_id' => $entry->crew_id,
+                'crew_type_id' => $entry->crew_type_id,
+                'user_id' => $entry->user_id,
+                'clockin_time' => $newClockout->copy()->startOfDay()->toDateTimeString(), // 00:00:00 next day
+                'clockout_time' => $newClockout->toDateTimeString(),
+                'job_id' => $entry->job_id,
+                'time_type_id' => $entry->time_type_id,
+                'created_by' => auth()->id(),
+                'modified_by' => auth()->id(),
+                'per_diem' => TimesheetService::checkIfPreviousEntriesOfTheDayHavePd($entry->user_id, $entry->clockin_time),
+            ]);
+        } else {
+            // If it doesn't cross midnight, just update the existing clockout_time
+            $entry->update([
+                'clockout_time' => $newClockout->toDateTimeString(),
+                'modified_by' => auth()->id(),
+            ]);
+        }
+    }
+
+
+    public static function updatePdForAllEntriesOfTheDay($user_id, $clockin_time, $per_diem)
+    {
+        $clockinDate = Carbon::parse($clockin_time)->format('Y-m-d');
+        Timesheet::where('user_id', $user_id)
+        ->whereDate('clockin_time', $clockinDate) // Compare only the date part
+        ->update([
+            'per_diem' => $per_diem,
+            'modified_by' => auth()->id(),
+        ]);
+    }
+
+    public static function checkIfPreviousEntriesOfTheDayHavePd($user_id, $clockin_time)
+    {
+        $clockinDate = Carbon::parse($clockin_time)->format('Y-m-d');
+        $entryWithPd = Timesheet::where('user_id', $user_id)
+        ->whereDate('clockin_time', $clockinDate) // Compare only the date part
+        ->whereNotNull('per_diem')
+        ->first();
+
+        if($entryWithPd)
+        {
+            return $entryWithPd->per_diem;
+        }else{
+            return NULL;
+        }
+
+    }
+
+
 }

@@ -6,6 +6,7 @@ use App\Models\Crew;
 use Illuminate\Http\Request;
 use App\Services\Clock\CrewService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Clock\StoreCrewRequest;
 
 class CrewsController extends Controller
@@ -19,7 +20,8 @@ class CrewsController extends Controller
 
     public function index()
     {   
-        return view('clock.crews.index')->with('crews', $this->crewService->index());
+        return view('clock.crews.index')->with('crews', $this->crewService->index())
+        ->with('auth_role', Auth::user()->role_id);
     }
 
     public function create()

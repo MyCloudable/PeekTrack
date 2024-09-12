@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Recoverable;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\SoftDeletesWithDeletedBy;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Crew extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, SoftDeletesWithDeletedBy, Recoverable;
 
     protected $fillable = ['crew_name', 'crew_type_id', 'superintendentId', 'crew_members', 
         'last_verified_date', 'created_by', 'modified_by', 'is_ready_for_verification'

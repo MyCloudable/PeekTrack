@@ -232,7 +232,8 @@ public function summary()
         'superintendents.location as superintendent_location',
         'time_types.name as time_type_name',
         'timesheets.id as timesheet_id',
-        'creators.name as created_by'
+        'creators.name as created_by',
+        'crewmembers.role_id as crewmember_role'
     );
 
 
@@ -259,6 +260,11 @@ public function summary()
                 $query->where('crewmembers.location', $request->filterData['location']);
                 // ->orWhere('superintendents.location', $request->filterData['location'])
 
+        }
+
+        // don't show deleted items to other users if they are not admin , role 1 is admin here
+        if(Auth::user()->role_id !== 1){
+            $query->whereNull('timesheets.deleted_at');
         }
 
         
@@ -482,6 +488,8 @@ public function summary()
 
                 // dd('dd3');
 
+                $timesheetBeforeUpdate = $timesheet;
+
                 // Update the timesheet data
                 $timesheet->clockin_time = $row['clockin_time'];
                 $timesheet->clockout_time = $row['clockout_time'];
@@ -491,6 +499,8 @@ public function summary()
 
                 // dd($timesheet);
                 $timesheet->save();
+
+                TimesheetService::updatePdForAllEntriesOfTheDay($timesheetBeforeUpdate->user_id, $timesheetBeforeUpdate->clockin_time, $row['per_diem']);
     
             }
 
@@ -559,10 +569,32 @@ public function summary()
             // If validation passes for all user_ids, proceed to save
             foreach ($userIds as $userId) {
                 $timesheetData = array_merge($data, [
-                    'user_id' => $userId
+                    'user_id' => $userId,
+                    'per_diem' => TimesheetService::checkIfPreviousEntriesOfTheDayHavePd($userId, $data['clockin_time'])
                 ]);
 
-                Timesheet::create($timesheetData);
+                // Timesheet::create($timesheetData);
+
+                $clockinTime = Carbon::parse($timesheetData['clockin_time']);
+                $clockoutTime = Carbon::parse($timesheetData['clockout_time']);
+
+
+                if ($clockinTime->isSameDay($clockoutTime)) {
+                    // Same day, create one entry
+                    Timesheet::create($timesheetData);
+                }else{
+                    // Different day, split into two entries
+                    $firstEntry = $timesheetData;
+                    $firstEntry['clockout_time'] = $clockinTime->copy()->endOfDay()->setTime(23, 59, 0)->toDateTimeString();
+                    Timesheet::create($firstEntry);
+
+                    $secondEntry = $timesheetData;
+                    $secondEntry['clockin_time'] = $clockoutTime->copy()->startOfDay()->toDateTimeString(); // 00:00:00
+                    $secondEntry['clockout_time'] = $clockoutTime->toDateTimeString();
+                    Timesheet::create($secondEntry);
+                }
+
+
             }
 
             return response()->json(['success' => true, 'message' => 'Timesheet created successfully', 200]);
@@ -621,6 +653,9 @@ public function summary()
             throw $e;
         }
     }
+
+
+    
 
 
 

@@ -45,10 +45,12 @@ import { toInteger } from 'lodash';
 const props = defineProps({
     crewId: Number,
     travelTime: Object,
-    crewTypeId: Number
+    crewTypeId: Number,
+    isLateEntryTimeVisible: Boolean,
+    lateEntryTime: String
 })
 
-const emit = defineEmits(['track-time-done', 'is-mobilization'])
+const emit = defineEmits(['track-time-done', 'is-mobilization', 'last-entry-time-done'])
 
 const toast = useToast()
 
@@ -99,6 +101,14 @@ const depart = (eventOrValidation = false) => {
         return
     }
 
+    // if late entry time is Visible then late entry time field should be filled
+    if (props.isLateEntryTimeVisible && !props.lateEntryTime) {
+        toast.error('Please select the late entry time if its visible, otherwise toggle it to disable')
+        return
+    }
+
+    departForm.value.lateEntryTime = props.lateEntryTime // add lateEntryTime value in form (null if not visible, otherwise filled value)
+
     //set crewTypeId to departForm if depart for a job as crewTypeId dropdown is active at this time (in Clockin.vue)
     if (shouldValidateJobId)
         departForm.value.crewTypeId = props.crewTypeId
@@ -110,7 +120,7 @@ const depart = (eventOrValidation = false) => {
     setLoading(true) // Enable loading
 
     axios.post('/track-time-travel', {
-        departForm: departForm.value
+        departForm: departForm.value,
     })
         .then(res => {
             travelTime.value = res.data
@@ -119,6 +129,8 @@ const depart = (eventOrValidation = false) => {
 
             if (shouldValidateJobId)
                 emit('is-mobilization')
+
+            emit('last-entry-time-done')
 
         })
         .catch(err => console.log(err))

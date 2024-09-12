@@ -20,9 +20,27 @@
                 </div>
                 <div class="modal-body">
                     <div class="row header">
+
+                        <!-- Late Entry Time -->
+                        <div class="row text-dark mb-3 align-items-center">
+                            <div class="col-1">
+                                <i class="fa fa-clock-o" aria-hidden="true" @click="toggleLateEntryTime"></i>
+                            </div>
+                            <div class="col-3">
+                                <VueDatePicker v-model="lateEntryTime" :enable-time="true" 
+                                :formate="dateTimeFormat" 
+                                class="responsive-datepicker"
+                                v-if="isLateEntryTimeVisible"
+                                ></VueDatePicker>
+                            </div>
+                            <div class="col-8"></div>
+                        </div>
+                        <!-- Late Entry Time Ends -->
+
                         <i class="fas fa-yen-sign"></i>
                         <div class="col-md-6 text-dark"><span class="badge badge-info me-2">Status: </span> {{ status }}
-                            <select class="d-inline w-50 ms-2 mt-3" v-if="!isAlreadyVerified || enableCrewTypeId" v-model="crewTypeId">
+                            <select class="d-inline w-50 ms-2 mt-3" v-if="!isAlreadyVerified || enableCrewTypeId"
+                                v-model="crewTypeId">
                                 <option v-for="(crewType, index) in crewTypes" :value="crewType.id">
                                     {{ crewType.name }}
                                 </option>
@@ -39,9 +57,13 @@
                     </div>
                     <div class="row actions mt-3 mb-3">
                         <div class="col-md-8">
-                            <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime" :crewTypeId="crewTypeId"
-                                 :key="departKey"
-                                @track-time-done="trackTimeDone" @is-mobilization="enableCrewTypeId = !enableCrewTypeId" />
+                            <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime"
+                                :crewTypeId="crewTypeId" :key="departKey" @track-time-done="trackTimeDone"
+                                @is-mobilization="enableCrewTypeId = !enableCrewTypeId"
+                                :is-late-entry-time-visible="isLateEntryTimeVisible"
+                                :late-entry-time="lateEntryTime ? format(lateEntryTime, dateTimeFormat) : lateEntryTime"
+                                @last-entry-time-done="lastEntryTimeDone"
+                                />
 
                             <button type="button" class="btn btn-secondary p-3" @click="weatherEntry"
                                 v-if="isAlreadyVerified && !isAlreadyClockedin">Weather</button>
@@ -109,10 +131,8 @@
                                     <td>
                                         <!-- <input type="datetime-local" class="form-controll datetime"
                                             v-model="createNewCrewForm[0].clockin_time"> -->
-                                            <VueDatePicker v-model="createNewCrewForm[0].clockin_time" :enable-time="true"
-                                            :formate="dateTimeFormat"
-                                            class="responsive-datepicker"
-                                            ></VueDatePicker>
+                                        <VueDatePicker v-model="createNewCrewForm[0].clockin_time" :enable-time="true"
+                                            :formate="dateTimeFormat" class="responsive-datepicker"></VueDatePicker>
                                     </td>
                                     <td>
                                         <button class="btn btn-success" @click="addNewCrew"
@@ -126,7 +146,7 @@
                                                 @click="toggleSingleCheckbox(index)"></div>
                                     </td>
                                     <td>
-                                        <div>{{ member.name }} ({{member.total_time_all}})</div>
+                                        <div>{{ member.name }} ({{ member.total_time_all }})</div>
                                     </td>
 
                                     <td v-if="isAlreadyClockedin || isAlreadyClockedout">
@@ -141,8 +161,7 @@
                                             <!-- <input type="datetime-local" class="form-controll datetime"
                                                 @change="menualClockinout($event, member.timesheet_id, 'clockin')"
                                                 :value="member.clockin_time"> -->
-                                                <VueDatePicker v-model="member.clockin_time_edit"
-                                                :enable-time="true"
+                                            <VueDatePicker v-model="member.clockin_time_edit" :enable-time="true"
                                                 :formate="dateTimeFormat"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockin')"
                                                 class="responsive-datepicker"></VueDatePicker>
@@ -154,8 +173,7 @@
                                             <!-- <input type="datetime-local" class="form-controll datetime"
                                                 @change="menualClockinout($event, member.timesheet_id, 'clockout')"
                                                 :value="(member.clockout_time) ? member.clockout_time : now"> -->
-                                                <VueDatePicker v-model="member.clockout_time_edit"
-                                                :enable-time="true"
+                                            <VueDatePicker v-model="member.clockout_time_edit" :enable-time="true"
                                                 :formate="dateTimeFormat"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockout')"
                                                 class="responsive-datepicker"></VueDatePicker>
@@ -208,7 +226,7 @@ import Depart from './Depart'
 import { format, parse } from 'date-fns'
 
 import LoadingOverlay from './shared/LoadingOverlay.vue'
-import {useLoading} from '../composables/useLoading'
+import { useLoading } from '../composables/useLoading'
 
 const toast = useToast()
 
@@ -258,14 +276,17 @@ let enableCrewTypeId = ref(false)
 
 let departKey = ref(0)
 
+let lateEntryTime = ref('')
+let isLateEntryTimeVisible = ref(false)
+
 
 // things to manage multi tabs issue
 let initialLoad = true // Flag to handle initial load
 
 const setLocalStorageFlag = () => {
-        localStorage.setItem('crewMembersUpdated', Date.now())
-        getCrewMembers()
-    }
+    localStorage.setItem('crewMembersUpdated', Date.now())
+    getCrewMembers()
+}
 
 window.addEventListener('storage', (event) => {
     if (event.key === 'crewMembersUpdated' && !initialLoad) {
@@ -356,7 +377,7 @@ const getCrewMembers = () => {
 
         })
         .catch(err => console.log(err))
-        
+
 }
 
 const toggleCheckboxes = () => {
@@ -394,6 +415,12 @@ const verifyTeam = () => {
 
 const clockinout = (type) => {
 
+    // if late entry time is Visible then late entry time field should be filled
+    if (isLateEntryTimeVisible.value && !lateEntryTime.value) {
+        toast.error('Please select the late entry time if its visible, otherwise toggle it to disable')
+        return
+    }
+
     if (!confirm(`Are you sure you want to ${type} ?`)) return
 
     setLoading(true)
@@ -402,8 +429,12 @@ const clockinout = (type) => {
         'crewId': crewId.value,
         'type': type,
         'isMenual': false,
+        'lateEntryTime': lateEntryTime.value ? format(lateEntryTime.value, dateTimeFormat) : lateEntryTime.value
     })
-        .then(res => setLocalStorageFlag())
+        .then(res => {
+            setLocalStorageFlag()
+            lastEntryTimeDone()
+        })
         .catch(error => {
             console.log('bs kr')
             let errorMessage = error.response.data.message
@@ -531,6 +562,16 @@ const weatherEntry = () => {
         .finally(() => setLoading(false))
 }
 
+const toggleLateEntryTime = () => {
+    isLateEntryTimeVisible.value = !isLateEntryTimeVisible.value
+    lateEntryTime.value = ''
+}
+
+const lastEntryTimeDone = () => {
+    isLateEntryTimeVisible.value = false
+    lateEntryTime.value = ''
+}
+
 
 
 const handleScroll = (() => {
@@ -548,11 +589,13 @@ const handleScroll = (() => {
 .verify-crew-members {
     font-size: 14px;
     background: #1A2035 !important;
-    min-height: 300px; /* to fit date picker in all screens */
+    min-height: 300px;
+    /* to fit date picker in all screens */
 }
 
-.verify-crew-members thead{
-    height: 100px; /* to fit date picker in all screens */
+.verify-crew-members thead {
+    height: 100px;
+    /* to fit date picker in all screens */
 }
 
 .modal-backdrop {
@@ -584,61 +627,66 @@ const handleScroll = (() => {
 
 /* to manage date picker  */
 
-.dp__pointer.dp__input_readonly{
+.dp__pointer.dp__input_readonly {
     min-width: 210px !important;
 }
-.dp__main{
+
+.dp__main {
     position: static !important;
 
 }
-.dp__outer_menu_wrap.dp--menu-wrapper{
+
+.dp__outer_menu_wrap.dp--menu-wrapper {
     top: 0 !important;
     left: 35% !important;
 }
+
 /* to manage date picker ends  */
 
 
 /* to fit datepicker on mobile devices */
 @media (max-width: 767px) {
-  .modal-dialog {
-    max-width: 100%;
-    margin: 0;
-  }
+    .modal-dialog {
+        max-width: 100%;
+        margin: 0;
+    }
 
-  .modal-content {
-    border-radius: 0;
-  }
+    .modal-content {
+        border-radius: 0;
+    }
 
-  .responsive-datepicker {
-    width: 100%;
-  }
-  .dp__outer_menu_wrap.dp--menu-wrapper{
-    left: 10% !important;
-    top: 30% !important;
+    .responsive-datepicker {
+        width: 100%;
+    }
+
+    .dp__outer_menu_wrap.dp--menu-wrapper {
+        left: 10% !important;
+        top: 30% !important;
+    }
+
+    .dp--menu-wrapper {
+        z-index: 9999999999 !important;
+    }
+
+    .dp__menu_inner {
+        position: relative;
+        z-index: 1200;
+    }
 }
-.dp--menu-wrapper{
-    z-index: 9999999999 !important;
-}
-.dp__menu_inner{
-    position: relative;
-    z-index: 1200;
-}
-}
+
 /* to fit datepicker on mobile devices ends */
 
 
 
 
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
-    .modal-lg{
+    .modal-lg {
         max-width: 100% !important;
     }
 }
 
 /* remove cross icon from date picker */
-.dp--clear-btn{
+.dp--clear-btn {
     display: none !important;
 }
-
-
 </style>

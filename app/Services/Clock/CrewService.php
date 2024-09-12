@@ -14,12 +14,18 @@ class CrewService {
     {
         $role = auth()->user()->role_id;
 
-        return Crew::with(['superintendent:id,name,email', 'createdBy:id,name,email', 
+        $query =  Crew::with(['superintendent:id,name,email', 'createdBy:id,name,email', 
                     'modifiedBy:id,name,email', 'crewType:id,name,value'])
                     ->when(($role !== 1 && $role !== 2), function ($query, $role) {
                         $query->where('superintendentId', auth()->id());
-                    })
-                    ->get();
+                    });
+
+        if($role == 1){
+            $query->withTrashed();
+        }
+                    
+                    
+        return $query->get();
     }
 
     public function create()

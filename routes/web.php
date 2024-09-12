@@ -22,6 +22,7 @@ use App\Http\Controllers\Clock\CrewTypeController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\Clock\TimesheetController;
 use App\Http\Controllers\Clock\TimesheetManagementConroller;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -454,6 +455,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::delete('/timesheets/{id}', [TimesheetManagementConroller::class, 'deleteTimesheet']);
 	Route::post('/timesheet-management/store', [TimesheetManagementConroller::class, 'storeTimesheet']);
 
+
+	Route::post('recover/{model}/{id}', [AdminController::class, 'recoverItem']);
 
 
 	// ----------- end clock management -----------

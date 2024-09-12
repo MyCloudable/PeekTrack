@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use App\Traits\Recoverable;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\SoftDeletesWithDeletedBy;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Timesheet extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, SoftDeletesWithDeletedBy, Recoverable;
 
     protected $fillable = ['crew_id', 'crew_type_id', 'user_id', 'clockin_time', 'clockout_time',
     'job_id', 'time_type_id', 'created_by', 'modified_by', 

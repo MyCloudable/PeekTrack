@@ -20,6 +20,7 @@ class DepartService {
 
     public function trackTravelTime($data)
     {
+        // dd($data);
 
         $timeType = TimeType::where('name', 'Mobilization')->first();
 
@@ -73,7 +74,8 @@ class DepartService {
                 'crew_type_id' => $crew->crew_type_id,
                 'time_type_id' => (isset($data['time_type_id'])) ? $data['time_type_id'] : NULL,
                 'type' => $data['type'],
-                'depart' => (isset($data['depart'])) ? $data['depart'] : Carbon::now()->format('Y-m-d H:i:00'),
+                // 'depart' => (isset($data['depart'])) ? $data['depart'] : Carbon::now()->format('Y-m-d H:i:00'),
+                'depart' => isset($data['depart']) ? $data['depart'] : (isset($data['lateEntryTime']) ? $data['lateEntryTime'] : Carbon::now()->format('Y-m-d H:i:00')),
                 'arrive' => (isset($data['arrive'])) ? $data['arrive'] : NULL,
                 'created_by' => auth()->id(),
                 'modified_by' =>  auth()->id()
@@ -87,7 +89,8 @@ class DepartService {
     private function updateTravelTime($data)
     {
         TravelTime::where('id', $data['travelTimeId'])->update([
-            'arrive' => Carbon::now()->format('Y-m-d H:i:00'),
+            // 'arrive' => Carbon::now()->format('Y-m-d H:i:00'),
+            'arrive' => (isset($data['lateEntryTime'])) ? $data['lateEntryTime'] : Carbon::now()->format('Y-m-d H:i:00'),
             'modified_by' =>  auth()->id()
         ]);
 
@@ -169,32 +172,24 @@ class DepartService {
             }
 
 
-            Timesheet::where('crew_id', $crew->id)
-                    ->where('created_at', '>=', $crew->last_verified_date)
-                    ->whereIn('user_id', $crewMembersArray)
-                    ->whereNull('clockout_time') 
-                    ->update([
-                        'clockout_time' => $clockin_time,
-                        'modified_by' => auth()->id(),
-                    ]);
 
+            //update all previes entries => previous entry clockout_time = new entry clockin_time
+            $existingEntries = Timesheet::where('crew_id', $crew->id)
+                                ->where('created_at', '>=', $crew->last_verified_date)
+                                ->whereIn('user_id', $crewMembersArray)
+                                ->whereNull('clockout_time') 
+                                // ->update([
+                                //     'clockout_time' => $clockin_time,
+                                //     'modified_by' => auth()->id(),
+                                // ]);
+                                ->get();
 
-        // foreach ($crewMembersArray as $member) {
-        //     $timesheet = Timesheet::create([
-        //         'crew_id' => $crew->id,
-        //         'crew_type_id' => $crew->crew_type_id,
-        //         'user_id' => $member,
-        //         'clockin_time' => $clockin_time,
-        //         'job_id' => $travelTime->job_id,
-        //         'time_type_id' => $time_type_id,
-        //         'created_by' => auth()->id(),
-        //         'modified_by' => auth()->id(),
-        //     ]);
-                
-        // }
+            foreach ($existingEntries as $entry) {
+                //check and handle midnight split
+                TimesheetService::handleMidnightSplit($entry, $clockin_time); // The new clock-in time serves as the clock-out time for the previous entry
+            }
 
-
-        
+            
 
                             
             foreach ($activeCrewMembersArray as $member) {
@@ -208,11 +203,10 @@ class DepartService {
                     'time_type_id' => $time_type_id,
                     'created_by' => auth()->id(),
                     'modified_by' => auth()->id(),
+                    'per_diem' => TimesheetService::checkIfPreviousEntriesOfTheDayHavePd($member, $clockin_time)
                 ]);
                 
-        }
-
-        
+            } 
 
     }
 }

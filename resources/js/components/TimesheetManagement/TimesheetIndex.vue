@@ -50,6 +50,8 @@ import { useToast } from "vue-toastification";
 import LoadingOverlay from '../shared/LoadingOverlay.vue'
 import { useLoading } from '../../composables/useLoading'
 
+import {useRecovery} from "../../composables/useRecovery"
+
 
 import { createApp } from 'vue';
 import { result } from 'lodash';
@@ -57,6 +59,8 @@ import { result } from 'lodash';
 const toast = useToast();
 
 const { isLoading, setLoading } = useLoading()
+
+const { recover } = useRecovery()
 
 DataTable.use(DataTablesCore);
 
@@ -128,6 +132,10 @@ const tableOptions = ref({
 
                 document.querySelectorAll('.delete-icon').forEach((el) => {
                     el.addEventListener('click', handleDeleteClick)
+                });
+
+                document.querySelectorAll('.recover-icon').forEach((el) => {
+                    el.addEventListener('click', handleRecoverDelete)
                 });
 
             });
@@ -257,7 +265,11 @@ const tableOptions = ref({
             title: 'WEO',
             orderable: true,
             render: function (data, type, row) {
-                return `<input type="checkbox" class="form-check-input weekend-out-approval-checkbox" data-id="${row.timesheet_id}" data-type="weekend_out" ${data ? 'checked' : ''} ${props.authuser.role_id == 2 ? '' : 'disabled'} '' />`
+                let isDisabled = false
+                if (props.authuser.role_id != 2 || row.crewmember_role == 6) {
+                isDisabled = true
+                }
+                return `<input type="checkbox" class="form-check-input weekend-out-approval-checkbox" data-id="${row.timesheet_id}" data-type="weekend_out" ${data ? 'checked' : ''} ${isDisabled ? 'disabled' : ''} />`
             }
         },
         {
@@ -387,6 +399,14 @@ const tableOptions = ref({
                 // if (showTrashIcon) {
                 if (showPencilIcon) {
                     actionButtons += `<i class="fa fa-trash cursor-pointer delete-icon" data-id="${row.timesheet_id}" aria-hidden="true" style="margin-left: 10px;"></i>`;
+                }
+
+                // if user is Admin, give recover option for deleted items
+                console.log('give admin recover icon')
+                if(props.authuser.role_id == 1){
+                    if (row.deleted_at) {
+                        actionButtons+=`<i class="fas fa-trash-restore cursor-pointer recover-icon" data-id="${row.timesheet_id}" style="margin-left:10px;"></i>`
+                    }
                 }
 
                 return actionButtons;
@@ -707,6 +727,25 @@ const TimesheetCreated = () => {
 }
 
 
+const handleRecoverDelete = (event) => {
+    const id = event.target.getAttribute('data-id')
+    if (confirm(`Are you sure you want to recover this record?`)) {
+    const res = recover('timesheet', id)
+    if (res) {
+        toast.success("Record have been recoverd successfully")
+        if (dataTableRef.value && dataTableRef.value.dt) {
+            setTimeout(() => {
+                dataTableRef.value.dt.ajax.reload(null, false)
+            }, 500);
+        }
+    }else{
+        toast.error("Something went wrong")
+    }
+  }
+
+}
+
+
 
 
 onMounted(async () => {
@@ -761,6 +800,7 @@ function selectOption(event, timesheetId) {
     // Hide the dropdown list
     dropdownList.style.display = "none"
 }
+
 
 
 

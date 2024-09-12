@@ -4,7 +4,7 @@
     <x-auth.navbars.navs.auth pageTitle="Crews"></x-auth.navbars.navs.auth>
     <div class="container-fluid py-4">
          <div class="row">
-            @if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
+            @if ($auth_role == 1 || $auth_role == 2)
             <div class="col-md-12 mb-3">
                 <a href="{{route('crews.create')}}" class="btn btn-info">Create crew</a>
                 <x-alert />
@@ -19,6 +19,9 @@
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Crew type</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">SuperIndentend name</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Last verified date</th>
+                            @if ($auth_role == 1)
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Action</th>
+                            @endif
 
                             </tr>
                         </thead>
@@ -26,22 +29,35 @@
                             @foreach ($crews as $crew)
                             <tr>
                                 <td class="text-sm font-weight-normal">
+                                    @if (!$crew->deleted_at)
+                                        
                                     <button type="button" class="btn bg-gradient-primary show-crew-members" data-bs-toggle="modal" 
                                     data-bs-target="#show-crew-members"
                                     data-crew-id="{{$crew->id}}"
                                     >Show</button>
                                     <a href="{{route('crews.edit', $crew)}}" class="btn btn-warning">Edit</a>
-                                    @if (auth()->user()->role_id == 1 || auth()->user()->role_id == 2)
+                                    @if ($auth_role == 1 || $auth_role == 2)
                                     <form class="d-inline" action="{{ route('crews.destroy', $crew) }}" method="POST">
                                         @method('DELETE')
                                         @csrf
                                         <input type="submit" class="btn btn-danger" value="Delete" />
                                     </form>
                                     @endif
+                                    
+                                    @endif
                                 </td>
                                 <td class="text-md font-weight-bold"><h5>{{ $crew->crewType->name }}</h5></td>
                                 <td class="text-sm font-weight-normal"><h5>{{ $crew->superintendent->name }}</h5></td>
                                 <td class="text-sm font-weight-normal"><h5>{{ $crew->last_verified_date }}</h5></td>
+                                @if ($auth_role == 1)
+                                    
+                                    <td class="text-sm font-weight-normal">
+                                    @if ($crew->deleted_at)
+                                    <crewindex :crew-id="{{$crew->id}}" />
+                                    @endif
+                                    </td>
+                                @endif
+                                
 
                             </tr>
                             @endforeach

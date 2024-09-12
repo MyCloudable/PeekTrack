@@ -8,6 +8,7 @@ import CrewCreate from './components/CrewsManagement/Create.vue'
 import CrewEdit from './components/CrewsManagement/Edit.vue'
 import JobHistory from './components/Jobs/History.vue'
 import JobIndex from './components/Jobs/Index.vue'
+import CrewIndex from './components/CrewsManagement/Index.vue'
 
 
 import Select2 from 'vue3-select2-component';
@@ -29,6 +30,7 @@ app.component('crewcreate', CrewCreate)
 app.component('crewedit', CrewEdit)
 app.component('jobhistory', JobHistory)
 app.component('jobindex', JobIndex)
+app.component('crewindex', CrewIndex)
 
 
 
