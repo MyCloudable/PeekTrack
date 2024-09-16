@@ -41,6 +41,15 @@ public function payrollSummary(Request $request)
     return view('reports.payrollsummary', compact('startDate', 'endDate'));
 }
 
+public function deptSummary(Request $request)
+{
+    $startDate = $request->input('date1');
+    $endDate = $request->input('date2');
+
+    // Pass dates to the view
+    return view('reports.deptreport', compact('startDate', 'endDate'));
+}
+
 
 
 

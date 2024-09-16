@@ -43,7 +43,7 @@ public function crewindex()
             crew_member_approval,
             TIMESTAMPDIFF(MINUTE, clockin_time, LEAST(clockout_time, CONCAT(DATE(clockin_time), " 23:59:59"))) as total_minutes
         FROM timesheets
-        WHERE DATE(clockin_time) = DATE(clockout_time)
+        WHERE DATE(clockin_time) = DATE(clockout_time) and deleted_at IS NULL
 
         UNION ALL
 
@@ -54,7 +54,7 @@ public function crewindex()
             TIMESTAMPDIFF(MINUTE, clockin_time, CONCAT(DATE(clockin_time), " 23:59:59")) as total_minutes
         FROM timesheets
         WHERE DATE(clockout_time) > DATE(clockin_time)
-          AND DATE(clockin_time) <> DATE(clockout_time)
+          AND DATE(clockin_time) <> DATE(clockout_time) and deleted_at IS NULL
 
         UNION ALL
 
@@ -65,7 +65,7 @@ public function crewindex()
             TIMESTAMPDIFF(MINUTE, CONCAT(DATE(clockout_time), " 00:00:00"), clockout_time) as total_minutes
     FROM timesheets
     WHERE DATE(clockout_time) > DATE(clockin_time)
-      AND DATE(clockin_time) <> DATE(clockout_time)
+      AND DATE(clockin_time) <> DATE(clockout_time) and deleted_at IS NULL
     ) as daily_totals'))
     ->join('users as crewmembers', 'daily_totals.user_id', '=', 'crewmembers.id')
     ->selectRaw('
@@ -131,7 +131,7 @@ public function summary()
             crew_member_approval,
             TIMESTAMPDIFF(MINUTE, clockin_time, LEAST(clockout_time, CONCAT(DATE(clockin_time), " 23:59:59"))) as total_minutes
         FROM timesheets
-        WHERE DATE(clockin_time) = DATE(clockout_time)
+        WHERE DATE(clockin_time) = DATE(clockout_time) and deleted_at IS NULL
 
         UNION ALL
 
@@ -142,7 +142,7 @@ public function summary()
             TIMESTAMPDIFF(MINUTE, clockin_time, CONCAT(DATE(clockin_time), " 23:59:59")) as total_minutes
         FROM timesheets
         WHERE DATE(clockout_time) > DATE(clockin_time)
-          AND DATE(clockin_time) <> DATE(clockout_time)
+          AND DATE(clockin_time) <> DATE(clockout_time) and deleted_at IS NULL
 
         UNION ALL
 
@@ -153,7 +153,7 @@ public function summary()
             TIMESTAMPDIFF(MINUTE, CONCAT(DATE(clockout_time), " 00:00:00"), clockout_time) as total_minutes
     FROM timesheets
     WHERE DATE(clockout_time) > DATE(clockin_time)
-      AND DATE(clockin_time) <> DATE(clockout_time)
+      AND DATE(clockin_time) <> DATE(clockout_time) and deleted_at IS NULL
     ) as daily_totals'))
     ->join('users as crewmembers', 'daily_totals.user_id', '=', 'crewmembers.id')
     ->selectRaw('

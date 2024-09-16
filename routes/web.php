@@ -114,6 +114,8 @@ Route::get('reports/{jobnumber}/jobsummary', [ReportsController::class, 'jobsumm
 
 Route::post('reports/payrollsummary', [ReportsController::class, 'payrollSummary'])->middleware('auth')->name('reports.payrollsummary');
 
+Route::post('reports/deptsummary', [ReportsController::class, 'deptSummary'])->middleware('auth')->name('reports.deptsummary');
+
 Route::get('/jobs/{id}/edit/{crewType}', [JobsController::class, 'edit'])->middleware('auth')->name('jobs.edit');
 
 Route::post('/jobs/entryupdate', [JobsController::class, 'entryupdate'])->name('jobs.entryupdate');
