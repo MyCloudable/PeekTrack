@@ -30,15 +30,7 @@ $crews = Timesheet::select(
         'time_types.value as time_value', 
         DB::raw('MAX(timesheets.clockin_time) as last_clockin_time'),
         'jobs.job_number',
-        DB::raw("CASE 
-                    WHEN LPAD(locations.id, 2, '0') BETWEEN '01' AND '09' THEN 'Columbus'
-                    WHEN LPAD(locations.id, 2, '0') IN ('11', '16') THEN 'Cartersville'
-                    WHEN LPAD(locations.id, 2, '0') IN ('12', '13', '14', '15', '18') THEN 'Locust Grove'
-                    WHEN LPAD(locations.id, 2, '0') IN ('22', '24', '25') THEN 'Remerton'
-                    WHEN LPAD(locations.id, 2, '0') BETWEEN '32' AND '35' THEN 'Byron'
-                    WHEN LPAD(locations.id, 2, '0') IN ('42', '43') THEN 'Columbia'
-                    ELSE 'Other'
-                END as location_group"),
+        'locations.name as location_group',
         'jobs.branch'
     )
     ->join('crews', 'timesheets.crew_id', '=', 'crews.id')
