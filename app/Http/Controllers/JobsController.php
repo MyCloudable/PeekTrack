@@ -1024,7 +1024,7 @@ $equipment = \DB::select("
         JOIN jobs j ON t.job_id = j.id
         JOIN time_types tt ON t.time_type_id = tt.id
 		JOIN crew_types ct ON ct.id = t.crew_type_id
-        WHERE payroll_approval = 1 
+        WHERE payroll_approval = 1  and t.deleted_at IS NULL
             AND (
                 t.clockin_time < DATE_ADD(DATE(?), INTERVAL 7 DAY)
                 AND t.clockout_time >= ?
@@ -1059,7 +1059,7 @@ $weekendout = \DB::select("
     JOIN time_types tt ON t.time_type_id = tt.id
     WHERE payroll_approval = 1 
         AND weekend_out = 1 AND pay_rate = 0
-        AND t.clockin_time BETWEEN CONCAT(DATE(?), ' 00:00:00') AND CONCAT(DATE(?), ' 23:59:59')
+        AND t.clockin_time BETWEEN CONCAT(DATE(?), ' 00:00:00') AND CONCAT(DATE(?), ' 23:59:59') and deleted_at IS NULL
     GROUP BY t.user_id, workdate
     ORDER BY t.user_id, workdate", [$date1, $date2]);
 
@@ -1084,7 +1084,7 @@ $weekendout = \DB::select("
             JOIN time_types tt ON t.time_type_id = tt.id
             WHERE t.payroll_approval = 1 
                 AND t.per_diem IN ('h','f')
-                AND t.clockin_time BETWEEN CONCAT(DATE(?), ' 00:00:00') AND CONCAT(DATE(?), ' 23:59:59')
+                AND t.clockin_time BETWEEN CONCAT(DATE(?), ' 00:00:00') AND CONCAT(DATE(?), ' 23:59:59') and deleted_at IS NULL
             GROUP BY t.user_id, workdate
             ORDER BY t.user_id, workdate", [$date1, $date2]);
 
