@@ -8,9 +8,11 @@ use App\Models\TimeType;
 use App\Models\Timesheet;
 use App\Models\TravelTime;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\Clock\TimesheetManagementConroller;
 
 class DepartService {
-    
+
     public function getAllJobs()
     {
         return Job::where('status', 'In progress')
@@ -24,30 +26,40 @@ class DepartService {
 
         $timeType = TimeType::where('name', 'Mobilization')->first();
 
+        $travelTime = null;
+
         switch ($data['departForm']['type']) {
             case 'depart_for_job':
-                $data['departForm']['time_type_id'] = $timeType->id;
-                $this->calculateIndirectTime($data['departForm']);
-                $travelTime = $this->createTravelTime($data['departForm']);
-                $this->createTimesheetForEveryDepartClick($travelTime, 'depart_for_job');
+                DB::transaction(function () use ($data, $timeType) {
+                    $data['departForm']['time_type_id'] = $timeType->id;
+                    $this->calculateIndirectTime($data['departForm']);
+                    $travelTime = $this->createTravelTime($data['departForm']);
+                    $this->createTimesheetForEveryDepartClick($travelTime, 'depart_for_job');
+                });
                 break;
 
             case 'arrive_for_job':
-                $data['departForm']['time_type_id'] = $timeType->id;
-                $travelTime = $this->updateTravelTime($data['departForm']);
-                $this->createTimesheetForEveryDepartClick($travelTime, 'arrive_for_job');
+                DB::transaction(function () use ($data, $timeType) {
+                    $data['departForm']['time_type_id'] = $timeType->id;
+                    $travelTime = $this->updateTravelTime($data['departForm']);
+                    $this->createTimesheetForEveryDepartClick($travelTime, 'arrive_for_job');
+                });
                 break;
 
             case 'depart_for_office':
-                $data['departForm']['jobId'] = Job::where('job_number', '9-99-9998')->first()->id;
-                $data['departForm']['time_type_id'] = $timeType->id;
-                $travelTime = $this->createTravelTime($data['departForm']);
-                $this->createTimesheetForEveryDepartClick($travelTime, 'depart_for_office');
+                DB::transaction(function () use ($data, $timeType) {
+                    $data['departForm']['jobId'] = Job::where('job_number', '9-99-9998')->first()->id;
+                    $data['departForm']['time_type_id'] = $timeType->id;
+                    $travelTime = $this->createTravelTime($data['departForm']);
+                    $this->createTimesheetForEveryDepartClick($travelTime, 'depart_for_office');
+                });
                 break;
 
             case 'arrive_for_office':
-                $travelTime = $this->updateTravelTime($data['departForm']);
-                $this->createTimesheetForEveryDepartClick($travelTime, 'arrive_for_office');
+                DB::transaction(function () use ($data) {
+                    $travelTime = $this->updateTravelTime($data['departForm']);
+                    $this->createTimesheetForEveryDepartClick($travelTime, 'arrive_for_office');
+                });
                 break;
             
             default:
@@ -67,6 +79,8 @@ class DepartService {
 
     private function createTravelTime($data)
     {
+        $this->validateLateEntryTime($data);
+
         $crew = Crew::find($data['crewId']); 
         $travelTime = TravelTime::create([
                 'crew_id' => $crew->id,
@@ -88,6 +102,8 @@ class DepartService {
 
     private function updateTravelTime($data)
     {
+        $this->validateLateEntryTime($data);
+        
         TravelTime::where('id', $data['travelTimeId'])->update([
             // 'arrive' => Carbon::now()->format('Y-m-d H:i:00'),
             'arrive' => (isset($data['lateEntryTime'])) ? $data['lateEntryTime'] : Carbon::now()->format('Y-m-d H:i:00'),
@@ -172,7 +188,6 @@ class DepartService {
             }
 
 
-
             //update all previes entries => previous entry clockout_time = new entry clockin_time
             $existingEntries = Timesheet::where('crew_id', $crew->id)
                                 ->where('created_at', '>=', $crew->last_verified_date)
@@ -184,12 +199,22 @@ class DepartService {
                                 // ]);
                                 ->get();
 
+
             foreach ($existingEntries as $entry) {
+
+                //validate overlap
+                $clockin = Carbon::parse($entry->clockin_time);
+                $clockinout = Carbon::parse($clockin_time); // The new clock-in time serves as the clock-out time for the previous entry
+                if ($clockin->greaterThan($clockinout)) {
+                    throw ValidationException::withMessages([
+                        'lateEntryTime' => ['Late entry time can not less than clock in time for one of the existing entry.'],
+                    ]);
+                }
+
+
                 //check and handle midnight split
                 TimesheetService::handleMidnightSplit($entry, $clockin_time); // The new clock-in time serves as the clock-out time for the previous entry
             }
-
-            
 
                             
             foreach ($activeCrewMembersArray as $member) {
@@ -208,5 +233,21 @@ class DepartService {
                 
             } 
 
+    }
+
+    private function validateLateEntryTime($data)
+    {
+
+        if (isset($data['lateEntryTime'])) {
+            $lateEntryTime = Carbon::parse($data['lateEntryTime']);
+            $currentTime = Carbon::now();
+
+            // Check if 'lateEntryTime' is greater than the current time
+            if ($lateEntryTime->greaterThan($currentTime)) {
+                throw ValidationException::withMessages([
+                    'lateEntryTime' => ['Late entry time cannot be in the future.'],
+                ]);
+            }
+        }
     }
 }

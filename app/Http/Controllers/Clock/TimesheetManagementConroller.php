@@ -606,7 +606,7 @@ public function summary()
 
     public function validateTimesheetOverlap($user_id, $clockin_time, $clockout_time, $exclude_id = null)
     {
-        // dd($clockout_time);
+        // dd($exclude_id);
 
         try {
             $query = Timesheet::where('user_id', $user_id)
@@ -629,6 +629,8 @@ public function summary()
             }
     
             $overlappingTimesheets = $query->get();
+
+            // dd($overlappingTimesheets);
             
             if ($overlappingTimesheets->isNotEmpty()) {
                 // Prepare an array of overlapping timesheet IDs

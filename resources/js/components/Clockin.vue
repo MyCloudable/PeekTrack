@@ -589,7 +589,7 @@ const handleScroll = (() => {
 .verify-crew-members {
     font-size: 14px;
     background: #1A2035 !important;
-    min-height: 300px;
+    min-height: 400px;
     /* to fit date picker in all screens */
 }
 
@@ -637,7 +637,8 @@ const handleScroll = (() => {
 }
 
 .dp__outer_menu_wrap.dp--menu-wrapper {
-    top: 0 !important;
+    /* top: 0 !important; */
+    top: 200px !important;
     left: 35% !important;
 }
 
@@ -661,7 +662,7 @@ const handleScroll = (() => {
 
     .dp__outer_menu_wrap.dp--menu-wrapper {
         left: 10% !important;
-        top: 30% !important;
+        /* top: 30% !important; */
     }
 
     .dp--menu-wrapper {

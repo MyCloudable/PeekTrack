@@ -133,7 +133,9 @@ const depart = (eventOrValidation = false) => {
             emit('last-entry-time-done')
 
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            toast.error(err.response.data.message)
+        })
         .finally(() => setLoading(false)) // Disable loading
 
     
