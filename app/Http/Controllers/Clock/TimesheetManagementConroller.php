@@ -343,7 +343,22 @@ public function summary()
 
 		return response()->json(['success' => true]);
 	}
+	
+	public function bulkTimeApproval(Request $request)
+	{
+    $twoDates = $request->daterange2;
+    $date1 = date('Y-m-d', strtotime(substr($twoDates, 0, 10)));
+    $date2 = date('Y-m-d', strtotime(substr($twoDates, 13, 21)));
 
+    DB::table('timesheets')
+        ->whereDate('clockin_time', '>=', $date1)
+        ->whereDate('clockin_time', '<=', $date2)
+        ->update(['payroll_approval' => 1]);
+
+    
+	return view("pages.widgets",['success' => true]);
+	}
+	
     public function updateCheckboxApprovalBulk(Request $request)
     {
         // dd($request->all());

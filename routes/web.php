@@ -452,6 +452,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('timesheet-management/getall', [TimesheetManagementConroller::class, 'getAll']);
 	Route::post('/timesheet-management/update-checkbox-approval', [TimesheetManagementConroller::class, 'updateCheckboxApproval']);
 	Route::post('/timesheet-management/approve-crew-time', [TimesheetManagementConroller::class, 'updateCrewCheckBox']);
+	Route::post('/timesheet-management/bulk-approve-time', [TimesheetManagementConroller::class, 'bulkTimeApproval']);
 	Route::post('timesheet-management/update-checkbox-approval-bulk', [TimesheetManagementConroller::class, 'updateCheckboxApprovalBulk']);
 	Route::post('/timesheet-management/update-times', [TimesheetManagementConroller::class, 'updateTimes']);
 	Route::delete('/timesheets/{id}', [TimesheetManagementConroller::class, 'deleteTimesheet']);

@@ -28,7 +28,16 @@
 	<label>
     <input type="checkbox" class="radio" value="4" name="check" onclick="onlyOne(this)"/>Payroll</label>&nbsp;&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp     Date Range:  <input type="text" name="daterange" value="01/01/2018 - 01/15/2018" /><br>
             <input type="submit" value="Export"/>
-            </form>
+            </form><br><br>
+			<h6>Bulk Approval</h6>
+	@if ( auth()->user()->role_id == 5 || auth()->user()->role_id == 1)
+		<form method="POST" action="/timesheet-management/bulk-approve-time">
+	@csrf
+		<input type="text" name="daterange2" value="01/01/2018 - 01/15/2018" /><br><br>
+		<input type="submit" value="Approve Time">
+		</form>
+	@endif
+			
 </div>
 </div><br></div></div>
                     
@@ -73,6 +82,16 @@ function onlyOne(checkbox) {
 
 $(function() {
   $('input[name="daterange"]').daterangepicker({
+    opens: 'left',
+	startDate: new Date(),
+    minDate: '01/01/2024'
+  }, function(start, end, label) {
+    console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+  });
+});
+
+$(function() {
+  $('input[name="daterange2"]').daterangepicker({
     opens: 'left',
 	startDate: new Date(),
     minDate: '01/01/2024'
