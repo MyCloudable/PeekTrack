@@ -41,6 +41,7 @@ public function crewindex()
             DATE(clockin_time) as day,
             user_id,
             crew_member_approval,
+            per_diem,
             TIMESTAMPDIFF(MINUTE, clockin_time, LEAST(clockout_time, CONCAT(DATE(clockin_time), " 23:59:59"))) as total_minutes
         FROM timesheets
         WHERE DATE(clockin_time) = DATE(clockout_time) and deleted_at IS NULL
@@ -51,6 +52,7 @@ public function crewindex()
             DATE(clockin_time) as day,
             user_id,
             crew_member_approval,
+            per_diem,
             TIMESTAMPDIFF(MINUTE, clockin_time, CONCAT(DATE(clockin_time), " 23:59:59")) as total_minutes
         FROM timesheets
         WHERE DATE(clockout_time) > DATE(clockin_time)
@@ -62,10 +64,11 @@ public function crewindex()
             DATE(clockout_time) as day,
             user_id,
             crew_member_approval,
+            per_diem,
             TIMESTAMPDIFF(MINUTE, CONCAT(DATE(clockout_time), " 00:00:00"), clockout_time) as total_minutes
-    FROM timesheets
-    WHERE DATE(clockout_time) > DATE(clockin_time)
-      AND DATE(clockin_time) <> DATE(clockout_time) and deleted_at IS NULL
+        FROM timesheets
+        WHERE DATE(clockout_time) > DATE(clockin_time)
+          AND DATE(clockin_time) <> DATE(clockout_time) and deleted_at IS NULL
     ) as daily_totals'))
     ->join('users as crewmembers', 'daily_totals.user_id', '=', 'crewmembers.id')
     ->selectRaw('
@@ -73,7 +76,8 @@ public function crewindex()
         crewmembers.name as crewmember_name,
         crewmembers.id as user_id,
         MIN(daily_totals.crew_member_approval) AS crew_member_approval,
-        SUM(daily_totals.total_minutes) AS total_minutes
+        SUM(daily_totals.total_minutes) AS total_minutes,
+        COALESCE(MAX(daily_totals.per_diem), "NA") AS per_diem
     ')
     ->whereRaw('daily_totals.day < CURDATE()')
     ->groupBy(
@@ -121,6 +125,7 @@ public function crewindex()
 }
 
 
+
 	
 public function summary()
 {
@@ -129,6 +134,7 @@ public function summary()
             DATE(clockin_time) as day,
             user_id,
             crew_member_approval,
+            per_diem,
             TIMESTAMPDIFF(MINUTE, clockin_time, LEAST(clockout_time, CONCAT(DATE(clockin_time), " 23:59:59"))) as total_minutes
         FROM timesheets
         WHERE DATE(clockin_time) = DATE(clockout_time) and deleted_at IS NULL
@@ -139,6 +145,7 @@ public function summary()
             DATE(clockin_time) as day,
             user_id,
             crew_member_approval,
+            per_diem,
             TIMESTAMPDIFF(MINUTE, clockin_time, CONCAT(DATE(clockin_time), " 23:59:59")) as total_minutes
         FROM timesheets
         WHERE DATE(clockout_time) > DATE(clockin_time)
@@ -150,10 +157,11 @@ public function summary()
             DATE(clockout_time) as day,
             user_id,
             crew_member_approval,
+            per_diem,
             TIMESTAMPDIFF(MINUTE, CONCAT(DATE(clockout_time), " 00:00:00"), clockout_time) as total_minutes
-    FROM timesheets
-    WHERE DATE(clockout_time) > DATE(clockin_time)
-      AND DATE(clockin_time) <> DATE(clockout_time) and deleted_at IS NULL
+        FROM timesheets
+        WHERE DATE(clockout_time) > DATE(clockin_time)
+          AND DATE(clockin_time) <> DATE(clockout_time) and deleted_at IS NULL
     ) as daily_totals'))
     ->join('users as crewmembers', 'daily_totals.user_id', '=', 'crewmembers.id')
     ->selectRaw('
@@ -161,7 +169,8 @@ public function summary()
         crewmembers.name as crewmember_name,
         crewmembers.id as user_id,
         MIN(daily_totals.crew_member_approval) AS crew_member_approval,
-        SUM(daily_totals.total_minutes) AS total_minutes
+        SUM(daily_totals.total_minutes) AS total_minutes,
+        COALESCE(MAX(daily_totals.per_diem), "NA") AS per_diem
     ')
     ->whereRaw('daily_totals.day < CURDATE()')
     ->groupBy(
@@ -176,9 +185,8 @@ public function summary()
     // Group by week (starting on Sunday) and user
     $weeklySummary = $query->groupBy(function ($item) {
         $timestamp = strtotime($item->day);
-        // Adjust the timestamp to the previous Sunday if the current day is not Sunday
-        $sundayTimestamp = strtotime('last Sunday', $timestamp + 86400); // Add 86400 seconds to include Sunday itself
-        return $item->user_id . '-' . date('oW', $sundayTimestamp); // Use ISO-8601 week number
+        $sundayTimestamp = strtotime('last Sunday', $timestamp + 86400); // Adjust to previous Sunday
+        return $item->user_id . '-' . date('oW', $sundayTimestamp); // ISO-8601 week number
     });
 
     // Format total minutes into HH:MM and calculate weekly total
@@ -206,6 +214,7 @@ public function summary()
 
     return view('crew.summary', compact('weeklySummary'));
 }
+
 
 
     public function getAll(Request $request)

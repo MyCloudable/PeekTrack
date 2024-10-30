@@ -27,9 +27,9 @@
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Name</th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Date</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Day of Week</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Total Time</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Total Time (Week)</th>
+								<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">PD</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Total Time Hrs:Mins</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9" style="width:5%">Total Time (Week)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -38,8 +38,8 @@
                                     @if (auth()->user()->id == $time->user_id)
                                         <tr>
                                             <td class="text-md font-weight-bold"><h5>{{ $time->crewmember_name }}</h5></td>
-                                            <td class="text-md font-weight-bold"><h5>{{ $time->day }}</h5></td>
-                                            <td class="text-md font-weight-bold"><h5>{{ $time->day_of_week }}</h5></td>
+                                            <td class="text-md font-weight-bold"><h5>{{ $time->day }} ({{ $time->day_of_week }})</h5></td>
+											<td class="text-md font-weight-bold"><h5>{{ $time->per_diem }}</h5></td>
                                             <td class="text-md font-weight-bold"><h5>{{ $time->formatted_time }}</h5></td>
                                             @if ($time->weekly_total_time)
                                                 <td class="text-md font-weight-bold" rowspan="{{ $time->week_rowspan }}">

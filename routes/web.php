@@ -114,7 +114,11 @@ Route::get('reports/{jobnumber}/jobsummary', [ReportsController::class, 'jobsumm
 
 Route::post('reports/payrollsummary', [ReportsController::class, 'payrollSummary'])->middleware('auth')->name('reports.payrollsummary');
 
+Route::post('reports/materialusage', [ReportsController::class, 'materialUsage'])->middleware('auth')->name('reports.materialusage');
+
 Route::post('reports/deptsummary', [ReportsController::class, 'deptSummary'])->middleware('auth')->name('reports.deptsummary');
+
+Route::post('reports/weopdsummary', [ReportsController::class, 'weopdSummary'])->middleware('auth')->name('reports.weopdsummary');
 
 Route::get('/jobs/{id}/edit/{crewType}', [JobsController::class, 'edit'])->middleware('auth')->name('jobs.edit');
 

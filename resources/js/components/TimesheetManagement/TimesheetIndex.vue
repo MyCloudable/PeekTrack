@@ -27,7 +27,7 @@
         <div class="col-md-12">
             <button class="btn btn-secondary mb-5" v-if="editingRows.size > 0" @click="updateAllRows(null)">Update
                 All</button>
-            <DataTable :options="tableOptions" ref="dataTableRef" class="table table-hover" />
+            <DataTable :options="tableOptions" ref="dataTableRef" class="table custom-hover table-hover" />
 
             <span id="totalTimeFooter">Total time: {{ totalTimeFooter }}</span>
         </div>

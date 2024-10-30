@@ -8,7 +8,17 @@ class ReportsController extends Controller
 {
     public function index()
     {
-		
+			 // Fetch unique location names from the `locations` table
+    $locations = \DB::table('locations')->select('name')->distinct()->pluck('name');
+
+    // Fetch unique branch names from the `branch` table
+    $branches = \DB::table('branch')->select('branch')->distinct()->whereNotNull('branch')->pluck('branch');
+	// Fetch unique material names from the `branch` table
+	 $materials = \DB::table('material')
+        ->distinct()
+        ->orderBy('description')
+        ->pluck('description');
+    // Retrieve input values from the request
 		$jobnumbers = \DB::table('jobentries')
 			->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
 			->select('jobentries.job_number')
@@ -18,7 +28,7 @@ class ReportsController extends Controller
 
         
         // Pass the jobnumber directly to the view
-        return view('reports.index', compact('jobnumbers'));
+        return view('reports.index', compact('jobnumbers','branches','locations','materials'));
     }
 
         public function jobsummary($jobnumber)
@@ -41,6 +51,21 @@ public function payrollSummary(Request $request)
     return view('reports.payrollsummary', compact('startDate', 'endDate'));
 }
 
+public function materialUsage(Request $request)
+{
+	
+    // Retrieve input values from the request
+    $location = $request->input('location');
+    $branch = $request->input('branch');
+    $materialName = $request->input('material_name');
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+
+    // Pass variables to the processing view
+    return view('reports.materialusage', compact('location', 'branch', 'materialName', 'startDate', 'endDate'));
+}
+
+
 public function deptSummary(Request $request)
 {
     $startDate = $request->input('date1');
@@ -50,7 +75,14 @@ public function deptSummary(Request $request)
     return view('reports.deptreport', compact('startDate', 'endDate'));
 }
 
+public function weopdSummary(Request $request)
+{
+    $startDate = $request->input('date1');
+    $endDate = $request->input('date2');
 
+    // Pass dates to the view
+    return view('reports.weopdsummary', compact('startDate', 'endDate'));
+}
 
 
 }

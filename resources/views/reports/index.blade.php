@@ -55,6 +55,27 @@
                     </form>
                 </div>
             </div>
+			
+			            <!-- Date Range Picker and Submit Button for Payroll Summary -->
+            <div class="card mt-4">
+                <div class="card-header p-3 pb-0">
+                    <h4 class="mb-0">Weekend Out and Per-Diem</h4>
+                    <p class="text-sm mb-0 text-capitalize font-weight-normal"></p>
+                </div>
+                <div class="card-body border-radius-lg p-3">
+                    <form id="weopdSummaryForm" action="{{ route('reports.weopdsummary') }}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label for="weopd_daterange" style="color: #000;">Select Date Range:</label>
+                            <input type="text" id="weopd_daterange" class="form-control" style="width: 100%; border: 1px solid #ccc;" />
+                            <input type="hidden" name="date1" id="weopd_date1">
+                            <input type="hidden" name="date2" id="weopd_date2">
+                        </div>
+                        <br>
+                        <button type="submit" class="btn btn-warning">Generate WEO/PD Summary</button>
+                    </form>
+                </div>
+            </div>
             
             <!-- Date Range Picker and Submit Button for Department Summary -->
             <div class="card mt-4">
@@ -76,7 +97,63 @@
                     </form>
                 </div>
             </div>
+			<div class="card mt-4">
+                <div class="card-header p-3 pb-0">
+                    <h4 class="mb-0">Material Usage Report</h4>
+                    <p class="text-sm mb-0 text-capitalize font-weight-normal"></p>
+                </div>
+				
+<div class="card-body border-radius-lg p-3">
+    <!-- Form for department summary to generate material usage report -->
+    <form id="deptSummaryForm" action="{{ route('reports.materialusage') }}" method="POST">
+        @csrf
+        <div class="form-group">
+            <!-- Location selection dropdown (optional) -->
+            <label for="location">Location:</label>
+            <select id="location" name="location">
+                <option value="">Select Location (optional)</option>
+                @foreach($locations as $location)
+                    <option value="{{ $location }}">{{ $location }}</option>
+                @endforeach
+            </select>
+            <br><br>
+
+            <!-- Branch selection dropdown (optional) -->
+            <label for="branch">Branch:</label>
+            <select id="branch" name="branch">
+                <option value="">Select Branch (optional)</option>
+                @foreach($branches as $branch)
+                    <option value="{{ $branch }}">{{ $branch }}</option>
+                @endforeach
+            </select>
+            <br><br>
+
+        <!-- Material Description Dropdown -->
+        <label for="material_name">Material Description:</label>
+        <select id="material_name" name="material_name">
+            <option value="">Select Material Description (optional)</option>
+            @foreach($materials as $description)
+                <option value="{{ $description }}">{{ $description }}</option>
+            @endforeach
+        </select>
+        <br><br>
+
+            <!-- Start date input (required) -->
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" required>
+            <br><br>
+
+            <!-- End date input (required) -->
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" required>
+            <br><br>
         </div>
+        
+        <!-- Submit button for generating the material report -->
+        <button type="submit" class="btn btn-warning">Generate Material Report</button>
+    </form>
+</div>
+
 		<div id="loading-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255, 255, 255, 0.8); z-index:9999; text-align:center; padding-top:20%;">
     <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -129,6 +206,14 @@
         }, function(start, end, label) {
             $('#payroll_date1').val(start.format('YYYY-MM-DD'));
             $('#payroll_date2').val(end.format('YYYY-MM-DD'));
+        });
+		
+		        // Initialize Date Range Picker for Payroll Summary
+        $('#weopd_daterange').daterangepicker({
+            opens: 'left'
+        }, function(start, end, label) {
+            $('#weopd_date1').val(start.format('YYYY-MM-DD'));
+            $('#weopd_date2').val(end.format('YYYY-MM-DD'));
         });
 
         // Initialize Date Range Picker for Department Summary

@@ -3,16 +3,15 @@
         window.location = "{{ url('/crewmember') }}";
     </script>
 @endif
-<style>
-.table-striped>tbody>tr:nth-child(odd)>td,
-tr.found{
-    background-color:#CECBCB;
-}
-.table-striped > tbody > tr > td.myclass{
-    background: blue;
-    --bs-table-bg-type: blue;
-}
-</style>
+
+			<style scoped>
+			.custom-hover tbody tr:hover {
+			background-color: #949494 !important; /* Lighter teal for better visibility */
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for emphasis */
+			transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+			}
+			</style>
+
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
 <x-auth.navbars.sidebar activePage="Timesheet" activeItem="" activeSubitem=""></x-auth.navbars.sidebar>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg " id="app">

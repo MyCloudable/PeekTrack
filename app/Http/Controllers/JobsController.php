@@ -1118,6 +1118,7 @@ $weekendout = \DB::select("
                 $product->pay_rate ?? '',
                 $product->hours ?? '',
                 '',
+				'',
                 '1',
                 $product->user_id ?? ''
             ]);
