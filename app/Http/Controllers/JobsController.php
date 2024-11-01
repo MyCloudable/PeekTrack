@@ -661,6 +661,12 @@ if (isset($request->mqty[$i])){
 			"submitted_on" => date('Y-m-d'),
             "approved" => 3,
         ]);
+		$JobNote = new JobNotes();
+        $JobNote->link = $request->link;
+        $JobNote->note_type = "JobCardNote";
+        $JobNote->username = $request->user;
+        $JobNote->note = "Jobcard submitted.";
+        $JobNote->save();
 
         return redirect()
             ->route("jobs")
@@ -673,6 +679,12 @@ if (isset($request->mqty[$i])){
 		"approvedBy" => $request->username,
 		"approved_date" => date('Y-m-d'),
 		]);
+				$JobNote = new JobNotes();
+        $JobNote->link = $request->link;
+        $JobNote->note_type = "JobCardNote";
+        $JobNote->username = $request->username;
+        $JobNote->note = "Jobcard approved.";
+        $JobNote->save();
         return redirect()
             ->route("jobs.review")
             ->with("successentry", "Job card approved");
@@ -685,6 +697,13 @@ if (isset($request->mqty[$i])){
 		"approved_date" => date('Y-m-d'),
         "submitted" => 1,
 		]);
+		$JobNote = new JobNotes();
+        $JobNote->link = $request->link;
+        $JobNote->note_type = "JobCardNote";
+        $JobNote->username = $request->username;
+        $JobNote->note = "Jobcard reopened.";
+        $JobNote->save();
+		
         return redirect()
             ->route("jobs.review")
             ->with("successentry", "Job card re-opened");
@@ -692,7 +711,7 @@ if (isset($request->mqty[$i])){
 
     public function rejectcard(Request $request)
     {
-        Jobentry::where("link", $request->link)->update(["submitted" => 1]);
+        Jobentry::where("link", $request->link)->update(["submitted" => 0]);
         Jobentry::where("link", $request->link)->update(["approved" => 2]);
         Jobentry::where("link", $request->link)->update(["approvedBy" => $request->username,]);
 		$email = \DB::table('jobentries')

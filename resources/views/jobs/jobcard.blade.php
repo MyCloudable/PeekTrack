@@ -235,7 +235,7 @@
 		 </form>
 		 
         <form method="post" id="submit" onSubmit="return validateForm()" action="{{ route('jobs.submit') }}"> @csrf 
-	
+	<input type="hidden" name="user" value="{{Auth::user()->name}}">
 	<input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
             <input type="hidden" name="jobid" value="{{ $jobinfo[0]->id }}">
             

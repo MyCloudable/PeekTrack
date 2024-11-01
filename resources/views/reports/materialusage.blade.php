@@ -68,6 +68,7 @@
                                     <th>Location</th>
                                     <th>Branch</th>
                                     <th>Job Number</th>
+									<th>Date</th>
                                     <th>Material Name</th>
                                     <th>Total Quantity</th>
                                     <th>Unit of Measure</th>
@@ -80,6 +81,7 @@
                                     echo "<td>{$row['location']}</td>";
                                     echo "<td>{$row['branch']}</td>";
                                     echo "<td>{$row['job_number']}</td>";
+									echo "<td>{$row['workdate']}</td>";
                                     echo "<td>{$row['material_name']}</td>";
                                     echo "<td>{$row['total_quantity']}</td>";
                                     echo "<td>{$row['unit_of_measure']}</td>";

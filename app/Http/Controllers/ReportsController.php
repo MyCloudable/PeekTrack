@@ -9,10 +9,10 @@ class ReportsController extends Controller
     public function index()
     {
 			 // Fetch unique location names from the `locations` table
-    $locations = \DB::table('locations')->select('name')->distinct()->pluck('name');
+    $locations = \DB::table('locations')->select('name')->distinct()->orderBy('name')->pluck('name');
 
     // Fetch unique branch names from the `branch` table
-    $branches = \DB::table('branch')->select('branch')->distinct()->whereNotNull('branch')->pluck('branch');
+    $branches = \DB::table('jobs')->distinct()->whereNotNull('branch')->orderBy('branch')->pluck('branch');
 	// Fetch unique material names from the `branch` table
 	 $materials = \DB::table('material')
         ->distinct()
@@ -49,6 +49,15 @@ public function payrollSummary(Request $request)
 
     // Pass dates to the view
     return view('reports.payrollsummary', compact('startDate', 'endDate'));
+}
+
+public function archiveSummary(Request $request)
+{
+    $startDate = $request->input('date1');
+    $endDate = $request->input('date2');
+
+    // Pass dates to the view
+    return view('reports.archivesummary', compact('startDate', 'endDate'));
 }
 
 public function materialUsage(Request $request)

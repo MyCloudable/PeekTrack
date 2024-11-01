@@ -153,7 +153,27 @@
         <button type="submit" class="btn btn-warning">Generate Material Report</button>
     </form>
 </div>
-
+</div>
+ <!-- Date Range Picker and Submit Button for Payroll Summary -->
+            <div class="card mt-4">
+                <div class="card-header p-3 pb-0">
+                    <h4 class="mb-0">Archived Time</h4>
+                    <p class="text-sm mb-0 text-capitalize font-weight-normal"></p>
+                </div>
+                <div class="card-body border-radius-lg p-3">
+                    <form id="archiveSummaryForm" action="{{ route('reports.archivesummary') }}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label for="archive_daterange" style="color: #000;">Select Date Range:</label>
+                            <input type="text" id="archive_daterange" class="form-control" style="width: 100%; border: 1px solid #ccc;" />
+                            <input type="hidden" name="date1" id="archive_date1">
+                            <input type="hidden" name="date2" id="archive_date2">
+                        </div>
+                        <br>
+                        <button type="submit" class="btn btn-warning">Generate Payroll Summary</button>
+                    </form>
+                
+            </div>
 		<div id="loading-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255, 255, 255, 0.8); z-index:9999; text-align:center; padding-top:20%;">
     <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -208,6 +228,14 @@
             $('#payroll_date2').val(end.format('YYYY-MM-DD'));
         });
 		
+		// Initialize Date Range Picker for Archive Time Summary
+        $('#archive_daterange').daterangepicker({
+            opens: 'left'
+        }, function(start, end, label) {
+            $('#archive_date1').val(start.format('YYYY-MM-DD'));
+            $('#archive_date2').val(end.format('YYYY-MM-DD'));
+        });
+		
 		        // Initialize Date Range Picker for Payroll Summary
         $('#weopd_daterange').daterangepicker({
             opens: 'left'
@@ -225,9 +253,11 @@
         });
 
         // Show the loading screen on form submission
-        $('#payrollSummaryForm, #deptSummaryForm').on('submit', function() {
+        $('#payrollSummaryForm, #deptSummaryForm, #archiveSummaryForm').on('submit', function() {
             $('#loading-screen').show();
         });
+		
+		
 
         // Prevent loading screen from showing when navigating back
         window.addEventListener('pageshow', function(event) {
