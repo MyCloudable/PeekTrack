@@ -672,7 +672,7 @@ class TimesheetService {
 
             // Update the original entry's clockout_time to midnight (end of the day)
             $entry->update([
-                'clockout_time' => $previousClockin->copy()->setTime(23, 59, 0)->toDateTimeString(), // 23:59:00
+                'clockout_time' => $previousClockin->copy()->setTime(23, 59, 59)->toDateTimeString(), // 23:59:00
                 'modified_by' => auth()->id(),
             ]);
 
