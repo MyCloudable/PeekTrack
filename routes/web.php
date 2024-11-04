@@ -105,6 +105,7 @@ Route::get('jobs/review', [JobsController::class, 'review'])->middleware('auth')
 Route::get('jobs/globalreview', [JobsController::class, 'globalreview'])->middleware('auth')->name('jobs.globalreview');
 
 Route::get('jobs/history', [JobsController::class, 'history'])->middleware('auth')->name('jobs.history');
+Route::post('jobs/history/update-billing-approval', [JobsController::class, 'billingApproval'])->middleware('auth')->name('jobs.history.billing-approval');
 
 Route::get('schedule', [ScheduleController::class, 'index'])->middleware('auth')->name('schedule');
 

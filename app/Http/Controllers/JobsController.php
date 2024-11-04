@@ -1,28 +1,29 @@
 <?php
 
 namespace App\Http\Controllers;
+use DB;
+use App\Models\PO;
+use Carbon\Carbon;
+use App\Mail\Share;
 use App\Models\Job;
-use App\Models\JobsData;
-use App\Models\Production;
-use App\Models\Material;
-use App\Models\Equipment;
+use App\Models\File;
+use App\Models\User;
+use App\Models\Branch;
 use App\Models\Jobentry;
 use App\Models\JobNotes;
-use App\Models\Branch;
-use App\Models\PO;
-use Auth;
-use DB;
-use App\Models\File;
+use App\Models\JobsData;
+use App\Models\Material;
+use App\Models\Equipment;
+use App\Models\Production;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Mail\JobCardRejectionNotification;
-use App\Mail\Share;
+use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail; 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Str;
-use App\Models\User;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail; 
-use Yajra\DataTables\DataTables;
+use App\Mail\JobCardRejectionNotification;
 
 class JobsController extends Controller
 {
@@ -126,11 +127,15 @@ class JobsController extends Controller
         if($request->ajax()){
 			$jobentries = DB::table('jobentries')
             ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+            ->leftJoin("users", "users.id", "=", "jobentries.billing_approval_by")
 			->select(
                 'jobs.job_number', 
                 'jobs.description',
                 'jobs.branch',
                 'jobentries.name', 
+                'jobentries.id', 
+                'jobentries.billing_approval', 
+                'users.name as billing_approval_by', 
                 DB::raw("IF(jobentries.submitted = 1, 'Submitted', 'Not submitted') as submission_status"),
                 'jobentries.submitted_on',
                 DB::raw("CASE 
@@ -158,11 +163,26 @@ class JobsController extends Controller
             ->make(true);
 
         }else{
-            return view("jobs.history");
+            $authuser = Auth::user();
+            return view('jobs.history', compact('authuser'));
         }
 
 		
 	}
+
+    public function billingApproval(Request $request)
+    {
+        $jobentry = Jobentry::find($request->id);
+        $jobentry->billing_approval = $request->approved;
+        $jobentry->billing_approval_by = Auth::user()->id;
+        $jobentry->billing_approval_at = Carbon::now();
+        $jobentry->save();
+
+        return response()->json(['success' => 'Billing Approval updated '], 200);
+
+
+    }
+
     public function jobreview($id)
     {
 		$jobnumbers = Job::where('status', '=', 'In progress')->orderBy("job_number", "asc")->get();
@@ -1206,5 +1226,7 @@ $weekendout = \DB::select("
 			
         
         }
+
+
 
 }

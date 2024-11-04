@@ -5,7 +5,7 @@
     <x-auth.navbars.navs.auth pageTitle="Job Card History"></x-auth.navbars.navs.auth>
     <div class="container-fluid py-4" id="appp">
         <div class="table-responsive">
-            <jobhistory />
+            <jobhistory :authuser="{{$authuser}}" />
         </div>
     </div>
 </main>
