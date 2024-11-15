@@ -493,13 +493,17 @@ const menualClockinout = (event, timesheetId, type) => {
 
 // add new crew member
 const GetAllUsers = (users) => {
+    allUsers.value = users
+        .filter(user => user.role_id === 6)  // Only add crew members
+        .map(user => ({
+            id: user.id,
+            text: `${user.id} - ${user.name}`,  // Format as "ID - Name"
+        }));
 
-    users.map(user => {
-        (user.role_id == 6) ? allUsers.value.push(user) : ''; // if crew member
-    })
+    // Set default values in the form
+    createNewCrewForm.value[0].clockin_time = now.value;
+};
 
-    createNewCrewForm.value[0].clockin_time = now.value
-}
 const addNewCrew = () => {
 
     setLoading(true)

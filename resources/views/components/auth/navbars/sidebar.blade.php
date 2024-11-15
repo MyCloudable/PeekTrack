@@ -103,6 +103,14 @@
 							</a>
                         </li>
 						@endif
+						@if ( auth()->user()->role_id == 9)
+						<li class="nav-item"{{ $activeItem == 'estimating' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white {{ $activeItem == 'estimating' ? ' active' : '' }}  "
+								href="{{ route('jobs.estimating') }}">
+								<span class="sidenav-normal  ms-2  ps-1"> <h5>Estimating Queue</h5> 
+							</a>
+                        </li>
+						@endif
 						@if ( auth()->user()->role_id != 6)
 						<li class="nav-item"{{ $activeItem == 'history' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white {{ $activeItem == 'history' ? ' active' : '' }}  "

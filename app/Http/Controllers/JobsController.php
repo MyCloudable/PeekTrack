@@ -53,7 +53,20 @@ class JobsController extends Controller
 		
         
     }
+    public function estimating()
+    {
+
+			$jobentries = \DB::table('jobentries')
+            ->join("jobs", "jobs.job_number", "=", "jobentries.job_number")
+			->select('jobs.job_number', 'jobs.description','jobs.branch','jobentries.name','jobentries.submitted_on','jobentries.approved','jobentries.link','jobentries.workdate')
+			->where('approved',4)
+			->orderBy("jobentries.updated_at", "desc")
+            ->get();
 	
+		
+
+        return view("jobs.estimating", compact("jobentries"));
+    }
 	public function globalreview()
     {
 
@@ -687,10 +700,21 @@ if (isset($request->mqty[$i])){
         $JobNote->username = $request->user;
         $JobNote->note = "Jobcard submitted.";
         $JobNote->save();
-
+		if ($request->role == 9){
+		$JobNote = new JobNotes();
+        $JobNote->link = $request->link;
+        $JobNote->note_type = "JobCardNote";
+        $JobNote->username = $request->user;
+        $JobNote->note = $request->note;
+        $JobNote->save();			
         return redirect()
+            ->route("jobs.estimating")
+            ->with("successentry", "Job card submitted successfully");
+		}else{
+		return redirect()
             ->route("jobs")
             ->with("successentry", "Job card submitted successfully");
+		}
     }
 
     public function updatecard(Request $request)
@@ -754,6 +778,33 @@ if (isset($request->mqty[$i])){
         return redirect()
             ->route("jobs.review")
             ->with("successentry", "Job card rejected");
+    }
+	
+	public function estqueue(Request $request)
+    {
+        Jobentry::where("link", $request->link)->update(["submitted" => 1]);
+        Jobentry::where("link", $request->link)->update(["approved" => 4]);
+        Jobentry::where("link", $request->link)->update(["approvedBy" => $request->username,]);
+		$email = \DB::table('jobentries')
+            ->join("users", "users.id", "=", "jobentries.userId")
+			->select('users.email', 'users.name', 'jobentries.job_number')
+            ->where('jobentries.userId', $request->userId)
+			->where('jobentries.link', $request->link)
+            ->get();
+        $JobNote = new JobNotes();
+        $JobNote->link = $request->link;
+        $JobNote->note_type = "JobCardNote";
+        $JobNote->username = $request->username;
+        $JobNote->note = $request->note;
+        $JobNote->save();
+		$note = $request->note;
+		$emailaddress = $email[0]->email;
+		$name = $email[0]->name;
+		$job_number = $email[0]->job_number;
+		Mail::to($request->email)->send(new JobCardRejectionNotification($name, $job_number, $note));
+        return redirect()
+            ->route("jobs.review")
+            ->with("successentry", "Job card sent to estimating");
     }
 	
 	public function shareJobcard(Request $request)

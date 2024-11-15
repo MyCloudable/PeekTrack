@@ -287,8 +287,9 @@
                 </center>
                 <br><br>
                 <span><button type="button" class="btn btn-success btn-block mt-4" data-bs-toggle="modal" style="top: 0%;left: 20%;" data-bs-target="#approve">Approve</button>
-                    <button type="submit" class="btn btn-warning btn-block mt-4" style="top: %;left: 40%;">Update</button>
-                <button type="button" class="btn btn-danger btn-block mt-4" data-bs-toggle="modal" style="top: 0%;left: 60%;" data-bs-target="#reject-submit">Reject</button></span>
+                    <button type="submit" class="btn btn-warning btn-block mt-4" style="top: %;left: 30%;">Save Changes</button>
+					<button type="button" class="btn btn-info btn-block mt-4" data-bs-toggle="modal" style="top: 0%;left: 40%;" data-bs-target="#est-submit">Send to Estimating</button>
+                <button type="button" class="btn btn-danger btn-block mt-4" data-bs-toggle="modal" style="top: 0%;left: 50%;" data-bs-target="#reject-submit">Reject</button></span>
                 </form>
                 <br>
                 <br>
@@ -450,6 +451,35 @@
 							<input type="hidden" name="email" value="{{Auth::user()->email}}">
 							<input type="hidden" name="userId" value="{{ $jobcard[0]->userId }}">
                     </div> @csrf <input type="submit" class="btn-warning" form="rejectForm" value="Reject Job Card" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+	 <div class="modal fade" id="est-submit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="background-color: black;">
+                    <div class="py-3 text-center"> 
+					Please explain the reason for sending to the estimating queue? 
+					<form method="post" id="estForm" action="{{ route('jobs.estqueue')}}">
+                            <!-- We display the details entered by the user here -->
+                            <table class="table">
+                                <tr>
+                                    <th>Note</th>
+                                    <td><textarea name="note" required></textarea></td>
+                                </tr>
+                            </table>
+                            <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
+                            <input type="hidden" name="username" value="{{Auth::user()->name}}">
+							<input type="hidden" name="email" value="{{Auth::user()->email}}">
+							<input type="hidden" name="userId" value="{{ $jobcard[0]->userId }}">
+                    </div> @csrf <input type="submit" class="btn-warning" form="estForm" value="Send to Estimating" />
                     </form>
                 </div>
             </div>

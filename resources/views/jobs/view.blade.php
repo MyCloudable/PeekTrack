@@ -30,12 +30,16 @@ body {
         <!-- End Navbar -->
 		                <div class="col-12">
                     <button type="button" class="btn btn-warning btn-block mt-4" data-bs-toggle="modal" data-bs-target="#modal-jobcardfiles">View Uploads</button>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-					 <button type="button" class="btn btn-success btn-block mt-4" onclick="screenshot('{{Auth::user()->email}}')">Share</button>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+					 <button type="button" class="btn btn-success btn-block mt-4" onclick="screenshot('{{Auth::user()->email}}')">Shdare</button>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
 					 <input type="button" class="btn btn-info btn-block mt-4" value="Print" onClick="window.print()">
-					 @if(auth()->user()->role_id < 3) 
+					 @if(auth()->user()->role_id < 3 && $jobcard[0]->billing_approval != 1 && $jobcard[0]->approved == 1) 
 						 
                      <button type="button" class="btn btn-danger btn-block mt-4" data-bs-toggle="modal" style="top: 0%;left: 20%;" data-bs-target="#open">Re-Open</button>
-                     @endif                       
+                     @endif
+					 
+				     @if(auth()->user()->role_id == 9 && $jobcard[0]->approved == 4) 
+                     <button type="button" class="btn btn-danger btn-block mt-4" data-bs-toggle="modal" style="top: 0%;left: 30%;" data-bs-target="#openest">Send Back To Review</button>
+                     @endif 
                 </div>
         <div class="container-fluid py-4"> 
 		<div id="capture">
@@ -206,6 +210,29 @@ body {
                             <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
                             <input type="hidden" name="username" value="{{Auth::user()->name}}">
                     </div> @csrf <input type="submit" class="btn-warning" form="unapproveForm" value="Unapprove Job Card" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> 
+	 <div class="modal fade" id="openest" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="background-color: black;">
+                    <div class="py-3 text-center"> Are you sure you want to send this back to review? 
+					<form method="post" id="reviewForm" action="{{ route('jobs.submit')}}">
+                            <!-- We display the details entered by the user here -->
+                            <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
+                            <input type="hidden" name="user" value="{{Auth::user()->name}}">
+							<input type="hidden" name="role" value="{{auth()->user()->role_id}}">
+							<textarea name="note" rows="4" cols="50" required></textarea>
+
+                    </div> @csrf <input type="submit" class="btn-warning" form="reviewForm" value="Send to Review" />
                     </form>
                 </div>
             </div>

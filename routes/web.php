@@ -104,6 +104,8 @@ Route::get('jobs/review', [JobsController::class, 'review'])->middleware('auth')
 
 Route::get('jobs/globalreview', [JobsController::class, 'globalreview'])->middleware('auth')->name('jobs.globalreview');
 
+Route::get('jobs/estimating', [JobsController::class, 'estimating'])->middleware('auth')->name('jobs.estimating');
+
 Route::get('jobs/history', [JobsController::class, 'history'])->middleware('auth')->name('jobs.history');
 Route::post('jobs/history/update-billing-approval', [JobsController::class, 'billingApproval'])->middleware('auth')->name('jobs.history.billing-approval');
 
@@ -156,6 +158,8 @@ Route::get('jobs/{link}/removeJC/{id}', [JobsController::class, 'removeJC'])->na
 Route::post('jobs/changeJobNum', [JobsController::class, 'changeJobNum'])->name('jobs.changeJobNum');
 
 Route::post('jobs/rejectcard', [JobsController::class, 'rejectcard'])->name('jobs.rejectcard');
+
+Route::post('jobs/estqueue', [JobsController::class, 'estqueue'])->name('jobs.estqueue');
 
 Route::post('jobs/submit', [JobsController::class, 'submitjob'])->name('jobs.submit');
 

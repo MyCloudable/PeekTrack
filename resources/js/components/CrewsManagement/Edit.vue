@@ -1,27 +1,37 @@
 <template>
-
     <div class="input-group-outline mt-4">
         <label for="">Crew Type</label>
-        <Select2 :options="props.crewTypes" :settings="select2Settings" v-model="formData.crew_type_id" />
+        <Select2 
+            :options="formattedCrewTypes" 
+            :settings="select2Settings" 
+            v-model="formData.crew_type_id" 
+        />
     </div>
     <div class="input-group-outline mt-4">
-        <label for="">Select superintendent</label>
-        <Select2 :options="superIntendents" :settings="select2Settings" v-model="formData.superintendentId" />
+        <label for="">Select Superintendent</label>
+        <Select2 
+            :options="formattedSuperIntendents" 
+            :settings="select2Settings" 
+            v-model="formData.superintendentId" 
+        />
     </div>
     <div class="input-group-outline mt-4">
-        <label for="">Select crew members</label>
-        <Select2 :options="crewMembers" :settings="select2SettingsCrews" v-model="formData.crew_members" />
+        <label for="">Select Crew Members</label>
+        <Select2 
+            :options="formattedCrewMembers" 
+            :settings="select2SettingsCrews" 
+            v-model="formData.crew_members" 
+        />
     </div>
 
     <div class="col-md-12">
         <button class="btn btn-warning btn-md mt-4" @click="submit">Update</button>
     </div>
-
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue'
-
 import { useToast } from "vue-toastification"
 
 const props = defineProps({
@@ -29,6 +39,8 @@ const props = defineProps({
     crewTypes: Object,
     crew: Object,
 })
+
+const toast = useToast()
 
 let select2Settings = ref({
     'width': '100%',
@@ -38,65 +50,63 @@ let select2SettingsCrews = ref({
     multiple: true
 })
 
-const toast = useToast()
-
-
-let crewMembers = ref([])
-let superIntendents = ref([])
-
+// Formatted options for Select2
+let formattedCrewTypes = ref([])
+let formattedSuperIntendents = ref([])
+let formattedCrewMembers = ref([])
 
 let formData = ref({
     crew_members: []
 })
 
 onMounted(() => {
+    // Format crew types with ID and Name
+    formattedCrewTypes.value = props.crewTypes.map(crewType => ({
+        id: crewType.id,
+        text: `${crewType.name}` // Combine ID and Name
+    }))
 
-    let crew_members = props.crew.crew_members.map(member => parseInt(member, 10))
+    // Format users for superintendents
+    formattedSuperIntendents.value = props.users
+        .filter(user => user.role_id === 3) // Filter for superintendents
+        .map(user => ({
+            id: user.id,
+            text: `${user.id} - ${user.name}` // Combine ID and Name
+        }))
 
-    props.crewTypes.map(crewType => {
-        (props.crew.crew_type_id == crewType.id) ? formData.value.crew_type_id = crewType.id : ''
-    })
+    // Format users for crew members
+    formattedCrewMembers.value = props.users
+        .filter(user => user.role_id === 6) // Filter for crew members
+        .map(user => ({
+            id: user.id,
+            text: `${user.id} - ${user.name}` // Combine ID and Name
+        }))
 
-    props.users.map(user => {
-        if(user.role_id == 3){
-            superIntendents.value.push(user);
-            (props.crew.superintendentId == user.id) ? formData.value.superintendentId = user.id : ''
-
-        }
-
-        if(user.role_id == 6){
-            crewMembers.value.push(user);
-            (crew_members.includes(user.id)) ? formData.value.crew_members.push(user.id) : ''
-        }
-
-    })
+    // Initialize form data
+    formData.value.crew_type_id = props.crew.crew_type_id || null
+    formData.value.superintendentId = props.crew.superintendentId || null
+    formData.value.crew_members = props.crew.crew_members.map(id => parseInt(id, 10)) || []
 })
 
 const submit = async () => {
-  try {
-    const response = await axios.put(`/crews/${props.crew.id}`, {
-        crew_type_id: formData.value.crew_type_id,
-        superintendentId: formData.value.superintendentId,
-        crew_members: formData.value.crew_members
+    try {
+        const response = await axios.put(`/crews/${props.crew.id}`, {
+            crew_type_id: formData.value.crew_type_id,
+            superintendentId: formData.value.superintendentId,
+            crew_members: formData.value.crew_members
+        })
 
-    })
-
-    if (response.data.success) {
-      toast.success(response.data.message)
-      setTimeout(() => {
-        window.location.href = response.data.redirect
-      }, 3000)
-    } else {
-      toast.error('Failed to create crew')
+        if (response.data.success) {
+            toast.success(response.data.message)
+            setTimeout(() => {
+                window.location.href = response.data.redirect
+            }, 3000)
+        } else {
+            toast.error('Failed to update crew')
+        }
+    } catch (error) {
+        let errorMessage = error.response?.data?.message || 'Something went wrong'
+        toast.error(errorMessage)
     }
-  } catch (error) {
-    let errorMessage = error.response.data.message
-
-    errorMessage ? toast.error(errorMessage) : 'Something went wrong'
-  }
 }
-
-
 </script>
-
-<style></style>

@@ -20841,9 +20841,17 @@ var scrollThreshold = 50; // Adjust the threshold as needed
 
     // add new crew member
     var GetAllUsers = function GetAllUsers(users) {
-      users.map(function (user) {
-        user.role_id == 6 ? allUsers.value.push(user) : ''; // if crew member
+      allUsers.value = users.filter(function (user) {
+        return user.role_id === 6;
+      }) // Only add crew members
+      .map(function (user) {
+        return {
+          id: user.id,
+          text: "".concat(user.id, " - ").concat(user.name) // Format as "ID - Name"
+        };
       });
+
+      // Set default values in the form
       createNewCrewForm.value[0].clockin_time = now.value;
     };
     var addNewCrew = function addNewCrew() {
@@ -21308,6 +21316,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var __expose = _ref.expose;
     __expose();
     var props = __props;
+    var toast = (0,vue_toastification__WEBPACK_IMPORTED_MODULE_1__.useToast)();
     var select2Settings = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)({
       'width': '100%'
     });
@@ -21315,33 +21324,55 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       'width': '100%',
       multiple: true
     });
-    var toast = (0,vue_toastification__WEBPACK_IMPORTED_MODULE_1__.useToast)();
-    var crewMembers = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
-    var superIntendents = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+
+    // Formatted options for Select2
+    var formattedCrewTypes = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+    var formattedSuperIntendents = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+    var formattedCrewMembers = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
     var formData = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)({
       crew_members: []
     });
     (0,vue__WEBPACK_IMPORTED_MODULE_0__.onMounted)(function () {
-      var crew_members = props.crew.crew_members.map(function (member) {
-        return parseInt(member, 10);
+      // Format crew types with ID and Name
+      formattedCrewTypes.value = props.crewTypes.map(function (crewType) {
+        return {
+          id: crewType.id,
+          text: "".concat(crewType.name) // Combine ID and Name
+        };
       });
-      props.crewTypes.map(function (crewType) {
-        props.crew.crew_type_id == crewType.id ? formData.value.crew_type_id = crewType.id : '';
+
+      // Format users for superintendents
+      formattedSuperIntendents.value = props.users.filter(function (user) {
+        return user.role_id === 3;
+      }) // Filter for superintendents
+      .map(function (user) {
+        return {
+          id: user.id,
+          text: "".concat(user.id, " - ").concat(user.name) // Combine ID and Name
+        };
       });
-      props.users.map(function (user) {
-        if (user.role_id == 3) {
-          superIntendents.value.push(user);
-          props.crew.superintendentId == user.id ? formData.value.superintendentId = user.id : '';
-        }
-        if (user.role_id == 6) {
-          crewMembers.value.push(user);
-          crew_members.includes(user.id) ? formData.value.crew_members.push(user.id) : '';
-        }
+
+      // Format users for crew members
+      formattedCrewMembers.value = props.users.filter(function (user) {
+        return user.role_id === 6;
+      }) // Filter for crew members
+      .map(function (user) {
+        return {
+          id: user.id,
+          text: "".concat(user.id, " - ").concat(user.name) // Combine ID and Name
+        };
       });
+
+      // Initialize form data
+      formData.value.crew_type_id = props.crew.crew_type_id || null;
+      formData.value.superintendentId = props.crew.superintendentId || null;
+      formData.value.crew_members = props.crew.crew_members.map(function (id) {
+        return parseInt(id, 10);
+      }) || [];
     });
     var submit = /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-        var response, errorMessage;
+        var response, _error$response, errorMessage;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
@@ -21360,15 +21391,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   window.location.href = response.data.redirect;
                 }, 3000);
               } else {
-                toast.error('Failed to create crew');
+                toast.error('Failed to update crew');
               }
               _context.next = 11;
               break;
             case 7:
               _context.prev = 7;
               _context.t0 = _context["catch"](0);
-              errorMessage = _context.t0.response.data.message;
-              errorMessage ? toast.error(errorMessage) : 'Something went wrong';
+              errorMessage = ((_error$response = _context.t0.response) === null || _error$response === void 0 || (_error$response = _error$response.data) === null || _error$response === void 0 ? void 0 : _error$response.message) || 'Something went wrong';
+              toast.error(errorMessage);
             case 11:
             case "end":
               return _context.stop();
@@ -21381,6 +21412,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }();
     var __returned__ = {
       props: props,
+      toast: toast,
       get select2Settings() {
         return select2Settings;
       },
@@ -21393,18 +21425,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       set select2SettingsCrews(v) {
         select2SettingsCrews = v;
       },
-      toast: toast,
-      get crewMembers() {
-        return crewMembers;
+      get formattedCrewTypes() {
+        return formattedCrewTypes;
       },
-      set crewMembers(v) {
-        crewMembers = v;
+      set formattedCrewTypes(v) {
+        formattedCrewTypes = v;
       },
-      get superIntendents() {
-        return superIntendents;
+      get formattedSuperIntendents() {
+        return formattedSuperIntendents;
       },
-      set superIntendents(v) {
-        superIntendents = v;
+      set formattedSuperIntendents(v) {
+        formattedSuperIntendents = v;
+      },
+      get formattedCrewMembers() {
+        return formattedCrewMembers;
+      },
+      set formattedCrewMembers(v) {
+        formattedCrewMembers = v;
       },
       get formData() {
         return formData;
@@ -24023,31 +24060,31 @@ var _hoisted_3 = {
 };
 var _hoisted_4 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "Select superintendent", -1 /* HOISTED */);
+}, "Select Superintendent", -1 /* HOISTED */);
 var _hoisted_5 = {
   "class": "input-group-outline mt-4"
 };
 var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": ""
-}, "Select crew members", -1 /* HOISTED */);
+}, "Select Crew Members", -1 /* HOISTED */);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_Select2 = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Select2");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_1, [_hoisted_2, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
-    options: $setup.props.crewTypes,
+    options: $setup.formattedCrewTypes,
     settings: $setup.select2Settings,
     modelValue: $setup.formData.crew_type_id,
     "onUpdate:modelValue": _cache[0] || (_cache[0] = function ($event) {
       return $setup.formData.crew_type_id = $event;
     })
   }, null, 8 /* PROPS */, ["options", "settings", "modelValue"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [_hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
-    options: $setup.superIntendents,
+    options: $setup.formattedSuperIntendents,
     settings: $setup.select2Settings,
     modelValue: $setup.formData.superintendentId,
     "onUpdate:modelValue": _cache[1] || (_cache[1] = function ($event) {
       return $setup.formData.superintendentId = $event;
     })
   }, null, 8 /* PROPS */, ["options", "settings", "modelValue"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [_hoisted_6, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
-    options: $setup.crewMembers,
+    options: $setup.formattedCrewMembers,
     settings: $setup.select2SettingsCrews,
     modelValue: $setup.formData.crew_members,
     "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {

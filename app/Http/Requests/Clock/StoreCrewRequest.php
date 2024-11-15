@@ -42,7 +42,7 @@ class StoreCrewRequest extends FormRequest
 
                 // Get all crew member names for the new crew members
                 $memberNames = \DB::table('users')->whereIn('id', $value)->pluck('name', 'id')->toArray();
-    
+
                 $conflictingMembers = [];
     
                 foreach ($existingCrews as $crew) {
@@ -61,6 +61,11 @@ class StoreCrewRequest extends FormRequest
                 }
     
                 if (!empty($conflictingMembers)) {
+									
+					
+	
+					
+				
                     $fail('The following crew members are already part of another crew: ' . implode(', ', $conflictingMembers));
                 }
             }],
