@@ -30,7 +30,7 @@ body {
         <!-- End Navbar -->
 		                <div class="col-12">
                     <button type="button" class="btn btn-warning btn-block mt-4" data-bs-toggle="modal" data-bs-target="#modal-jobcardfiles">View Uploads</button>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-					 <button type="button" class="btn btn-success btn-block mt-4" onclick="screenshot('{{Auth::user()->email}}')">Shdare</button>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+					 <button type="button" class="btn btn-success btn-block mt-4" onclick="screenshot('{{Auth::user()->email}}')">Share</button>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
 					 <input type="button" class="btn btn-info btn-block mt-4" value="Print" onClick="window.print()">
 					 @if(auth()->user()->role_id < 3 && $jobcard[0]->billing_approval != 1 && $jobcard[0]->approved == 1) 
 						 

@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 use App\Mail\JobCardRejectionNotification;
+use App\Mail\Estimating;
+use App\Mail\BillingNotification;
 
 class JobsController extends Controller
 {
@@ -694,12 +696,7 @@ if (isset($request->mqty[$i])){
 			"submitted_on" => date('Y-m-d'),
             "approved" => 3,
         ]);
-		$JobNote = new JobNotes();
-        $JobNote->link = $request->link;
-        $JobNote->note_type = "JobCardNote";
-        $JobNote->username = $request->user;
-        $JobNote->note = "Jobcard submitted.";
-        $JobNote->save();
+		
 		if ($request->role == 9){
 		$JobNote = new JobNotes();
         $JobNote->link = $request->link;
@@ -711,6 +708,12 @@ if (isset($request->mqty[$i])){
             ->route("jobs.estimating")
             ->with("successentry", "Job card submitted successfully");
 		}else{
+		$JobNote = new JobNotes();
+        $JobNote->link = $request->link;
+        $JobNote->note_type = "JobCardNote";
+        $JobNote->username = $request->user;
+        $JobNote->note = "Jobcard submitted.";
+        $JobNote->save();
 		return redirect()
             ->route("jobs")
             ->with("successentry", "Job card submitted successfully");
@@ -801,7 +804,7 @@ if (isset($request->mqty[$i])){
 		$emailaddress = $email[0]->email;
 		$name = $email[0]->name;
 		$job_number = $email[0]->job_number;
-		Mail::to($request->email)->send(new JobCardRejectionNotification($name, $job_number, $note));
+		Mail::to('estimating@peeksafety.com')->send(new Estimating($name, $job_number, $note));
         return redirect()
             ->route("jobs.review")
             ->with("successentry", "Job card sent to estimating");

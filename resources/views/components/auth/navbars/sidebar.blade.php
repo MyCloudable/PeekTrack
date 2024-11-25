@@ -21,7 +21,7 @@
 				 
                 <div class="collapse" id="ProfileNav" style="">
                     <ul class="nav ">
-					@if ( auth()->user()->role_id < 6)
+					@if ( auth()->user()->role_id != 6)
                         <li class="nav-item">
                             <a class="nav-link text-white " href="{{ route('user-profile') }}">
                                 <span class="sidenav-mini-icon"> P </span>

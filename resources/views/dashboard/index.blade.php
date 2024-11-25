@@ -22,92 +22,112 @@
             <div class="col-sm-12">
                 <div class="row">
                     <div class="row">
-                        <!-- Card 1: Active Jobs -->
-                        <a href="{{ route('jobs.jobcardview', [ 'id' => Auth::user()->id ]) }}">
-                            <div class="col-lg-3 col-md-6 col-sm-6">
-                                <div class="card mb-2">
-                                    <div class="card-header p-3 pt-2">
-                                        <div class="icon icon-lg icon-shape bg-gradient-warning shadow-dark shadow text-center border-radius-xl mt-n4 position-absolute">
-                                            <i class="material-icons opacity-10">engineering</i>
-                                        </div>
-                                        <div class="text-end pt-1">
-                                            <p class="text-sm mb-0 text-capitalize"><h4>Active Jobs</h4></p>
-                                            <h3 class="mb-0"><a href="{{ route('jobs') }}"> {{ $count = count($job) }}</a></h3>
-                                        </div>
-                                    </div>
-                                    <hr class="dark horizontal my-0">
-                                    <div class="card-footer p-3">
-                                        <p class="mb-0"></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- Card 2: Unsubmitted Job Cards -->
-                        <div class="col-lg-3 col-md-6 col-sm-6 mt-sm-0 mt-4">
-                            <a href="{{ route('jobs.jobcardview', [ 'id' => Auth::user()->id ]) }}">
-                                <div class="card mb-2">
-                                    <div class="card-header p-3 pt-2">
-                                        <div class="icon icon-lg icon-shape bg-gradient-warning shadow-primary shadow text-center border-radius-xl mt-n4 position-absolute">
-                                            <i class="material-icons opacity-10">pending</i>
-                                        </div>
-                                        <div class="text-end pt-1">
-                                            <p class="text-sm mb-0 text-capitalize"><h4>Unsubmitted Job Cards</h4></p>
-                                            <h3 class="mb-0"><a href="{{ route('jobs.jobcardview', [ 'id' => Auth::user()->id ]) }}">{{ $count = count($unsubmitCards) }}</a></h3>
-                                        </div>
-                                    </div>
-                                    <hr class="dark horizontal my-0">
-                                    <div class="card-footer p-3">
-                                        <p class="mb-0"></p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Card 3: Rejected Job Cards -->
-                        <div class="col-lg-3 col-md-6 col-sm-6 mt-lg-0 mt-4">
-                            <a href="{{ route('jobs.jobcardview', [ 'id' => Auth::user()->id ]) }}">
-                                <div class="card mb-2">
-                                    <div class="card-header p-3 pt-2 bg-transparent">
-                                        <div class="icon icon-lg icon-shape bg-gradient-warning shadow-success text-center border-radius-xl mt-n4 position-absolute">
-                                            <i class="material-icons opacity-10">sync_problem</i>
-                                        </div>
-                                        <div class="text-end pt-1">
-                                            <p class="text-sm mb-0 text-capitalize"><h4>Rejected Job Cards</h4></p>
-                                            <h3 class="mb-0">{{ $count = count($rejectedJobcards) }}</h3>
-                                        </div>
-                                    </div>
-                                    <hr class="horizontal my-0 dark">
-                                    <div class="card-footer p-3">
-                                        <p class="mb-0"></p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Card 4: My Job Cards -->
-                        <div class="col-lg-3 col-md-6 col-sm-6 mt-lg-0 mt-4">
-                            <a href="{{ route('jobs.myjobcards', [ 'id' => Auth::user()->id ]) }}">
-                                <div class="card mb-2">
-                                    <div class="card-header p-3 pt-2 bg-transparent">
-                                        <div class="icon icon-lg icon-shape bg-gradient-warning shadow-success text-center border-radius-xl mt-n4 position-absolute">
-                                            <i class="material-icons opacity-10">work</i>
-                                        </div>
-                                        <div class="text-end pt-1">
-                                            <p class="text-sm mb-0 text-capitalize"><h4>My Job Cards</h4></p>
-                                            <h3 class="mb-0">{{ $count = count($Jobcards) }}</h3>
-                                        </div>
-                                    </div>
-                                    <hr class="horizontal my-0 dark">
-                                    <div class="card-footer p-3">
-                                        <p class="mb-0"></p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
+    <!-- Card 1: Active Jobs -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <a href="{{ route('jobs', ['id' => Auth::user()->id]) }}" class="text-decoration-none">
+            <div class="card mb-2">
+                <div class="card-header p-3 pt-2">
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize"><h4>Active Jobs</h4></p>
+                        <h3 class="mb-0">{{ count($job) }}</h3>
                     </div>
                 </div>
+                <hr class="dark horizontal my-0">
+                <div class="card-footer p-3">
+				                    <div class="icon icon-lg icon-shape bg-gradient-warning shadow-dark shadow text-center border-radius-xl mt-n4">
+                        <i class="material-icons opacity-10">engineering</i>
+                    </div>
+					</div>
+            </div>
+        </a>
+    </div>
 
+    <!-- Card 2: Unsubmitted Job Cards -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <a href="{{ route('jobs.jobcardview', ['id' => Auth::user()->id]) }}" class="text-decoration-none">
+            <div class="card mb-2">
+                <div class="card-header p-3 pt-2">
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize"><h4>Unsubmitted Cards</h4></p>
+                        <h3 class="mb-0">{{ count($unsubmitCards) }}</h3>
+                    </div>
+                </div>
+                <hr class="dark horizontal my-0">
+                <div class="card-footer p-3">
+				                    <div class="icon icon-lg icon-shape bg-gradient-warning shadow-primary shadow text-center border-radius-xl mt-n4">
+                        <i class="material-icons opacity-10">pending</i>
+                    </div>
+					</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Card 3: Rejected Job Cards -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <a href="{{ route('jobs.jobcardview', ['id' => Auth::user()->id]) }}" class="text-decoration-none">
+            <div class="card mb-2">
+                <div class="card-header p-3 pt-2">
+
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize"><h4>Rejected Job Cards</h4></p>
+                        <h3 class="mb-0">{{ count($rejectedJobcards) }}</h3>
+                    </div>
+                </div>
+                <hr class="horizontal my-0 dark">
+                <div class="card-footer p-3">
+				                    <div class="icon icon-lg icon-shape bg-gradient-warning shadow-success text-center border-radius-xl mt-n4">
+                        <i class="material-icons opacity-10">sync_problem</i>
+                    </div>
+					</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Card 4: My Job Cards -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <a href="{{ route('jobs.myjobcards', ['id' => Auth::user()->id]) }}" class="text-decoration-none">
+            <div class="card mb-2">
+                <div class="card-header p-3 pt-2">
+
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize"><h4>My Job Cards</h4></p>
+                        <h3 class="mb-0">{{ count($Jobcards) }}</h3>
+                    </div>
+                </div>
+                <hr class="horizontal my-0 dark">
+                <div class="card-footer p-3">
+				                    <div class="icon icon-lg icon-shape bg-gradient-warning shadow-success text-center border-radius-xl mt-n4 ">
+                        <i class="material-icons opacity-10">work</i>
+                    </div>
+					</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Card 5: Estimating Cards -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        
+            <div class="card mb-2">
+                <div class="card-header p-3 pt-2">
+                    
+                    <div class="text-end pt-1">
+                        <p class="text-sm mb-0 text-capitalize"><h4>Estimating Cards</h4></p>
+                        <h3 class="mb-0">{{ count($estimatingCards) }}</h3>
+                    </div>
+                </div>
+                <hr class="dark horizontal my-0">
+                <div class="card-footer p-3">
+				<div class="icon icon-lg icon-shape bg-gradient-warning shadow-primary text-center border-radius-xl mt-n4 ">
+                        <i class="material-icons opacity-10">calculate</i>
+                    </div>
+				</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+                </div>
+<br>
                                 <!-- Crew Status Visualization -->
 								                <!-- Location Selector -->
                 <div class="row mb-4">
