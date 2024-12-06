@@ -15,13 +15,46 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $job = Job::where('status', '=', 'In progress')->orderBy('completion_date', 'asc')->get();
-        $unsubmitCards = Jobentry::where('submitted', '=', 0)->where('name', '=', Auth::user()->name)->get();
-        $rejectedJobcards = Jobentry::where('approved', '=', 2)->where('name', '=', Auth::user()->name)->get();
+        $job = Job::where('status', '=', 'In progress')->count();
+		$jobs = Job::orderBy('completion_date', 'asc')->get();
+		$unsubmitCards = Jobentry::where(function ($query) {
+        $query->where('submitted', 0)
+              ->where(function ($subQuery) {
+                  $subQuery->WhereNull('approved');
+              });
+    })
+    ->orWhere(function ($query) {
+        $query->where('submitted', 1)
+              ->where(function ($subQuery) {
+                  $subQuery->whereNotIn('approved', [1,2, 4]);
+              });
+    })
+    ->orderBy('workdate', 'asc') // Order by workdate first
+    ->orderBy('job_number', 'asc') // Then order by job_number
+    ->get();
+
+
+
+
+        $rejectedJobcards = Jobentry::where('approved', '=', 2)->get();
 		$estimatingCards = Jobentry::where('approved', '=', 4)->get();
         $Jobcards = Jobentry::where('name', '=', Auth::user()->name)->get();
- $userLocation = auth()->user()->location; // Get the logged-in user's location
- 
+		$userLocation = auth()->user()->location; // Get the logged-in user's location
+		$filteredUnsubmitCards = $unsubmitCards->filter(function ($card) {
+		return $card->userId == auth()->user()->id || auth()->user()->role_id == 2;
+});
+
+$filteredRejectedJobcards = $rejectedJobcards->filter(function ($jobcard) {
+    return $jobcard->userId == auth()->user()->id || auth()->user()->role_id == 2;
+});
+
+$filteredJobcards = $Jobcards->filter(function ($card) {
+    return $card->userId == auth()->user()->id || auth()->user()->role_id == 2;
+});
+
+$filteredEstimatingCards = $estimatingCards->filter(function ($card) {
+    return $card->userId == auth()->user()->id || auth()->user()->role_id == 2;
+});
         // Fetch the most recent crew status for each superintendent and their location
 $crews = Timesheet::select(
         'crews.superintendentId', 
@@ -59,6 +92,20 @@ $crews = Timesheet::select(
 
         $deadDate = date('d/m/Y', strtotime("+30 days"));
 
-        return view('dashboard.index', compact('job', 'deadDate', 'rejectedJobcards', 'unsubmitCards', 'Jobcards', 'crews','userLocation','estimatingCards'));
+return view('dashboard.index', [
+    'job' => $job,
+	'jobs' => $jobs,
+    'deadDate' => $deadDate,
+    'rejectedJobcards' => $rejectedJobcards,
+    'unsubmitCards' => $unsubmitCards,
+    'Jobcards' => $Jobcards,
+    'crews' => $crews,
+    'userLocation' => $userLocation,
+    'estimatingCards' => $estimatingCards,
+    'filteredUnsubmitCards' => $filteredUnsubmitCards,
+    'filteredRejectedJobcards' => $filteredRejectedJobcards,
+    'filteredJobcards' => $filteredJobcards,
+    'filteredEstimatingCards' => $filteredEstimatingCards,
+]);
     }
 }
