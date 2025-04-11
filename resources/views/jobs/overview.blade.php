@@ -1,3 +1,90 @@
+<style scoped>
+/* Ensure sidebar and nav are under modals */
+.g-sidenav-show .sidenav {
+    z-index: 1030 !important; /* lower than Bootstrap modal */
+}
+
+/* Ensure the modal is on top */
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal {
+    z-index: 1050 !important;
+}
+
+    /* Improve card styling */
+    .card {
+        border-radius: 10px;
+    }
+
+    /* Table Styling */
+    #superintendentTaskList tbody tr {
+        height: 55px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    #superintendentTaskList tbody td {
+        padding: 15px;
+        font-size: 1.1rem;
+    }
+
+    #superintendentTaskList thead th {
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding: 12px;
+        background-color: #343a40 !important; /* Dark background */
+        color: white !important;
+    }
+
+    /* Dramatic Hover Effect */
+    #superintendentTaskList tbody tr:hover {
+        background-color: #FF8C00 !important; /* Dark Orange */
+        color: #000 !important;
+        transform: scale(1.02);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease-in-out;
+    }
+
+    /* Smooth Scroll for Overflow Section */
+    .card-body {
+        scrollbar-width: thin;
+        scrollbar-color: #FFA500 #2A2A2A;
+    }
+
+    .card-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .card-body::-webkit-scrollbar-thumb {
+        background-color: #FFA500;
+        border-radius: 4px;
+    }
+	.modal,
+	.modal-content,
+	.modal-body {
+		overflow: visible !important;
+		position: relative !important;
+		z-index:99999 !important;
+	}
+</style>
+<script>
+$(document).ready(function () {
+    $('#superintendentTaskList').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        order: [[2, "asc"]],
+        language: {
+            emptyTable: "No tasks available",
+            search: "Filter Tasks:",
+            lengthMenu: "Show _MENU_ tasks per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ tasks",
+            paginate: { previous: "<", next: ">" }
+        }
+    });
+});
+</script>
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
 <meta name="csrf-token" content="{{ csrf_token() }}">
     <x-auth.navbars.sidebar activePage="dashboard" activeItem="jobs" activeSubitem=""></x-auth.navbars.sidebar>
@@ -5,8 +92,12 @@
         <!-- Navbar -->
         <x-auth.navbars.navs.auth pageTitle="{{ $jobinfo[0]->job_number }} - Job Overview"></x-auth.navbars.navs.auth>
         <!-- End Navbar -->
+        <div id="app">
 		    <div class="container-fluid py-4">
 	<div class="row mt-4">
+	@if (auth()->user()->role_id == 10 || auth()->user()->role_id == 1)
+    <div class="col-md-12"><createeditoverflow :job_id={{$jobinfo[0]->id}} /></div>
+	@endif
 	<div class="col-11">
 	<div class="card mb-4">
 	<div class="card-header">
@@ -49,23 +140,59 @@
                             
                         
                     </div>
-                   	<!--      <div class="col-12 mt-3" style="overflow-y:scroll;max-height: 400px;">
-                            <div class="card mt-4" >
-                                <div class="card-header p-3 pt-2">
-                                    <div class="icon icon-lg icon-shape bg-gradient-warning shadow text-center border-radius-xl mt-n4 float-start">
-                                        <i class="material-icons opacity-10">calendar_month</i>
-                </div>
-									<div class="row">
-                                        <div class="col-md-6">
-                                            <h6 class="mb-0">Scheduled Dates</h6>
-                                        </div>
-                     
-                    </h5>
-                </div>
+			@if (auth()->user()->role_id == 10 || auth()->user()->role_id == 1)
+{{-- <div class="col-11 mt-4">
+    <div class="card shadow-lg border-0">
+        <!-- Card Header -->
+        <div class="card-header bg-dark text-white d-flex align-items-center">
+            <div class="icon icon-lg icon-shape bg-gradient-warning shadow text-center border-radius-xl me-3">
+                <i class="material-icons opacity-10">calendar_month</i>
             </div>
-            <hr class="dark horizontal my-0">
+            <h5 class="mb-0 fw-bold">Open Overflow Items</h5>
         </div>
-    </div> -->
+
+        <!-- Card Body with Scrollable Table -->
+        <div class="card-body p-4" style="overflow-y: auto; max-height: 400px;">
+            <div class="table-responsive">
+                <table id="superintendentTaskList" class="table table-hover table-striped align-middle">
+                    <thead class="bg-gradient-dark text-white">
+                        <tr>
+						<th class="text-center fw-bold">Start Date</th>
+                            <th class="text-center fw-bold">Phase</th>
+							<th class="text-center fw-bold">Branch</th>
+                            <th class="text-center fw-bold">Timeout Date</th>
+                            <th class="text-center fw-bold">Superintendent</th>
+							
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($overflowItems as $task)
+                            <tr>
+							                                <td class="text-center">
+                                    {{ $task->timein_date ? \Carbon\Carbon::parse($task->timein_date)->format('Y-m-d') : 'N/A' }}
+                                </td>
+                                <td class="text-center">{{ $task->phase }}</td>
+								<td class="text-center">{{ $task->description }}</td>
+                                <td class="text-center">
+                                    {{ $task->timeout_date ? \Carbon\Carbon::parse($task->timeout_date)->format('Y-m-d') : 'N/A' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $task->name ? $task->name : 'Not Assigned' }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No pending tasks</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div> --}}
+<overflowitems :job_id="{{$jobinfo[0]->id}}" />
+@endif
 </div>
 		                   <div class="col-11 mt-3" style="overflow-y:scroll;max-height: 400px;">
                             <div class="card mt-4" >
@@ -420,7 +547,8 @@
             }, 5000); // 5000 milliseconds = 5 seconds
         });
 
-	
+	console.log("Phases loaded:", phases.value);
+console.log("Branches loaded:", branches.value);
 	
 	</script>
 	

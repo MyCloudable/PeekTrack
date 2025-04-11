@@ -1,8 +1,13 @@
+
 @if (auth()->user()->role_id == 6)
     <script type="text/javascript">
         window.location = "{{ url('/crewmember') }}";
+		
+		
     </script>
 @endif
+
+
 <style>
 .white-background {
     background-color: white !important;
@@ -11,7 +16,47 @@ tr:hover {
     background-color: #f0f0f0;
     transition: background-color 0.3s ease;
 }
+
+    /* Increase row height for easier tablet clicking */
+    #superintendentTaskList tbody tr {
+        height: 75px; /* Adjust for better touch area */
+        font-size: 1.1rem; /* Slightly larger font */
+    }
+
+    /* Increase clickable row padding */
+    #superintendentTaskList tbody td {
+        padding: 5 px; /* Increase spacing */
+    }
+
+    /* Ensure header text is bold and visible */
+    #superintendentTaskList thead th {
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding: 12px;
+    }
+	    #superintendentTaskList tbody tr:hover {
+        background-color: #FF5722 !important; /* Bright orange */
+        color: #000 !important; /* Black text for contrast */
+        transform: scale(1.02); /* Slightly enlarges the row */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Adds shadow effect */
+        transition: all 0.2s ease-in-out;
+    }
+	
+	.custom-white-select {
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: white !important;
+}
+
+.custom-white-select option {
+  background-color: #ffffff;
+  color: #000000;
+  font-weight: bold;
+}
+
 </style>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
 <!-- jQuery -->
@@ -21,10 +66,20 @@ tr:hover {
 
 <x-page-template bodyClass='g-sidenav-show bg-gray-200 dark-version'>
     <x-auth.navbars.sidebar activePage="dashboard" activeItem="analytics" activeSubitem=""></x-auth.navbars.navs.sidebar>
+	
+	
+
+
+
+
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg" id="app">
         <!-- Navbar -->
         <x-auth.navbars.navs.auth pageTitle="Dashboard"></x-auth.navbars.navs.auth>
         <!-- End Navbar -->
+
+<div id="app">
+    <urgentnotificationpopup />
+</div>
 
         <div class="container-fluid py-4">
             <div class="col-sm-12">
@@ -34,6 +89,7 @@ tr:hover {
                 <div class="row">
 <div class="container-fluid py-4">
     <!-- Row 1: Job Summary Cards -->
+	@if ( auth()->user()->role_id != 3)
     <div class="row">
         <!-- Card 1: Active Jobs -->
         <div class="col-lg-2 col-md-4 col-sm-6">
@@ -129,7 +185,9 @@ tr:hover {
             </div>
         </div>
     </div>
+@endif
 
+<br>
     <!-- Toggle Button for Collapsible Table -->
     <div class="row">
         <div class="col-12 text-end">
@@ -390,17 +448,82 @@ tr:hover {
             </div>
         </div>
     </div>
+	
 </div>
 
 </div>
-
 <br>
+@if (auth()->user()->role_id == 3)
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-dark text-white">
+                <h3 class="mb-0 fw-bold">Superintendent Task List</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="table-responsive">
+                    <table id="superintendentTaskList" class="table table-hover table-striped align-middle">
+                        <thead class="bg-gradient-dark text-white">
+                            <tr>
+                                <th class="text-center fw-bold">Job Number</th>
+                                <th class="text-center fw-bold">Phase</th>
+                                <th class="text-center fw-bold">Start Date</th>
+                                <th class="text-center fw-bold">Timeout Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($overflowItems as $task)
+                                <tr onclick="window.location='{{ route('jobs.overview', ['id' => $task->job_id]) }}'" 
+                                    class="clickable-row fw-bold" 
+                                    style="cursor: pointer; height: 50px;">
+                                    <td class="text-center">{{ $task->job_number }}</td>
+                                    <td class="text-center">{{ $task->phase }}</td>
+                                    <td class="text-center">
+                                        {{ $task->timein_date ? \Carbon\Carbon::parse($task->timein_date)->format('Y-m-d') : 'N/A' }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ $task->timeout_date ? \Carbon\Carbon::parse($task->timeout_date)->format('Y-m-d') : 'N/A' }}
+                                    </td>
+                                </tr>
+                            @empty
+                            
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- DataTable Script -->
+<script>
+$(document).ready(function () {
+    $('#superintendentTaskList').DataTable({
+        paging: true,
+        searching: true,
+        ordering: false,
+        language: {
+            emptyTable: "No tasks available",
+            search: "Filter Tasks:",
+            lengthMenu: "Show _MENU_ tasks per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ tasks",
+            paginate: { previous: "<", next: ">" }
+        }
+    });
+});
+</script>
+@endif
+<br>
+@if (auth()->user()->role_id != 3)
                                 <!-- Crew Status Visualization -->
 								                <!-- Location Selector -->
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <label for="locationSelect" class="form-label">Select Location: &nbsp</label>
-                        <select id="locationSelect" class="white-background" onchange="saveLocationPreference()">
+                        <select id="locationSelect" class="form-control custom-white-select" onchange="saveLocationPreference()">
     <option value="" selected>All Locations</option>
     @foreach ($crews->groupBy('location_group') as $locationGroup => $locationCrews)
         <option value="{{ $locationGroup }}">{{ $locationGroup }}</option>
@@ -544,6 +667,7 @@ tr:hover {
                     </div>
                 </div>
                 <!-- End of Crew Status Visualization -->
+				@endif
             </div>
         </div>
 
@@ -553,6 +677,12 @@ tr:hover {
     @push('js')
         <script src="{{ asset('assets') }}/js/plugins/perfect-scrollbar.min.js"></script>
         <script>
+		$('#yourTableId').DataTable({
+    language: {
+        emptyTable: ""
+    }
+});
+
             document.addEventListener('DOMContentLoaded', function() {
                 const locationSelect = document.getElementById('locationSelect');
                 const locationItems = document.querySelectorAll('.location-item');

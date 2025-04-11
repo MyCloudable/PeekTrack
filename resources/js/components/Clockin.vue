@@ -2,16 +2,25 @@
 
     <LoadingOverlay />
 
-    <a href="javascript:;" class="nav-link text-body p-0" data-bs-toggle="modal" data-bs-target="#clockin"
-        @click="getCrewMembers" v-if="iconVisible">
+    <a href="javascript:;" class="nav-link" data-bs-toggle="modal" data-bs-target="#clockin"
+   @click="() => { getCrewMembers(); checkOrientation(); }">
         <span class="sidenav-normal  ms-2  ps-1">
             <h2> <i class="fas fa-business-time"></i> </h2>
         </span>
     </a>
 
+
     <div class="modal fade" id="clockin" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div v-if="isPortrait" class="rotate-overlay">
+  <div class="rotate-content">
+    <i class="fas fa-sync fa-spin fa-3x mb-3"></i>
+    <p>Please rotate your device to landscape mode</p>
+  </div>
+</div>
+
+
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
@@ -85,32 +94,20 @@
 
                     <div class="table-responsive">
                         <table class="table table-flush table-striped verify-crew-members">
-                            <thead class="">
-                                <tr>
-                                    <th v-if="!isAlreadyVerified">
-                                        <div>Check</div>
-                                    </th>
-                                    <th>
-                                        <div>Name</div>
-                                    </th>
-                                    <th v-if="isAlreadyClockedin || isAlreadyClockedout">
-                                        <div>Status</div>
-                                    </th>
-                                    <th v-if="isAlreadyClockedin">
-                                        <div>Time</div>
-                                    </th>
-                                    <th v-if="isMenualClockinout">
-                                        <div>Time Out</div>
-                                    </th>
-                                    <th v-if="isAlreadyClockedin || isAlreadyClockedout">
-                                        <div>Total</div>
-                                    </th>
-                                    <th v-if="isAlreadyClockedin">
+<thead>
+  <tr>
+    <th v-if="!isAlreadyVerified" title="Check All">✔️</th>
+    <th title="Crew Member Name">👤</th>
+    <th v-if="isAlreadyClockedin || isAlreadyClockedout" title="Status">Status</th>
+    <th v-if="isAlreadyClockedin" title="Time In">Punch Time</th>
+    <th v-if="isMenualClockinout" title="Time Out">Punch Time</th>
+    <th v-if="isAlreadyClockedin || isAlreadyClockedout" title="Time">Total</th>
+     <th v-if="isAlreadyClockedin">
                                         <div><half-full-per-diem :timesheetId="allPerDiemTimesheetIds"
                                                 :perDiem="allPerDiemStatus" @hf-per-diem-done="hfPerDiemDone" /></div>
                                     </th>
-                                </tr>
-                            </thead>
+  </tr>
+</thead>
                             <tbody>
                                 <tr v-if="!isAlreadyVerified">
                                     <td>
@@ -161,8 +158,10 @@
                                             <!-- <input type="datetime-local" class="form-controll datetime"
                                                 @change="menualClockinout($event, member.timesheet_id, 'clockin')"
                                                 :value="member.clockin_time"> -->
-                                            <VueDatePicker v-model="member.clockin_time_edit" :enable-time="true"
+                                            <VueDatePicker v-model="member.clockin_time_edit":enable-time="true"
                                                 :formate="dateTimeFormat"
+												:auto-apply="true"
+												:placement="'top'"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockin')"
                                                 class="responsive-datepicker"></VueDatePicker>
                                         </div>
@@ -175,6 +174,8 @@
                                                 :value="(member.clockout_time) ? member.clockout_time : now"> -->
                                             <VueDatePicker v-model="member.clockout_time_edit" :enable-time="true"
                                                 :formate="dateTimeFormat"
+												:auto-apply="true"
+												:placement="'top'"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockout')"
                                                 class="responsive-datepicker"></VueDatePicker>
                                         </div>
@@ -187,8 +188,8 @@
 
                                     <td class="d-flex">
                                         <div v-if="isAlreadyClockedin">
-                                            <i class="fa fa-pencil cursor-pointer" aria-hidden="true"
-                                                @click="enableMenualClock(member.id)"></i>&nbsp&nbsp&nbsp&nbsp
+                                            <i class="fa fa-pencil cursor-pointer" @click="openTimeEditModal(member)"></i>
+&nbsp&nbsp&nbsp&nbsp
                                             <half-full-per-diem :timesheetId="member.timesheet_id"
                                                 :perDiem="member.per_diem"
                                                 @hf-per-diem-done="hfPerDiemDone" />&nbsp&nbsp&nbsp&nbsp
@@ -208,6 +209,55 @@
             </div>
         </div>
     </div>
+	<!-- Edit Time Modal -->
+<div class="modal fade" id="editTimeModal" tabindex="-1" role="dialog" aria-labelledby="editTimeModalLabel" aria-hidden="true">
+<div v-if="isEditModalLandscape" class="rotate-notice rotate-portrait text-center">
+ <div class="rotate-content">
+    <i class="fas fa-sync fa-spin fa-3x mb-3"></i>
+    <p>Please rotate your device to landscape mode</p>
+  </div>
+</div>
+
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editTimeModalLabel">Edit Clock In/Out</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex flex-column gap-3">
+<!-- Clock In -->
+<div class="datepicker-wrapper">
+  <label>Clock In</label>
+  <VueDatePicker
+    v-model="modalClockin"
+    :enable-time="true"
+    :auto-apply="true"
+    :formate="dateTimeFormat"
+    class="form-control responsive-datepicker"
+    @update:model-value="saveMenualTime('clockin')"
+  />
+</div>
+
+<!-- Clock Out -->
+<div class="datepicker-wrapper">
+  <label>Clock Out</label>
+  <VueDatePicker
+    v-model="modalClockout"
+    :enable-time="true"
+    :auto-apply="true"
+    :formate="dateTimeFormat"
+    class="form-control responsive-datepicker"
+    @update:model-value="saveMenualTime('clockout')"
+  />
+</div>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-warning" @click="applyManualTimes">Save</button>
+</div>
+      
+    </div>
+  </div>
+</div>
+
 
 </template>
 
@@ -227,6 +277,64 @@ import { format, parse } from 'date-fns'
 
 import LoadingOverlay from './shared/LoadingOverlay.vue'
 import { useLoading } from '../composables/useLoading'
+
+
+const isPortrait = ref(false)
+
+const checkOrientation = () => {
+  const isPortraitMode =
+    (window.screen.orientation && window.screen.orientation.type.startsWith('portrait')) ||
+    window.orientation === 0 || // fallback for older iOS
+    window.innerHeight > window.innerWidth
+
+  isPortrait.value = isPortraitMode
+}
+
+const checkEditModalOrientation = () => {
+  const isLandscape =
+    (window.screen.orientation && window.screen.orientation.type.startsWith('landscape')) ||
+    window.orientation === 90 || window.orientation === -90 ||
+    window.innerWidth > window.innerHeight
+
+  isEditModalLandscape.value = isLandscape
+}
+
+
+onMounted(() => {
+  checkOrientation()
+  checkEditModalOrientation()
+
+  window.addEventListener('resize', () => {
+    checkOrientation()
+    checkEditModalOrientation()
+  })
+  window.addEventListener('orientationchange', () => {
+    checkOrientation()
+    checkEditModalOrientation()
+  })
+
+  const editModal = document.getElementById('editTimeModal')
+  if (editModal) {
+    editModal.addEventListener('shown.bs.modal', checkEditModalOrientation)
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkOrientation)
+  window.removeEventListener('resize', checkEditModalOrientation)
+  window.removeEventListener('orientationchange', checkOrientation)
+  window.removeEventListener('orientationchange', checkEditModalOrientation)
+
+  const editModal = document.getElementById('editTimeModal')
+  if (editModal) {
+    editModal.removeEventListener('shown.bs.modal', checkEditModalOrientation)
+  }
+})
+
+const forceReflow = () => {
+  document.body.offsetHeight // triggers reflow
+}
+const isEditModalLandscape = ref(false)
 
 const toast = useToast()
 
@@ -587,77 +695,163 @@ const handleScroll = (() => {
 
 })
 
+const modalClockin = ref('')
+const modalClockout = ref('')
+const activeMemberId = ref(null)
+
+const openTimeEditModal = (member) => {
+  modalClockin.value = member.clockin_time_edit
+  modalClockout.value = member.clockout_time_edit
+  activeMemberId.value = member.id
+  const modal = new bootstrap.Modal(document.getElementById('editTimeModal'))
+  modal.show()
+}
+
+const applyManualTimes = () => {
+  const member = CrewMembersTobeVerified.value.find(m => m.id === activeMemberId.value)
+  if (member) {
+    member.clockin_time_edit = modalClockin.value
+    member.clockout_time_edit = modalClockout.value
+    menualClockinout(modalClockin.value, member.timesheet_id, 'clockin')
+    menualClockinout(modalClockout.value, member.timesheet_id, 'clockout')
+  }
+  bootstrap.Modal.getInstance(document.getElementById('editTimeModal')).hide()
+}
+
 </script>
 
-<style>
-.verify-crew-members {
-    font-size: 14px;
-    background: #1A2035 !important;
-    min-height: 400px;
-    /* to fit date picker in all screens */
+<style scoped>
+/* General Modal & Content Styling */
+#clockin .modal,
+#clockin .modal-content,
+#clockin .modal-body {
+    overflow: visible !important;
+    position: relative !important;
+	z-index:99999;
 }
 
-.verify-crew-members thead {
-    height: 100px;
-    /* to fit date picker in all screens */
+/* Full width & height modal aligned to top-left */
+#clockin .modal-dialog {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.modal-backdrop {
-    display: none;
-    z-index: 1040 !important;
+/* Full height modal content, no border radius */
+#clockin .modal-content {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    font-size: 1rem;
 }
 
-.modal-content {
-    margin: 2px auto;
-    z-index: 1100 !important;
+/* Modal body scrollable */
+#clockin .modal-body {
+    height: calc(100vh - 120px) !important; /* adjust if you have header/footer */
+    overflow-y: auto !important;
+    overflow-x: visible !important;
+	-webkit-overflow-scrolling: touch;
+	padding-bottom: 5rem;
 }
 
-.table td,
-.table th {
+#clockin .modal-content {
+  width: auto !important;
+  height: auto !important;
+  z-index: 9999 !important; /* Bootstrap default */
+  border-radius: 0.5rem !important;
+  
+}
+
+
+/* Table layout */
+.table-responsive {
+    overflow-x: auto !important;
+}
+.table {
+    
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+.table th,
+.table td {
+    white-space: nowrap;
     text-align: center;
+    vertical-align: middle;
+	line-height:10px;
 }
-
-.clr-light {
-    color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.dark-version .table tbody tr td {
+.dark-version .table > :not(caption) > * > * {
+    border-color: rgba(255, 255, 255, 0.4) !important;
     color: #fff !important;
 }
-
-.dark-version .table thead tr th {
-    font-size: large !important;
+.verify-crew-members th,
+.verify-crew-members td {
+  white-space: nowrap;
+  text-align: center;
+  font-size: 0.85rem;
+  vertical-align: middle;
+  font-weight:bold;
 }
 
-/* to manage date picker  */
+.verify-crew-members td.d-flex {
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+.verify-crew-members .responsive-datepicker {
+  max-width: 160px !important;
+}
+
+/* Make sure the modal and table adjust on smaller screens */
+@media (max-width: 1024px) {
+  .verify-crew-members {
+    font-size: 0.75rem;
+  }
+  .verify-crew-members .responsive-datepicker {
+    max-width: 140px !important;
+  }
+}
+
+
+.table td.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Date picker wrapper fixes */
+.dp__main {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+.dp__outer_menu_wrap.dp--menu-wrapper {
+    position: absolute !important;
+    z-index: 999999999 !important;
+    top: 200px !important;
+    left: 35% !important;
+}
 
 .dp__pointer.dp__input_readonly {
     min-width: 210px !important;
 }
 
-.dp__main {
-    position: static !important;
-
+/* Remove clear (X) button from date picker */
+.dp--clear-btn {
+    display: none !important;
 }
 
-.dp__outer_menu_wrap.dp--menu-wrapper {
-    /* top: 0 !important; */
-    top: 200px !important;
-    left: 35% !important;
-}
-
-/* to manage date picker ends  */
-
-
-/* to fit datepicker on mobile devices */
+/* Responsive fix for smaller mobile screens */
 @media (max-width: 767px) {
-    .modal-dialog {
-        max-width: 100%;
-        margin: 0;
-    }
-
+    .modal-dialog,
     .modal-content {
-        border-radius: 0;
+        width: 100vw !important;
+        height: 100vh !important;
     }
 
     .responsive-datepicker {
@@ -666,7 +860,6 @@ const handleScroll = (() => {
 
     .dp__outer_menu_wrap.dp--menu-wrapper {
         left: 10% !important;
-        /* top: 30% !important; */
     }
 
     .dp--menu-wrapper {
@@ -679,19 +872,117 @@ const handleScroll = (() => {
     }
 }
 
-/* to fit datepicker on mobile devices ends */
+/* Optional: Zoom out for iPads */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) {
+    
+    .modal-dialog {
+        transform: scale(0.9);
+        transform-origin: top left;
+    }
 
-
-
-
-@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
-    .modal-lg {
-        max-width: 100% !important;
+    .modal-content {
+        font-size: 0.9rem;
     }
 }
 
-/* remove cross icon from date picker */
-.dp--clear-btn {
-    display: none !important;
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: landscape) {
+    
+    .modal-dialog {
+        transform: scale(0.85);
+    }
+
+    .modal-content {
+        font-size: 0.85rem;
+    }
+}
+
+
+
+body.modal-open {
+    overflow: visible !important;
+}
+
+
+.datepicker-wrapper {
+  position: relative;
+}
+
+/* Force the picker popup to go above the input */
+.datepicker-wrapper .dp__outer_menu_wrap {
+  position: absolute !important;
+  top: 30%!important;
+  bottom: 100% !important;
+  left: 0 !important;
+  z-index: 99999 !important;
+  margin-bottom: 8px !important;
+  width: max-content;
+  max-width: 100%;
+}
+
+/* Optional: Prevent overflow in smaller screens */
+@media (max-width: 768px) {
+  .datepicker-wrapper .dp__outer_menu_wrap {
+    left: 50% !important;
+    transform: translateX(-50%);
+    width: 90vw !important;
+  }
+}
+
+.rotate-notice {
+  background: #ffeeba;
+  color: #856404;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ffeeba;
+  margin-bottom: 1rem;
+}
+.rotate-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 235, 59, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  text-align: center;
+  overflow: hidden;
+}
+
+body.modal-open .rotate-overlay {
+  overflow: hidden;
+}
+
+
+.rotate-content {
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.rotate-portrait {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 235, 59, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  text-align: center;
+  overflow: hidden;
+}
+
+.navbar-vertical.navbar-expand-xs.fixed-start {
+    left: 0;
+    z-index: 5;
 }
 </style>

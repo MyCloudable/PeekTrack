@@ -15,6 +15,7 @@ use App\Models\JobsData;
 use App\Models\Material;
 use App\Models\Equipment;
 use App\Models\Production;
+use App\Models\OverflowItem;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -69,6 +70,56 @@ class JobsController extends Controller
 
         return view("jobs.estimating", compact("jobentries"));
     }
+	public function overflowapproval()
+    {
+
+$overflow = DB::table('overflow_items')
+    ->join('jobs', 'overflow_items.job_id', '=', 'jobs.id')
+    ->join('crew_types', 'overflow_items.crew_type_id', '=', 'crew_types.id')
+    ->leftJoin('users', 'users.id', '=', 'overflow_items.superintendent_id')
+    ->join('branch', 'branch.id', '=', 'overflow_items.branch_id') // Ensure NULLs for superintendent are included
+    ->leftJoin('overflow_notes', 'overflow_notes.overflow_item_id', '=', 'overflow_items.id') // Ensure left join to include all overflow items
+    ->where('overflow_items.approved', '=', '0')
+    ->whereNotNull('overflow_items.completion_date') // Only get rows where completion_date is NOT NULL
+    ->select(
+        'overflow_items.id',
+        'jobs.job_number', 
+        'crew_types.name as phase',
+        'jobs.contractor',
+        'overflow_items.traffic_shift',
+        'overflow_items.timein_date',
+        'overflow_items.timeout_date',
+        'overflow_items.completion_date',
+        'overflow_items.notes',
+        'users.name',
+        'overflow_items.job_id',
+        'branch.description',
+        DB::raw("(SELECT GROUP_CONCAT(overflow_notes.note SEPARATOR ', ') 
+                  FROM overflow_notes 
+                  WHERE overflow_notes.overflow_item_id = overflow_items.id) AS notes_list")
+    )
+    ->groupBy(
+        'overflow_items.id',
+        'jobs.job_number', 
+        'crew_types.name',
+        'jobs.contractor',
+        'overflow_items.traffic_shift',
+        'overflow_items.timein_date',
+        'overflow_items.timeout_date',
+        'overflow_items.completion_date',
+        'overflow_items.notes',
+        'users.name',
+        'overflow_items.job_id',
+        'branch.description'
+    )
+    ->get();
+
+	
+		
+
+        return view("jobs.approveoverflow", compact("overflow"));
+    }
+
 	public function globalreview()
     {
 
@@ -258,9 +309,35 @@ $production = Production::where("link", $id)->get();
             ->orderBy("submitted", "desc")
             ->get();
         $jobid = $id;
+		
+$overflowItems = DB::table('overflow_items')
+    ->join('jobs', 'overflow_items.job_id', '=', 'jobs.id')
+    ->join('crew_types', 'overflow_items.crew_type_id', '=', 'crew_types.id')
+    ->leftJoin('users', 'users.id', '=', 'overflow_items.superintendent_id')
+	->join('branch', 'branch.id', '=', 'overflow_items.branch_id')// Ensure NULLs for superintendent are included
+    ->where('overflow_items.job_id', '=', $id)
+    ->whereNull('overflow_items.completion_date') // Only get rows where completion_date is NULL
+    ->select(
+        'jobs.job_number', 
+        'crew_types.name as phase',
+        'jobs.contractor',
+        'overflow_items.traffic_shift',
+        'overflow_items.timein_date',
+        'overflow_items.timeout_date',
+        'overflow_items.notes',
+        'users.name',
+        'overflow_items.job_id',
+		'branch.description'
+		
+    )
+    ->get();
+
+
+
+
         return view(
             "jobs.overview",
-            compact("jobinfo", "files", "jobentries", "jobid", "jobitems"),
+            compact("jobinfo", "files", "jobentries", "jobid", "jobitems","overflowItems"),
         );
     }
 	

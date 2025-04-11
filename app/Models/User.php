@@ -17,7 +17,7 @@ class User extends Authenticatable
      *
      * @var string[]
      */
-    protected $fillable=['name', 'email', 'password', 'role_id','password_confirmation', 'phone', 'location', 'old_password','picture'];
+    protected $fillable=['name', 'email', 'password', 'role_id','password_confirmation', 'phone', 'location', 'old_password','picture', 'manager_id'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -71,4 +71,12 @@ class User extends Authenticatable
 
         return $this->belongsTo(Role::class);
     }
+	
+	public function acknowledgedUrgentNotifications()
+{
+    return $this->belongsToMany(UrgentNotification::class, 'urg_notice_ack', 'user_id', 'notification_id')
+                ->withPivot('acknowledged_at')
+                ->withTimestamps();
+}
+
 }

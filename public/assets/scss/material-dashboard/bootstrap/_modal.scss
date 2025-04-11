@@ -70,7 +70,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 100%; // Ensure `.modal-content` extends the full width of the parent `.modal-dialog`
+  width: 200%; // Ensure `.modal-content` extends the full width of the parent `.modal-dialog`
   // counteract the pointer-events: none; in the .modal-dialog
   color: $modal-content-color;
   pointer-events: auto;
@@ -166,7 +166,7 @@
 @include media-breakpoint-up(lg) {
   .modal-lg,
   .modal-xl {
-    max-width: $modal-lg;
+    max-width: 200%;
   }
 }
 
@@ -181,7 +181,7 @@
 
   @include media-breakpoint-down($breakpoint) {
     .modal-fullscreen#{$postfix} {
-      width: 100vw;
+      width: 200%;
       max-width: none;
       height: 100%;
       margin: 0;

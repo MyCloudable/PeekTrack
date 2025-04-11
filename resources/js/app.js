@@ -9,6 +9,10 @@ import CrewEdit from './components/CrewsManagement/Edit.vue'
 import JobHistory from './components/Jobs/History.vue'
 import JobIndex from './components/Jobs/Index.vue'
 import CrewIndex from './components/CrewsManagement/Index.vue'
+import OverflowItems from './components/Scheduling/OverflowItems.vue'
+import CreateEditOverflow from './components/Scheduling/CreateEditOverflow.vue'
+import SchedulingIndex from './components/Scheduling/Index.vue'
+import UrgentNotificationPopup from './components/UrgentNotificationPopup.vue';
 
 
 import Select2 from 'vue3-select2-component';
@@ -31,6 +35,12 @@ app.component('crewedit', CrewEdit)
 app.component('jobhistory', JobHistory)
 app.component('jobindex', JobIndex)
 app.component('crewindex', CrewIndex)
+
+app.component('overflowitems', OverflowItems)
+app.component('createeditoverflow', CreateEditOverflow)
+app.component('schedulingindex', SchedulingIndex)
+app.component('urgentnotificationpopup', UrgentNotificationPopup)
+
 
 
 

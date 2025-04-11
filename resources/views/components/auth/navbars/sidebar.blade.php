@@ -22,44 +22,48 @@
                 <div class="collapse" id="ProfileNav" style="">
                     <ul class="nav ">
 					@if ( auth()->user()->role_id != 6)
-                        <li class="nav-item">
-                            <a class="nav-link text-white " href="{{ route('user-profile') }}">
-                                <span class="sidenav-mini-icon"> P </span>
-                                <span class="sidenav-normal  ms-3  ps-1"> Profile </span>
-                            </a>
-                        </li>
-						<li class="nav-item">
-                            <a class="nav-link text-white " href="{{ route('crews.index') }}">
-                                <span class="sidenav-mini-icon"> C </span>
-                                <span class="sidenav-normal  ms-3  ps-1"> Manage Crews </span>
-                            </a>
-                        </li>
-						@if ( auth()->user()->role_id != 6)
-						<li class="nav-item">
-                            <a class="nav-link text-white " href="{{ route('widgets') }}">
-                                <span class="sidenav-mini-icon"> E </span>
-                                <span class="sidenav-normal  ms-3  ps-1"> Export Data </span>
-                            </a>
-                        </li>
-						@endif
-						@if ( auth()->user()->role_id != 6)
-						<li class="nav-item"{{ $activeItem == 'reports' ? ' active ' : '' }}  ">
-							<a class="nav-link text-white "
-								href="https://peektrack.com/reportico">
-								<span class="sidenav-mini-icon"> R </span>
-                                <span class="sidenav-normal  ms-3  ps-1"> Reports</span>
-							</a>
-                        </li>   
-												<li class="nav-item"{{ $activeItem == 'newreports' ? ' active ' : '' }}  ">
-							<a class="nav-link text-white "
-								href="https://peektrack.com/reports">
-								<span class="sidenav-mini-icon"> R </span>
-                                <span class="sidenav-normal  ms-3  ps-1"> New Reports</span>
-							</a>
-                        </li>   
-						@endif
-						@endif
-						
+                       <li class="nav-item">
+    <a class="nav-link text-white" href="{{ route('user-profile') }}">
+        <i class="fas fa-user-circle me-2"></i>
+        <span class="sidenav-normal ms-2 ps-1">Profile</span>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link text-white" href="{{ route('crews.index') }}">
+        <i class="fas fa-users-cog me-2"></i>
+        <span class="sidenav-normal ms-2 ps-1">Manage Crews</span>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link text-white" href="{{ route('widgets') }}">
+        <i class="fas fa-file-export me-2"></i>
+        <span class="sidenav-normal ms-2 ps-1">Export Data</span>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link text-white" href="https://peektrack.com/reportico">
+        <i class="fas fa-chart-line me-2"></i>
+        <span class="sidenav-normal ms-2 ps-1">Reports</span>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link text-white" href="https://peektrack.com/reports">
+        <i class="fas fa-file-alt me-2"></i>
+        <span class="sidenav-normal ms-2 ps-1">New Reports</span>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link text-white" href="{{ route('admin.notifications.index') }}">
+        <i class="fas fa-bell me-2"></i>
+        <span class="sidenav-normal ms-2 ps-1">Manage Alerts</span>
+    </a>
+</li>
+@endif
                         <form method="POST" action="{{ route('logout') }}" class="d-none" id="logout-form">
                             @csrf
                         </form>
@@ -67,8 +71,8 @@
                         <li class="nav-item">
                             <a class="nav-link text-white " href="{{ route('logout') }}"
                                 onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                                <span class="sidenav-mini-icon"> L </span>
-                                <span class="sidenav-normal  ms-3  ps-1"> Logout </span>
+        <i class="fas fa-sign-out-alt me-2"></i>
+        <span class="sidenav-normal ms-2 ps-1">Logout</span>
                             </a>
                         </li>
                     </ul>
@@ -95,7 +99,7 @@
 								<span class="sidenav-normal  ms-2  ps-1"> <h5>Jobs</h5> </span>
 							</a>
                         </li>
-						@if ( auth()->user()->role_id == 2)
+						@if ( auth()->user()->role_id == 2 || auth()->user()->role_id == 1)
 						<li class="nav-item"{{ $activeItem == 'review' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white {{ $activeItem == 'review' ? ' active' : '' }}  "
 								href="{{ route('jobs.review') }}">
@@ -119,18 +123,22 @@
 							</a>
                         </li>
 						@endif
-                        <!---<li class="nav-item"{{ $activeItem == 'crews' ? ' active ' : '' }}  ">
-							<a class="nav-link text-white {{ $activeItem == 'crews' ? ' active' : '' }}  "
-								href="{{ route('crews.index') }}">
-								<span class="sidenav-normal  ms-2  ps-1"> <h5>Crews </h5></span>
+					@if ( auth()->user()->role_id == 7 || auth()->user()->role_id == 1 || auth()->user()->role_id == 10)
+						<li class="nav-item"{{ $activeItem == 'scheduling' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white {{ $activeItem == 'scheduling' ? ' active' : '' }}  "
+								href="{{ url('/scheduling') }}">
+								<span class="sidenav-normal  ms-2  ps-1"> <h5>Overflow Queue</h5></span>
 							</a>
-                        </li>-->
-                        <!---<li class="nav-item"{{ $activeItem == 'crewTypes' ? ' active ' : '' }}  ">
-							<a class="nav-link text-white {{ $activeItem == 'crewTypes' ? ' active' : '' }}  "
-								href="{{ route('crewTypes.index') }}">
-								<span class="sidenav-normal  ms-2  ps-1"> <h5>Crews types </h5></span>
+                        </li>  
+						@endif
+						@if ( auth()->user()->role_id == 10 || auth()->user()->role_id == 1)
+						<li class="nav-item"{{ $activeItem == 'overflow' ? ' active ' : '' }}  ">
+							<a class="nav-link text-white {{ $activeItem == 'overflow' ? ' active' : '' }}  "
+								href="{{ url('/jobs/overflowapproval') }}">
+								<span class="sidenav-normal  ms-2  ps-1"> <h5>Overflow Approval</h5></span>
 							</a>
-                        </li>-->
+                        </li>  
+						@endif
                         <li class="nav-item"{{ $activeItem == 'timesheet-management' ? ' active ' : '' }}  ">
 							<a class="nav-link text-white {{ $activeItem == 'timesheet-management' ? ' active' : '' }}  "
 								href="{{ route('timesheet-management.index') }}">
@@ -156,5 +164,6 @@
 							</a>
                         </li>   
 						@endif
+	
                     </div>
 </aside>

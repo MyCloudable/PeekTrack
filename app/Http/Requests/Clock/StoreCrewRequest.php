@@ -29,6 +29,7 @@ class StoreCrewRequest extends FormRequest
         return [
             'crew_type_id' => 'required',
             'superintendentId' => 'required',
+            'managerId' => 'required',
             'crew_members' => ['sometimes', function ($attribute, $value, $fail) {
 
                 $crewId = $this->route('crew') ? $this->route('crew')->id : ''; // crew id for update request

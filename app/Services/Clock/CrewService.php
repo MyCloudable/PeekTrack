@@ -38,6 +38,7 @@ class CrewService {
 
     public function store(array $data): Crew
     {
+
         return Crew::create($this->mergeDataBeforeSaveUpdate($data));
     }
 
@@ -66,7 +67,7 @@ class CrewService {
 
     public function getUsers()
     {
-        return User::select('id', 'email', 'name', 'role_id', 'active', DB::raw("name as text"))->where('active', 1)->get();
+        return User::select('id', 'email', 'name', 'role_id', 'active', 'manager_id', DB::raw("name as text"))->where('active', 1)->get();
     }
     public function getCrewTypes()
     {
@@ -86,6 +87,10 @@ class CrewService {
         (!$isUpdate) ? $data['last_verified_date'] = NULL : '';
         $data['created_by'] = auth()->id(); 
         $data['modified_by'] = auth()->id();
+
+        // update manager_id for selected superintendent
+        User::where('id', $data['superintendentId'])->update(['manager_id' => $data['managerId']]);
+
 
         return $data;
     }

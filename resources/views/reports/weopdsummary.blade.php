@@ -100,7 +100,7 @@
 
                                 // Output table
                                 echo "<table id='crewTimeTable' class='table align-items-center table-striped mb-0' style='width:100%'>";
-                                echo "<thead><tr><th>User</th><th>Location</th><th>Per Diem Total</th><th>Weekend Out Total</th></tr></thead><tbody>";
+                                echo "<thead><tr><th>User</th><th>Employee ID</th><th>Location</th><th>Per Diem Total</th><th>Weekend Out Total</th></tr></thead><tbody>";
 
                                 // Display user totals in the table
                                 foreach ($userTotals as $userId => $totals) {
@@ -109,6 +109,7 @@
 
                                     echo "<tr>";
                                     echo "<td><h6>{$totals['name']}</h6></td>";
+									echo "<td><h6>{$totals['id']}</h6></td>";
                                     echo "<td><h6>{$totals['location']}</h6></td>"; // Display location
                                     // Format per_diem_total to 1 decimal place without rounding
                                     echo "<td><h6>" . number_format($totals['per_diem_total'], 1, '.', '') . "</h6></td>";

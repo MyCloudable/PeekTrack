@@ -91,6 +91,29 @@ $crews = Timesheet::select(
 
 
         $deadDate = date('d/m/Y', strtotime("+30 days"));
+		
+		$overflowItems = DB::table('overflow_items')
+            ->join('jobs', 'overflow_items.job_id', '=', 'jobs.id')
+            ->join('crew_types', 'overflow_items.crew_type_id', '=', 'crew_types.id')
+            ->join('branch', 'overflow_items.branch_id', '=', 'branch.id')
+            // ->whereIn('branch.description', $branchDescriptions) // Filter by branch description
+			->where('overflow_items.superintendent_id', '=', Auth::user()->id)
+            ->whereNull('overflow_items.completion_date')
+            ->select(
+                'jobs.job_number', 
+                'crew_types.name as phase',
+                'jobs.contractor',
+                'overflow_items.id', 
+                'overflow_items.traffic_shift',
+                'overflow_items.timein_date',
+                'overflow_items.timeout_date',
+                'overflow_items.notes',
+                'overflow_items.superintendent_id',
+                'overflow_items.task_order',
+                'overflow_items.job_id',
+            )
+            ->orderBy('overflow_items.task_order', 'ASC')
+            ->get();
 
 return view('dashboard.index', [
     'job' => $job,
@@ -106,6 +129,7 @@ return view('dashboard.index', [
     'filteredRejectedJobcards' => $filteredRejectedJobcards,
     'filteredJobcards' => $filteredJobcards,
     'filteredEstimatingCards' => $filteredEstimatingCards,
+	'overflowItems' => $overflowItems,
 ]);
     }
 }

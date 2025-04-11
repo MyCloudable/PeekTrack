@@ -23,6 +23,11 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\Clock\TimesheetController;
 use App\Http\Controllers\Clock\TimesheetManagementConroller;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Scheduling\OverflowController;
+use App\Http\Controllers\Scheduling\SchedulingController;
+use App\Http\Controllers\UrgentNotificationController;
+use App\Http\Controllers\Admin\AdminUrgentNotificationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -48,7 +53,7 @@ Route::get('/sendmail', function() {
 Mail::to('qtconsultants@gmail.com')->send(new JobCardRejectionNotification());
 });
 
-Route::get('/autocomplete', [SearchController::class, 'autocomplete'])->name('autocomplete');
+
 
 Route::get('crewmember', [TimesheetManagementConroller::class, 'crewindex'])->middleware('auth')->name('crew');
 Route::get('crewsummary', [TimesheetManagementConroller::class, 'summary'])->middleware('auth')->name('crew');
@@ -96,7 +101,7 @@ Route::post('/set-session-variable', function () {
 
 Route::get('dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
-Route::get('send', 'NotifyController@index');
+
 
 Route::get('jobs', [JobsController::class, 'index'])->middleware('auth')->name('jobs');
 
@@ -106,6 +111,8 @@ Route::get('jobs/globalreview', [JobsController::class, 'globalreview'])->middle
 
 Route::get('jobs/estimating', [JobsController::class, 'estimating'])->middleware('auth')->name('jobs.estimating');
 
+Route::get('jobs/overflowapproval', [JobsController::class, 'overflowapproval'])->middleware('auth')->name('jobs.overflowapproval');
+
 Route::get('jobs/history', [JobsController::class, 'history'])->middleware('auth')->name('jobs.history');
 Route::post('jobs/history/update-billing-approval', [JobsController::class, 'billingApproval'])->middleware('auth')->name('jobs.history.billing-approval');
 
@@ -113,17 +120,17 @@ Route::get('schedule', [ScheduleController::class, 'index'])->middleware('auth')
 
 Route::get('reports', [ReportsController::class, 'index'])->middleware('auth')->name('reports');
 
-Route::get('reports/{jobnumber}/jobsummary', [ReportsController::class, 'jobsummary'])->middleware('auth')->name('reports.jobsummary');
+Route::get('reports/{jobnumber}/jobsummary', [ReportsController::class, 'jobsummary'])->name('reports.jobsummary');
 
-Route::post('reports/payrollsummary', [ReportsController::class, 'payrollSummary'])->middleware('auth')->name('reports.payrollsummary');
+Route::post('reports/payrollsummary', [ReportsController::class, 'payrollSummary'])->name('reports.payrollsummary');
 
-Route::post('reports/archivesummary', [ReportsController::class, 'archiveSummary'])->middleware('auth')->name('reports.archivesummary');
+Route::post('reports/archivesummary', [ReportsController::class, 'archiveSummary'])->name('reports.archivesummary');
 
-Route::post('reports/materialusage', [ReportsController::class, 'materialUsage'])->middleware('auth')->name('reports.materialusage');
+Route::post('reports/materialusage', [ReportsController::class, 'materialUsage'])->name('reports.materialusage');
 
-Route::post('reports/deptsummary', [ReportsController::class, 'deptSummary'])->middleware('auth')->name('reports.deptsummary');
+Route::post('reports/deptsummary', [ReportsController::class, 'deptSummary'])->name('reports.deptsummary');
 
-Route::post('reports/weopdsummary', [ReportsController::class, 'weopdSummary'])->middleware('auth')->name('reports.weopdsummary');
+Route::post('reports/weopdsummary', [ReportsController::class, 'weopdSummary'])->name('reports.weopdsummary');
 
 Route::get('/jobs/{id}/edit/{crewType}', [JobsController::class, 'edit'])->middleware('auth')->name('jobs.edit');
 
@@ -475,9 +482,46 @@ Route::group(['middleware' => 'auth'], function () {
 
 	// ----------- end clock management -----------
 
+
+	// ----------- Scheduling jobs -----------
+
+
+	Route::prefix('scheduling')->group(function () {
+		Route::get('/overflow/items/{job_id}', [OverflowController::class, 'index']);
+		Route::post('/overflow/approval', [OverflowController::class, 'approve'])->name('overflow.approval');
+
+		Route::get('/overflow/phases/{job_id}', [OverflowController::class, 'getJobPhases']);
+		Route::get('/overflow/branches', [OverflowController::class, 'getBranches']);
+		Route::get('/job-branch/{jobId}', [OverflowController::class, 'getJobBranch']);
+        Route::delete('/overflow/items/{id}', [OverflowController::class, 'destroy']);
+
+		Route::post('/overflow/create', [OverflowController::class, 'store']);
+		Route::get('/overflow/item/{id}', [OverflowController::class, 'show']);
+		Route::put('/overflow/update/{id}', [OverflowController::class, 'update']);
+
+
+		Route::get('/', [SchedulingController::class, 'index']);
+		Route::get('/managers', [SchedulingController::class, 'getManagers']);
+		Route::get('/tasks-and-superintendents', [SchedulingController::class, 'getTasksAndSuperintendents']);
+		Route::post('/update-task-assignment', [SchedulingController::class, 'updateTaskAssignment']);
+		Route::post('/update-task-order', [SchedulingController::class, 'updateTaskOrder']);
+		
+
+		Route::post('/complete-task', [SchedulingController::class, 'completeTask']);
+
+	});
+
+
+	// ----------- end Scheduling jobs -----------
+
 	Route::get('test-vue', function(){
 		return view('test-vue');
 	});
+
+	Route::delete('/test-delete/{id}', function($id) {
+		return response()->json(['deleted' => $id]);
+	});
+	
 
 });
 
@@ -485,3 +529,28 @@ Route::group(['middleware' => 'auth'], function () {
 Route::get('test', function () {
 	dd('test route on dev server');
 });
+
+	// --------- Notifications ---------
+	
+Route::middleware(['auth'])->group(function () {
+    Route::get('/vue-test-notification', [UrgentNotificationController::class, 'getActive']);
+    Route::post('/notifications/acknowledge', [UrgentNotificationController::class, 'acknowledge']);
+});
+
+
+Route::middleware(['auth'])->prefix('admin/notifications')->group(function () {
+    Route::get('/', [AdminUrgentNotificationController::class, 'index'])->name('admin.notifications.index');
+    Route::get('/create', [AdminUrgentNotificationController::class, 'create'])->name('admin.notifications.create');
+    Route::post('/', [AdminUrgentNotificationController::class, 'store'])->name('admin.notifications.store');
+    Route::get('/{id}/edit', [AdminUrgentNotificationController::class, 'edit'])->name('admin.notifications.edit');
+    Route::put('/{id}', [AdminUrgentNotificationController::class, 'update'])->name('admin.notifications.update');
+    Route::delete('/{id}', [AdminUrgentNotificationController::class, 'destroy'])->name('admin.notifications.destroy');
+});
+
+
+
+
+
+
+
+
