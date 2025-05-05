@@ -20985,6 +20985,14 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       }
       bootstrap.Modal.getInstance(document.getElementById('editTimeModal')).hide();
     };
+
+    // to fix popup style issue
+    var removeBackdrop = function removeBackdrop() {
+      var backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) backdrop.remove();
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = 'auto';
+    };
     var __returned__ = {
       isPortrait: isPortrait,
       checkOrientation: checkOrientation,
@@ -21177,6 +21185,7 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       activeMemberId: activeMemberId,
       openTimeEditModal: openTimeEditModal,
       applyManualTimes: applyManualTimes,
+      removeBackdrop: removeBackdrop,
       get axios() {
         return (axios__WEBPACK_IMPORTED_MODULE_0___default());
       },
@@ -22992,16 +23001,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
     }();
 
-    // Computed Property for Filtering Tasks
-    // const filteredTasks = computed(() => {
-    //     if (!searchQuery.value) return overflowItems.value;
-    //     return overflowItems.value.filter(task =>
-    //         task.job_number.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    //         task.crew_type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    //         task.contractor.toLowerCase().includes(searchQuery.value.toLowerCase())
-    //     );
-    // });
-
     // Computed property to filter overflow items
     var filteredTasks = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
       var filtered = overflowItems.value;
@@ -23036,65 +23035,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var date = new Date(dateString);
       return date.toLocaleDateString();
     };
-
-    // Handle task assignment
-    // const assignTask = (event, superintendent) => {
-
-    //     const task = event.item._underlying_vm_;
-
-    //     if (!task) return;  // Ensure task is valid
-
-    //     // Find and remove only the dropped task from overflowItems
-    //     const taskIndex = overflowItems.value.findIndex(t => t.id === task.id);
-    //     if (taskIndex !== -1) {
-    //         overflowItems.value.splice(taskIndex, 1);
-    //     }
-
-    //     // Add task to the superintendent's list
-    //     if (!superintendent.tasks) {
-    //         superintendent.tasks = [];  // Ensure it's initialized
-    //     }
-    //     superintendent.tasks.push(task);
-
-    //     // Save task assignment to DB
-    //     saveTaskAssignment(superintendent.id, task.id);
-    // };
-
-    // const assignTask = (event, superintendent) => {
-
-    //     console.log("current tasks:", overflowItems.value)
-
-    //     if (!event.added) return;
-
-    //     const task = event.added.element;
-    //     console.log("📝 Task being assigned:", JSON.parse(JSON.stringify(task)));
-
-    //     if (!task || !task.id) {
-    //         console.error("❌ Task is undefined or missing an ID:", task);
-    //         return;
-    //     }
-
-    //     console.log("🌐 Current Overflow Items:", JSON.parse(JSON.stringify(overflowItems.value)));
-
-    //     setTimeout(() => {
-    //         const taskIndex = overflowItems.value.findIndex(t => Number(t.id) === Number(task.id));
-    //         console.log("🔍 Found task index:", taskIndex);
-
-    //         if (taskIndex !== -1) {
-    //             overflowItems.value.splice(taskIndex, 1); // Remove from available tasks
-
-    //             if (!superintendent.tasks.some(t => t.id === task.id)) {
-    //                 superintendent.tasks.push(task);
-    //             }
-
-    //             console.log("✅ Task successfully assigned! Calling API...");
-    //             saveTaskAssignment(superintendent.id, task.id);
-    //         } else {
-    //             console.error("❌ Task not found in overflowItems!");
-    //         }
-    //     }, 50);
-    // };
-
     var handleTaskChange = function handleTaskChange(event, superintendent) {
       if (superintendent) {
         console.log('handleTaskChange');
@@ -23145,47 +23085,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return _ref4.apply(this, arguments);
       };
     }();
-
-    // const handleDragEnd = (event) => {
-    //     console.log("🛠 Drag End Event:", event);
-
-    //     const task = event.item._underlying_vm_;
-    //     const superintendent = superintendents.value.find(s => s.id === event.to.__vue__.user.id);
-
-    //     if (!task || !superintendent) {
-    //         console.error("❌ Task or Superintendent not found!", { task, superintendent });
-    //         return;
-    //     }
-
-    //     console.log("📝 Task being assigned:", JSON.parse(JSON.stringify(task)));
-    //     console.log("🌐 Current Overflow Items:", JSON.parse(JSON.stringify(overflowItems.value)));
-
-    //     // Ensure IDs match correctly
-    //     const taskIndex = overflowItems.value.findIndex(t => Number(t.id) === Number(task.id));
-    //     console.log("🔍 Found task index:", taskIndex);
-
-    //     if (taskIndex !== -1) {
-    //         console.log("✅ Task exists in overflowItems. Removing now...");
-    //         overflowItems.value.splice(taskIndex, 1);
-    //         assignTask(superintendent.id, task.id);
-    //     } else {
-    //         console.warn("⚠ Task already removed from overflowItems!");
-    //     }
-    // };
-
-    // // Send API request to save assigned task
-    // const assignTask = async (superintendentId, taskId) => {
-    //     try {
-    //         await axios.post('/scheduling/assign-task', {
-    //             superintendent_id: superintendentId,
-    //             task_id: taskId
-    //         });
-    //         console.log(`📡 Task ${taskId} assigned to Superintendent ${superintendentId}`);
-    //     } catch (error) {
-    //         console.error('❌ Error saving task assignment:', error);
-    //     }
-    // };
-
     var updateTaskOrder = /*#__PURE__*/function () {
       var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(superintendentId, tasks) {
         var taskOrderData;
@@ -23291,6 +23190,35 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         return _ref6.apply(this, arguments);
       };
     }();
+    var copyTask = /*#__PURE__*/function () {
+      var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(task) {
+        var response;
+        return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+          while (1) switch (_context6.prev = _context6.next) {
+            case 0:
+              _context6.prev = 0;
+              _context6.next = 3;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().post("/scheduling/overflow/copy/".concat(task.id));
+            case 3:
+              response = _context6.sent;
+              overflowItems.value.push(response.data); // Add new item to task list
+              _context6.next = 11;
+              break;
+            case 7:
+              _context6.prev = 7;
+              _context6.t0 = _context6["catch"](0);
+              console.error("Error duplicating task:", _context6.t0);
+              alert("Failed to duplicate task.");
+            case 11:
+            case "end":
+              return _context6.stop();
+          }
+        }, _callee6, null, [[0, 7]]);
+      }));
+      return function copyTask(_x6) {
+        return _ref7.apply(this, arguments);
+      };
+    }();
     (0,vue__WEBPACK_IMPORTED_MODULE_0__.watch)(showCompletionPopup, function (val) {
       document.body.classList.toggle('modal-open', val);
     });
@@ -23316,6 +23244,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       openCompletionPopup: openCompletionPopup,
       closeCompletionPopup: closeCompletionPopup,
       submitCompletion: submitCompletion,
+      copyTask: copyTask,
       ref: vue__WEBPACK_IMPORTED_MODULE_0__.ref,
       computed: vue__WEBPACK_IMPORTED_MODULE_0__.computed,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_0__.onMounted,
@@ -25094,14 +25023,14 @@ var _hoisted_54 = {
 };
 var _hoisted_55 = {
   key: 0,
-  "class": "rotate-notice rotate-portrait text-center"
+  "class": "rotate-overlay"
 };
 var _hoisted_56 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "rotate-content"
   }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-sync fa-spin fa-3x mb-3"
-  }), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, "Please rotate your device to landscape mode")], -1 /* HOISTED */);
+  }), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, "Please rotate your device to portait mode")], -1 /* HOISTED */);
 });
 var _hoisted_57 = [_hoisted_56];
 var _hoisted_58 = {
@@ -25156,6 +25085,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     onClick: _cache[0] || (_cache[0] = function () {
       $setup.getCrewMembers();
       $setup.checkOrientation();
+      $setup.removeBackdrop();
     })
   }, [].concat(_hoisted_2)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [$setup.isPortrait ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_4, [].concat(_hoisted_6))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, [_hoisted_9, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_10, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Late Entry Time "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_12, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "col-1"
@@ -26022,31 +25952,37 @@ var _hoisted_41 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElement
   "class": "fa-solid fa-note"
 }, null, -1 /* HOISTED */);
 var _hoisted_42 = [_hoisted_41];
-var _hoisted_43 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
-var _hoisted_44 = {
+var _hoisted_43 = ["onClick"];
+var _hoisted_44 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  "class": "fa-solid fa-copy"
+}, null, -1 /* HOISTED */);
+var _hoisted_45 = [_hoisted_44];
+var _hoisted_46 = ["title"];
+var _hoisted_47 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
+var _hoisted_48 = {
   "class": "d-flex justify-content-between fw-normal"
 };
-var _hoisted_45 = {
+var _hoisted_49 = {
   key: 0,
   "class": "modal-overlay"
 };
-var _hoisted_46 = {
+var _hoisted_50 = {
   "class": "bg-[#1e1e2f] text-black rounded-lg shadow-lg w-full max-w-md mx-4 p-6",
   style: {
     "max-height": "90vh"
   }
 };
-var _hoisted_47 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h2", {
+var _hoisted_51 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h2", {
   "class": "text-2xl font-bold mb-4"
 }, "Complete Task", -1 /* HOISTED */);
-var _hoisted_48 = {
+var _hoisted_52 = {
   "class": "mb-4"
 };
-var _hoisted_49 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Job:", -1 /* HOISTED */);
-var _hoisted_50 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+var _hoisted_53 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Job:", -1 /* HOISTED */);
+var _hoisted_54 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "class": "block mb-2"
 }, "Notes (Optional):", -1 /* HOISTED */);
-var _hoisted_51 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
+var _hoisted_55 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _$setup$selectedTask, _$setup$selectedTask2;
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Left Side: Superintendents "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [_hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
@@ -26118,7 +26054,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
       return $setup.filterStartDate = $event;
     })
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.filterStartDate]]), _hoisted_35]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <draggable v-model=\"overflowItems\" group=\"tasks\" class=\"task-list\" itemKey=\"id\"\n                @change=\"handleTaskChange($event, null)\">\n                <template #item=\"{ element }\">\n                    <div class=\"single-task card p-2 mb-2\">\n                        <div class=\"d-flex align-items-center justify-content-between\">\n                            <strong>\n                                <p class=\"mb-0\">{{ element.job_number }} - {{ element.crew_type }}</p>\n                            </strong>\n                            <span v-if=\"element.traffic_shift === 1\" class=\"traffic-icon text-warning\"\n                                title=\"Traffic Shift Task\">\n                                <i class=\"fa-solid fa-light-emergency\"></i>\n                            </span>\n                            <span v-if=\"element.notes\" class=\"notes-icon\" :title=\"element.notes\">\n                                <i class=\"fa-solid fa-note\"></i>\n                            </span>\n                        </div>\n                        <p class=\"mb-0\">{{ element.contractor }}</p>\n                        <p class=\"mb-0\">{{ element.timeout_date }}</p>\n                    </div>\n                </template>\n            </draggable> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["draggable"], {
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.filterStartDate]]), _hoisted_35]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["draggable"], {
     modelValue: $setup.overflowItems,
     "onUpdate:modelValue": _cache[4] || (_cache[4] = function ($event) {
       return $setup.overflowItems = $event;
@@ -26135,7 +26071,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return [$setup.filteredTasks.includes(element) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
         key: 0,
         "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([$setup.getTaskColor(element), "single-task card p-2 mb-2 fw-bold"])
-      }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_36, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <strong>\n                                <p class=\"mb-0\">{{ element.job_number }} - {{ element.crew_type }}</p>\n                            </strong> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
+      }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_36, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
         href: "/jobs/".concat(element.job_id, "/overview"),
         "class": "text-white text-decoration-none",
         target: "_blank"
@@ -26147,10 +26083,20 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         key: 1,
         "class": "notes-icon",
         title: element.notes
-      }, [].concat(_hoisted_42), 8 /* PROPS */, _hoisted_40)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.contractor), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(), _hoisted_43, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_44, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timein_date), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, " [" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timeout_date) + "] ", 1 /* TEXT */)])])], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+      }, [].concat(_hoisted_42), 8 /* PROPS */, _hoisted_40)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+        "class": "copy-icon ms-2",
+        title: "Duplicate Task",
+        onClick: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function ($event) {
+          return $setup.copyTask(element);
+        }, ["stop"])
+      }, [].concat(_hoisted_45), 8 /* PROPS */, _hoisted_43), element.duplicated_from ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
+        key: 2,
+        "class": "badge bg-secondary px-1 py-0",
+        title: "Duplicated from ID #".concat(element.duplicated_from)
+      }, "Copy", 8 /* PROPS */, _hoisted_46)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.contractor), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(), _hoisted_47, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_48, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timein_date), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, " [" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timeout_date) + "] ", 1 /* TEXT */)])])], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
     }),
     _: 1 /* STABLE */
-  }, 8 /* PROPS */, ["modelValue"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Completion Popup "), $setup.showCompletionPopup ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_45, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_46, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Modal Body "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [_hoisted_47, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_48, [_hoisted_49, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((_$setup$selectedTask = $setup.selectedTask) === null || _$setup$selectedTask === void 0 ? void 0 : _$setup$selectedTask.job_number) + " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((_$setup$selectedTask2 = $setup.selectedTask) === null || _$setup$selectedTask2 === void 0 ? void 0 : _$setup$selectedTask2.crew_type), 1 /* TEXT */)]), _hoisted_50, _hoisted_51, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("textarea", {
+  }, 8 /* PROPS */, ["modelValue"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Completion Popup "), $setup.showCompletionPopup ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_49, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_50, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Modal Body "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [_hoisted_51, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_52, [_hoisted_53, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((_$setup$selectedTask = $setup.selectedTask) === null || _$setup$selectedTask === void 0 ? void 0 : _$setup$selectedTask.job_number) + " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((_$setup$selectedTask2 = $setup.selectedTask) === null || _$setup$selectedTask2 === void 0 ? void 0 : _$setup$selectedTask2.crew_type), 1 /* TEXT */)]), _hoisted_54, _hoisted_55, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("textarea", {
     "onUpdate:modelValue": _cache[6] || (_cache[6] = function ($event) {
       return $setup.completionNote = $event;
     }),
@@ -27104,7 +27050,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n/* General Modal & Content Styling */\n#clockin .modal[data-v-736f94d0],\n#clockin .modal-content[data-v-736f94d0],\n#clockin .modal-body[data-v-736f94d0] {\n    overflow: visible !important;\n    position: relative !important;\n\tz-index:99999;\n}\n\n/* Full width & height modal aligned to top-left */\n#clockin .modal-dialog[data-v-736f94d0] {\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 100vw !important;\n    height: 100vh !important;\n    max-width: 100vw !important;\n    margin: 0 !important;\n    padding: 0 !important;\n}\n\n/* Full height modal content, no border radius */\n#clockin .modal-content[data-v-736f94d0] {\n    width: 100vw !important;\n    height: 100vh !important;\n    border-radius: 0 !important;\n    font-size: 1rem;\n}\n\n/* Modal body scrollable */\n#clockin .modal-body[data-v-736f94d0] {\n    height: calc(100vh - 120px) !important; /* adjust if you have header/footer */\n    overflow-y: auto !important;\n    overflow-x: visible !important;\n\t-webkit-overflow-scrolling: touch;\n\tpadding-bottom: 5rem;\n}\n#clockin .modal-content[data-v-736f94d0] {\n  width: auto !important;\n  height: auto !important;\n  z-index: 9999 !important; /* Bootstrap default */\n  border-radius: 0.5rem !important;\n}\n\n\n/* Table layout */\n.table-responsive[data-v-736f94d0] {\n    overflow-x: auto !important;\n}\n.table[data-v-736f94d0] {\n    \n    table-layout: fixed !important;\n    width: 100% !important;\n}\n.table th[data-v-736f94d0],\n.table td[data-v-736f94d0] {\n    white-space: nowrap;\n    text-align: center;\n    vertical-align: middle;\n\tline-height:10px;\n}\n.dark-version .table[data-v-736f94d0] > :not(caption) > * > * {\n    border-color: rgba(255, 255, 255, 0.4) !important;\n    color: #fff !important;\n}\n.verify-crew-members th[data-v-736f94d0],\n.verify-crew-members td[data-v-736f94d0] {\n  white-space: nowrap;\n  text-align: center;\n  font-size: 0.85rem;\n  vertical-align: middle;\n  font-weight:bold;\n}\n.verify-crew-members td.d-flex[data-v-736f94d0] {\n  gap: 6px;\n  justify-content: center;\n  align-items: center;\n}\n.verify-crew-members .responsive-datepicker[data-v-736f94d0] {\n  max-width: 160px !important;\n}\n\n/* Make sure the modal and table adjust on smaller screens */\n@media (max-width: 1024px) {\n.verify-crew-members[data-v-736f94d0] {\n    font-size: 0.75rem;\n}\n.verify-crew-members .responsive-datepicker[data-v-736f94d0] {\n    max-width: 140px !important;\n}\n}\n.table td.text-truncate[data-v-736f94d0] {\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n/* Date picker wrapper fixes */\n.dp__main[data-v-736f94d0] {\n    overflow: visible !important;\n    position: relative !important;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper[data-v-736f94d0] {\n    position: absolute !important;\n    z-index: 999999999 !important;\n    top: 200px !important;\n    left: 35% !important;\n}\n.dp__pointer.dp__input_readonly[data-v-736f94d0] {\n    min-width: 210px !important;\n}\n\n/* Remove clear (X) button from date picker */\n.dp--clear-btn[data-v-736f94d0] {\n    display: none !important;\n}\n\n/* Responsive fix for smaller mobile screens */\n@media (max-width: 767px) {\n.modal-dialog[data-v-736f94d0],\n    .modal-content[data-v-736f94d0] {\n        width: 100vw !important;\n        height: 100vh !important;\n}\n.responsive-datepicker[data-v-736f94d0] {\n        width: 100%;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper[data-v-736f94d0] {\n        left: 10% !important;\n}\n.dp--menu-wrapper[data-v-736f94d0] {\n        z-index: 9999999999 !important;\n}\n.dp__menu_inner[data-v-736f94d0] {\n        position: relative;\n        z-index: 1200;\n}\n}\n\n/* Optional: Zoom out for iPads */\n@media only screen \n  and (min-device-width: 768px) \n  and (max-device-width: 1024px) {\n.modal-dialog[data-v-736f94d0] {\n        transform: scale(0.9);\n        transform-origin: top left;\n}\n.modal-content[data-v-736f94d0] {\n        font-size: 0.9rem;\n}\n}\n@media only screen \n  and (min-device-width: 768px) \n  and (max-device-width: 1024px) \n  and (orientation: landscape) {\n.modal-dialog[data-v-736f94d0] {\n        transform: scale(0.85);\n}\n.modal-content[data-v-736f94d0] {\n        font-size: 0.85rem;\n}\n}\nbody.modal-open[data-v-736f94d0] {\n    overflow: visible !important;\n}\n.datepicker-wrapper[data-v-736f94d0] {\n  position: relative;\n}\n\n/* Force the picker popup to go above the input */\n.datepicker-wrapper .dp__outer_menu_wrap[data-v-736f94d0] {\n  position: absolute !important;\n  top: 30%!important;\n  bottom: 100% !important;\n  left: 0 !important;\n  z-index: 99999 !important;\n  margin-bottom: 8px !important;\n  width: -moz-max-content;\n  width: max-content;\n  max-width: 100%;\n}\n\n/* Optional: Prevent overflow in smaller screens */\n@media (max-width: 768px) {\n.datepicker-wrapper .dp__outer_menu_wrap[data-v-736f94d0] {\n    left: 50% !important;\n    transform: translateX(-50%);\n    width: 90vw !important;\n}\n}\n.rotate-notice[data-v-736f94d0] {\n  background: #ffeeba;\n  color: #856404;\n  padding: 1rem;\n  border-radius: 8px;\n  border: 1px solid #ffeeba;\n  margin-bottom: 1rem;\n}\n.rotate-overlay[data-v-736f94d0] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(255, 235, 59, 0.95);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 999999;\n  text-align: center;\n  overflow: hidden;\n}\nbody.modal-open .rotate-overlay[data-v-736f94d0] {\n  overflow: hidden;\n}\n.rotate-content[data-v-736f94d0] {\n  color: #333;\n  font-size: 1.2rem;\n}\n.rotate-portrait[data-v-736f94d0] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(255, 235, 59, 0.95);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 999999;\n  text-align: center;\n  overflow: hidden;\n}\n.navbar-vertical.navbar-expand-xs.fixed-start[data-v-736f94d0] {\n    left: 0;\n    z-index: 5;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n\n\n\n/* General Modal & Content Styling */\n#clockin .modal[data-v-736f94d0],\n#clockin .modal-content[data-v-736f94d0],\n#clockin .modal-body[data-v-736f94d0] {\n    overflow: visible !important;\n    position: relative !important;\n    z-index: 9999;\n}\n\n/* Full width & height modal aligned to top-left */\n/* #clockin .modal-dialog {\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 100vw !important;\n    height: 100vh !important;\n    max-width: 100vw !important;\n    margin: 0 !important;\n    padding: 0 !important;\n} */\n#clockin .modal-dialog[data-v-736f94d0] {\n    position: relative !important;\n    padding: 0 !important;\n    /* max-width: 1000px !important; */\n    width: 100% !important;\n    height: auto !important;\n    z-index: 2000 !important;\n    left: unset !important;\n    top: unset !important;\n    margin: auto !important;\n    box-shadow: none;\n}\n\n\n\n\n/* Full height modal content, no border radius */\n#clockin .modal-content[data-v-736f94d0] {\n    width: 100vw !important;\n    height: 100vh !important;\n    border-radius: 0 !important;\n    font-size: 1rem;\n}\n\n/* Modal body scrollable */\n#clockin .modal-body[data-v-736f94d0] {\n    height: calc(100vh - 120px) !important;\n    /* adjust if you have header/footer */\n    overflow-y: auto !important;\n    overflow-x: visible !important;\n    -webkit-overflow-scrolling: touch;\n    padding-bottom: 5rem;\n}\n\n/* #clockin .modal-content { */\n/* width: auto !important; */\n/* height: auto !important; */\n/* z-index: 9999 !important; */\n/* Bootstrap default */\n/* border-radius: 0.5rem !important; */\n\n/* } */\n\n\n/* Table layout */\n.table-responsive[data-v-736f94d0] {\n    overflow-x: auto !important;\n}\n.table[data-v-736f94d0] {\n\n    table-layout: fixed !important;\n    width: 100% !important;\n}\n.table th[data-v-736f94d0],\n.table td[data-v-736f94d0] {\n    white-space: nowrap;\n    text-align: center;\n    vertical-align: middle;\n    line-height: 10px;\n}\n.dark-version .table[data-v-736f94d0]> :not(caption)>*>* {\n    border-color: rgba(255, 255, 255, 0.4) !important;\n    color: #fff !important;\n}\n.verify-crew-members th[data-v-736f94d0],\n.verify-crew-members td[data-v-736f94d0] {\n    white-space: nowrap;\n    text-align: center;\n    font-size: 0.85rem;\n    vertical-align: middle;\n    font-weight: bold;\n}\n.verify-crew-members td.d-flex[data-v-736f94d0] {\n    gap: 6px;\n    justify-content: center;\n    align-items: center;\n}\n.verify-crew-members .responsive-datepicker[data-v-736f94d0] {\n    max-width: 160px !important;\n}\n\n/* Make sure the modal and table adjust on smaller screens */\n@media (max-width: 1024px) {\n.verify-crew-members[data-v-736f94d0] {\n        font-size: 0.75rem;\n}\n.verify-crew-members .responsive-datepicker[data-v-736f94d0] {\n        max-width: 140px !important;\n}\n}\n.table td.text-truncate[data-v-736f94d0] {\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n/* Date picker wrapper fixes */\n.dp__main[data-v-736f94d0] {\n    overflow: visible !important;\n    position: relative !important;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper[data-v-736f94d0] {\n    position: absolute !important;\n    z-index: 999999999 !important;\n    top: 200px !important;\n    left: 35% !important;\n}\n.dp__pointer.dp__input_readonly[data-v-736f94d0] {\n    min-width: 210px !important;\n}\n\n/* Remove clear (X) button from date picker */\n.dp--clear-btn[data-v-736f94d0] {\n    display: none !important;\n}\n\n/* Responsive fix for smaller mobile screens */\n@media (max-width: 767px) {\n.modal-dialog[data-v-736f94d0],\n    .modal-content[data-v-736f94d0] {\n        width: 100vw !important;\n        height: 100vh !important;\n}\n.responsive-datepicker[data-v-736f94d0] {\n        width: 100%;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper[data-v-736f94d0] {\n        left: 10% !important;\n}\n.dp--menu-wrapper[data-v-736f94d0] {\n        z-index: 9999999999 !important;\n}\n.dp__menu_inner[data-v-736f94d0] {\n        position: relative;\n        z-index: 1200;\n}\n}\nbody.modal-open[data-v-736f94d0] {\n    overflow: visible !important;\n}\n.datepicker-wrapper[data-v-736f94d0] {\n    position: relative;\n}\n\n/* Force the picker popup to go above the input */\n.datepicker-wrapper .dp__outer_menu_wrap[data-v-736f94d0] {\n    position: absolute !important;\n    top: 30% !important;\n    bottom: 100% !important;\n    left: 0 !important;\n    z-index: 9999 !important;\n    margin-bottom: 8px !important;\n    width: -moz-max-content;\n    width: max-content;\n    max-width: 100%;\n}\n\n/* Optional: Prevent overflow in smaller screens */\n@media (max-width: 768px) {\n.datepicker-wrapper .dp__outer_menu_wrap[data-v-736f94d0] {\n        left: 50% !important;\n        transform: translateX(-50%);\n        width: 90vw !important;\n}\n}\n.rotate-notice[data-v-736f94d0] {\n    background: #ffeeba;\n    color: #856404;\n    padding: 1rem;\n    border-radius: 8px;\n    border: 1px solid #ffeeba;\n    margin-bottom: 1rem;\n}\n.rotate-overlay[data-v-736f94d0] {\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    background: rgba(255, 235, 59, 0.95);\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    z-index: 9998;\n    text-align: center;\n    overflow: hidden;\n}\nbody.modal-open .rotate-overlay[data-v-736f94d0] {\n    overflow: hidden;\n}\n.rotate-content[data-v-736f94d0] {\n    color: #333;\n    font-size: 1.2rem;\n}\n.rotate-portrait[data-v-736f94d0] {\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    background: rgba(255, 235, 59, 0.95);\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    z-index: 9999;\n    text-align: center;\n    overflow: hidden;\n}\n#editTimeModal .modal-content[data-v-736f94d0] {\n    position: relative;\n    z-index: 100;\n}\n[data-v-736f94d0] .modal-backdrop {\n\tz-index: 1 !important;\n}\n#editTimeModal .modal-backdrop.show[data-v-736f94d0] {\n    opacity: 0;\n}\n.navbar-vertical.navbar-expand-xs.fixed-start[data-v-736f94d0] {\n    left: 0;\n    z-index: 5;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -27152,7 +27098,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.clean-multiselect {\n  background-color: white !important;\n  color: black !important;\n  font-weight: bold;\n  border: 1px solid #ccc;\n  border-radius: 6px;\n  padding: 8px;\n  min-height: 120px;\n  max-height: 200px;\n  overflow-y: auto;\n  appearance: none;\n  -webkit-appearance: none;\n  -moz-appearance: none;\n}\n.clean-multiselect option {\n  padding: 5px 10px;\n}\n.custom-white-select {\n  border-radius: 6px;\n  border: 1px solid #ccc;\n  background-color: white !important;\n  color: black !important;\n}\n.custom-white-select option {\n  background-color: #ffffff;\n  color: black !important;\n  font-weight: bold;\n}\n.modal-dialog {\n\n  width: 100vw !important;\n  background-color: #dcdcdc;\n  border-radius: 10px;\n  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);\n  display: flex;\n  flex-direction: column;\n  max-height: 100vh;\n  animation: slideIn 0.3s ease-in-out;\n}\n.modal-content {\n  background-color: #1A2035;\n  color: #fff;\n  overflow-y: auto;\n  padding: 1rem 1.25rem;\n  width: 50vw !important;\n}\n.modal-header {\n  display: flex;\n  justify-content: flex-end;\n  border-bottom: 1px solid #333;\n  padding-bottom: 0.25rem;\n}\n.btn-close {\n  background: none;\n  border: none;\n  color: #fff;\n  font-size: 1.25rem;\n  cursor: pointer;\n}\nh5 {\n  color: #fff;\n  font-size: 1.2rem;\n  margin-bottom: 1rem;\n}\n.input-group-outline {\n  margin-bottom: 0.8rem;\n}\n.input-group-outline label {\n  color: #ccc;\n  font-weight: 600;\n  font-size: 0.9rem;\n  margin-bottom: 0.25rem;\n  display: block;\n}\n.form-control,\nselect,\ntextarea {\n  background-color: #2b2f4c;\n  border: 1px solid #555;\n  border-radius: 6px;\n  padding: 0.45rem 0.6rem;\n  font-size: 0.9rem;\n  width: 100%;\n  max-height: 150px;\n}\ntextarea {\n  resize: vertical;\n}\n.form-check-label {\n  font-size: 0.9rem;\n  margin-left: 0.4rem;\n  color: #ccc;\n}\nbutton.btn {\n  min-width: 100px;\n  font-size: 0.85rem;\n  padding: 0.5rem 1rem;\n  margin-top: 1rem;\n}\n@keyframes slideIn {\nfrom {\n    transform: translateY(-20px);\n    opacity: 0;\n}\nto {\n    transform: translateY(0);\n    opacity: 1;\n}\n}\n\n\n\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.clean-multiselect {\n  background-color: white !important;\n  color: black !important;\n  font-weight: bold;\n  border: 1px solid #ccc;\n  border-radius: 6px;\n  padding: 8px;\n  min-height: 120px;\n  max-height: 200px;\n  overflow-y: auto;\n  appearance: none;\n  -webkit-appearance: none;\n  -moz-appearance: none;\n}\n.clean-multiselect option {\n  padding: 5px 10px;\n}\n.custom-white-select {\n  border-radius: 6px;\n  border: 1px solid #ccc;\n  background-color: white !important;\n  color: black !important;\n}\n.custom-white-select option {\n  background-color: #ffffff;\n  color: black !important;\n  font-weight: bold;\n}\n.modal-dialog {\n\n  width: 100vw !important;\n  border-radius: 10px;\n  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);\n  display: flex;\n  flex-direction: column;\n  \n  animation: slideIn 0.3s ease-in-out;\n}\n.modal-content {\n  background-color: #1A2035;\n  color: #fff;\n  overflow-y: auto;\n  padding: 1rem 1.25rem;\n  width: 50vw !important;\n}\n.modal-header {\n  display: flex;\n  justify-content: flex-end;\n  border-bottom: 1px solid #333;\n  padding-bottom: 0.25rem;\n}\n.btn-close {\n  background: none;\n  border: none;\n  color: #fff;\n  font-size: 1.25rem;\n  cursor: pointer;\n}\nh5 {\n  color: #fff;\n  font-size: 1.2rem;\n  margin-bottom: 1rem;\n}\n.input-group-outline {\n  margin-bottom: 0.8rem;\n}\n.input-group-outline label {\n  color: #ccc;\n  font-weight: 600;\n  font-size: 0.9rem;\n  margin-bottom: 0.25rem;\n  display: block;\n}\n.form-control,\nselect,\ntextarea {\n  background-color: #2b2f4c;\n  border: 1px solid #555;\n  border-radius: 6px;\n  padding: 0.45rem 0.6rem;\n  font-size: 0.9rem;\n  width: 100%;\n  max-height: 150px;\n}\ntextarea {\n  resize: vertical;\n}\n.form-check-label {\n  font-size: 0.9rem;\n  margin-left: 0.4rem;\n  color: #ccc;\n}\nbutton.btn {\n  min-width: 100px;\n  font-size: 0.85rem;\n  padding: 0.5rem 1rem;\n  margin-top: 1rem;\n}\n@keyframes slideIn {\nfrom {\n    transform: translateY(-20px);\n    opacity: 0;\n}\nto {\n    transform: translateY(0);\n    opacity: 1;\n}\n}\n\n\n\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -27176,7 +27122,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.custom-search-input {\n  background-color: #ffffff !important;\n  color: #000000 !important;\n  font-weight: bold;\n  border: 1px solid #ccc;\n  border-radius: 6px;\n}\n.custom-search-input:focus {\n  outline: none;\n  border-color: #f3b700;\n  box-shadow: 0 0 5px rgba(243, 183, 0, 0.5);\n}\n.modal-overlay {\n  position: fixed !important;\n  top: 0; left: 0; right: 0; bottom: 0;\n  display: flex !important;\n  align-items: center;\n  justify-content: center;\n  background-color: rgba(0, 0, 0, 0.5);\n  z-index: 9999;\n  outline: 2px solid white;\n}\n.user-list {\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n}\n.single-entry-tasks {\n    background: #1e1e1e;\n    color: white;\n    padding: 15px;\n    border-radius: 8px;\n}\n.user-name {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    background: #333;\n    padding: 10px;\n    border-radius: 8px;\n    font-weight: bold;\n    color: white;\n    font-size: 16px;\n    text-align: center;\n}\n.assigned-tasks {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 5px;\n    min-height: 60px;\n    /* padding: 10px; */\n    background: #222;\n    border-radius: 8px;\n}\n.task-container,\n.users-container {\n    display: flex;\n    flex-direction: column;\n    max-height: 80vh;\n    overflow-y: auto;\n    padding: 10px;\n    border-left: 2px solid #555;\n}\n.task-header {\n    position: sticky;\n    top: 0;\n    background: black;\n    padding: 10px;\n    color: white;\n    z-index: 10;\n}\n.task-list {\n    overflow-y: auto;\n    padding-top: 10px;\n}\n.single-task {\n    background: #555;\n    color: white;\n    padding: 10px;\n    border-radius: 8px;\n    cursor: pointer;\n}\n.search-bar {\n    margin-bottom: 15px;\n}\n.dropdown {\n    color: black;\n    background-color: white;\n    width: 100%;\n    margin-bottom: 1rem;\n}\n\n/* Flashing traffic shift icon*/\n.flashing-orange {\n    animation: flashOrange 1s infinite alternate;\n}\n@keyframes flashOrange {\n0% {\n        color: orange;\n}\n100% {\n        color: rgb(255, 140, 0);\n}\n}\n.flashing-white {\n    animation: flashWhite 1s infinite alternate;\n}\n@keyframes flashWhite {\n0% {\n        color: white;\n}\n100% {\n        color: rgba(255, 255, 255, 0.7);\n}\n}\n.task-card {\n    background: #3a3a3a;\n    color: #ffffff;\n    padding: 4px;\n    border-radius: 5px;\n    display: flex;\n    flex-direction: column;\n    justify-content: space-between;\n    height: 75px;\n    min-width: 190px;\n    /* Ensures enough space */\n    max-width: 190px;\n    overflow: hidden;\n}\n.small-date {\n    font-size: 9px;\n    /* Makes dates smaller */\n    white-space: nowrap;\n}\n\n/* Prevents text wrapping and keeps job number & phase inline */\n.task-header {\n    display: flex;\n    align-items: center;\n    white-space: nowrap;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    width: 100%;\n}\n\n/* Job number normal weight, phase bold */\n.job-number {\n    color: #ffffff !important;\n    text-decoration: none;\n    font-size: 10px;\n    font-weight: normal;\n}\n.task-phase {\n    font-size: 10px;\n    font-weight: bold;\n}\n\n/* Contractor name smaller */\n.contractor-name {\n    font-size: 8px !important;\n    margin-top: 2px;\n}\n\n/* Dates font smaller */\n.dates {\n    font-size: 9px;\n    margin-top: 2px;\n}\n.complete-icon {\n    color: #28a745;\n    /* Green checkmark */\n    font-size: 14px;\n    cursor: pointer;\n    transition: transform 0.2s ease-in-out;\n    align-self: flex-end;\n    /* Pushes to bottom right */\n}\n.complete-icon:hover {\n    transform: scale(1.2);\n}\n\n/* Ensures the dates and checkmark align at the bottom */\n.dates {\n    font-size: 9px;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    margin-top: auto;\n    /* Pushes dates to bottom */\n}\n\n/* Icons */\n.task-card .traffic-icon,\n.task-card .notes-icon {\n    font-size: 10px;\n    display: inline-block;\n    margin-left: 2px;\n    color: #ffffff !important;\n}\n\n/* Pulsating effect for the traffic shift icon */\n@keyframes pulsate {\n0% {\n        opacity: 1;\n        transform: scale(1);\n}\n50% {\n        opacity: 0.5;\n        transform: scale(1.2);\n}\n100% {\n        opacity: 1;\n        transform: scale(1);\n}\n}\n.traffic-icon i {\n    animation: pulsate 1s infinite ease-in-out;\n}\n\n/* Keeps assigned tasks in one row and removes vertical scrollbar */\n.assigned-tasks {\n    display: flex;\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    overflow-y: hidden;\n    gap: 5px;\n    align-items: stretch;\n}\n:deep(.search-bar .dropdown),\n:deep(.search-bar .form-control) {\n    color: #fff !important;  /* White text */\n    border: 2px solid #fff !important;  /* White outline */\n    background-color: transparent !important; /* Keep background transparent */\n    padding: 8px;\n}\n\n/* Ensure dropdown options are readable */\n:deep(.search-bar .dropdown option) {\n    color: #000 !important; /* Black text for dropdown options */\n    background-color: #fff !important; /* White background */\n}\n\n/* Add hover effect */\n:deep(.search-bar .dropdown:hover),\n:deep(.search-bar .form-control:hover) {\n    border-color: #ddd !important; /* Lighter white on hover */\n}\n\n/* Ensure placeholder text is visible */\n:deep(.search-bar .form-control::-moz-placeholder) {\n    color: rgba(255, 255, 255, 0.7) !important; /* Light white placeholder */\n    opacity: 1 !important;\n}\n:deep(.search-bar .form-control::placeholder) {\n    color: rgba(255, 255, 255, 0.7) !important; /* Light white placeholder */\n    opacity: 1 !important;\n}\n\n/* Ensure input text remains white when typing */\n:deep(.search-bar .form-control) {\n    caret-color: #fff !important; /* White blinking cursor */\n}\n\n\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.custom-search-input {\n    background-color: #ffffff !important;\n    color: #000000 !important;\n    font-weight: bold;\n    border: 1px solid #ccc;\n    border-radius: 6px;\n}\n.custom-search-input:focus {\n    outline: none;\n    border-color: #f3b700;\n    box-shadow: 0 0 5px rgba(243, 183, 0, 0.5);\n}\n.modal-overlay {\n    position: fixed !important;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    display: flex !important;\n    align-items: center;\n    justify-content: center;\n    background-color: rgba(0, 0, 0, 0.5);\n    z-index: 9999;\n    outline: 2px solid white;\n}\n.user-list {\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n}\n.single-entry-tasks {\n    background: #1e1e1e;\n    color: white;\n    padding: 15px;\n    border-radius: 8px;\n}\n.user-name {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    background: #333;\n    padding: 10px;\n    border-radius: 8px;\n    font-weight: bold;\n    color: white;\n    font-size: 16px;\n    text-align: center;\n}\n.assigned-tasks {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 5px;\n    min-height: 60px;\n    /* padding: 10px; */\n    background: #222;\n    border-radius: 8px;\n}\n.task-container,\n.users-container {\n    display: flex;\n    flex-direction: column;\n    max-height: 80vh;\n    overflow-y: auto;\n    padding: 10px;\n    border-left: 2px solid #555;\n}\n.task-header {\n    position: sticky;\n    top: 0;\n    background: black;\n    padding: 10px;\n    color: white;\n    z-index: 10;\n}\n.task-list {\n    overflow-y: auto;\n    padding-top: 10px;\n}\n.single-task {\n    background: #555;\n    color: white;\n    padding: 10px;\n    border-radius: 8px;\n    cursor: pointer;\n}\n.search-bar {\n    margin-bottom: 15px;\n}\n.dropdown {\n    color: black;\n    background-color: white;\n    width: 100%;\n    margin-bottom: 1rem;\n}\n\n/* Flashing traffic shift icon*/\n.flashing-orange {\n    animation: flashOrange 1s infinite alternate;\n}\n@keyframes flashOrange {\n0% {\n        color: orange;\n}\n100% {\n        color: rgb(255, 140, 0);\n}\n}\n.flashing-white {\n    animation: flashWhite 1s infinite alternate;\n}\n@keyframes flashWhite {\n0% {\n        color: white;\n}\n100% {\n        color: rgba(255, 255, 255, 0.7);\n}\n}\n.task-card {\n    background: #3a3a3a;\n    color: #ffffff;\n    padding: 4px;\n    border-radius: 5px;\n    display: flex;\n    flex-direction: column;\n    justify-content: space-between;\n    height: 75px;\n    min-width: 190px;\n    /* Ensures enough space */\n    max-width: 190px;\n    overflow: hidden;\n}\n.small-date {\n    font-size: 9px;\n    /* Makes dates smaller */\n    white-space: nowrap;\n}\n\n/* Prevents text wrapping and keeps job number & phase inline */\n.task-header {\n    display: flex;\n    align-items: center;\n    white-space: nowrap;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    width: 100%;\n}\n\n/* Job number normal weight, phase bold */\n.job-number {\n    color: #ffffff !important;\n    text-decoration: none;\n    font-size: 10px;\n    font-weight: normal;\n}\n.task-phase {\n    font-size: 10px;\n    font-weight: bold;\n}\n\n/* Contractor name smaller */\n.contractor-name {\n    font-size: 8px !important;\n    margin-top: 2px;\n}\n\n/* Dates font smaller */\n.dates {\n    font-size: 9px;\n    margin-top: 2px;\n}\n.complete-icon {\n    color: #28a745;\n    /* Green checkmark */\n    font-size: 14px;\n    cursor: pointer;\n    transition: transform 0.2s ease-in-out;\n    align-self: flex-end;\n    /* Pushes to bottom right */\n}\n.complete-icon:hover {\n    transform: scale(1.2);\n}\n\n/* Ensures the dates and checkmark align at the bottom */\n.dates {\n    font-size: 9px;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    margin-top: auto;\n    /* Pushes dates to bottom */\n}\n\n/* Icons */\n.task-card .traffic-icon,\n.task-card .notes-icon {\n    font-size: 10px;\n    display: inline-block;\n    margin-left: 2px;\n    color: #ffffff !important;\n}\n\n/* Pulsating effect for the traffic shift icon */\n@keyframes pulsate {\n0% {\n        opacity: 1;\n        transform: scale(1);\n}\n50% {\n        opacity: 0.5;\n        transform: scale(1.2);\n}\n100% {\n        opacity: 1;\n        transform: scale(1);\n}\n}\n.traffic-icon i {\n    animation: pulsate 1s infinite ease-in-out;\n}\n\n/* Keeps assigned tasks in one row and removes vertical scrollbar */\n.assigned-tasks {\n    display: flex;\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    overflow-y: hidden;\n    gap: 5px;\n    align-items: stretch;\n}\n:deep(.search-bar .dropdown),\n:deep(.search-bar .form-control) {\n    color: #fff !important;\n    /* White text */\n    border: 2px solid #fff !important;\n    /* White outline */\n    background-color: transparent !important;\n    /* Keep background transparent */\n    padding: 8px;\n}\n\n/* Ensure dropdown options are readable */\n:deep(.search-bar .dropdown option) {\n    color: #000 !important;\n    /* Black text for dropdown options */\n    background-color: #fff !important;\n    /* White background */\n}\n\n/* Add hover effect */\n:deep(.search-bar .dropdown:hover),\n:deep(.search-bar .form-control:hover) {\n    border-color: #ddd !important;\n    /* Lighter white on hover */\n}\n\n/* Ensure placeholder text is visible */\n:deep(.search-bar .form-control::-moz-placeholder) {\n    color: rgba(255, 255, 255, 0.7) !important;\n    /* Light white placeholder */\n    opacity: 1 !important;\n}\n:deep(.search-bar .form-control::placeholder) {\n    color: rgba(255, 255, 255, 0.7) !important;\n    /* Light white placeholder */\n    opacity: 1 !important;\n}\n\n/* Ensure input text remains white when typing */\n:deep(.search-bar .form-control) {\n    caret-color: #fff !important;\n    /* White blinking cursor */\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 

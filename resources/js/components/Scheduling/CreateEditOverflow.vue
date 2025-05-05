@@ -317,12 +317,11 @@ defineExpose({ openPopup });
 .modal-dialog {
 
   width: 100vw !important;
-  background-color: #dcdcdc;
   border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  max-height: 100vh;
+  
   animation: slideIn 0.3s ease-in-out;
 }
 

@@ -85,40 +85,18 @@
         <!-- Right Side: Overflow Items (Tasks) -->
         <div class="col-md-3 task-container">
             <h6 class="task-header">Available Tasks</h6>
-<div class="search-bar">
-            <input v-model="searchQuery" type="text" class="form-control mb-2 custom-search-input" placeholder="Search tasks...">
-</div>
+            <div class="search-bar">
+                <input v-model="searchQuery" type="text" class="form-control mb-2 custom-search-input"
+                    placeholder="Search tasks...">
+            </div>
             <div class="mb-2">
                 <input type="checkbox" id="trafficShiftFilter" v-model="filterTrafficShift">
                 <label for="trafficShiftFilter">Show Only Traffic Shift Tasks</label>
             </div>
-			<div class="mb-2">
-				<input type="checkbox" id="startDateFilter" v-model="filterStartDate">
+            <div class="mb-2">
+                <input type="checkbox" id="startDateFilter" v-model="filterStartDate">
                 <label for="startDateFilter">Sort by Start Date</label>
             </div>
-
-
-            <!-- <draggable v-model="overflowItems" group="tasks" class="task-list" itemKey="id"
-                @change="handleTaskChange($event, null)">
-                <template #item="{ element }">
-                    <div class="single-task card p-2 mb-2">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <strong>
-                                <p class="mb-0">{{ element.job_number }} - {{ element.crew_type }}</p>
-                            </strong>
-                            <span v-if="element.traffic_shift === 1" class="traffic-icon text-warning"
-                                title="Traffic Shift Task">
-                                <i class="fa-solid fa-light-emergency"></i>
-                            </span>
-                            <span v-if="element.notes" class="notes-icon" :title="element.notes">
-                                <i class="fa-solid fa-note"></i>
-                            </span>
-                        </div>
-                        <p class="mb-0">{{ element.contractor }}</p>
-                        <p class="mb-0">{{ element.timeout_date }}</p>
-                    </div>
-                </template>
-            </draggable> -->
 
             <draggable v-model="overflowItems" group="tasks" class="task-list" itemKey="id"
                 @change="handleTaskChange($event, null)">
@@ -126,9 +104,6 @@
                     <div v-if="filteredTasks.includes(element)" :class="getTaskColor(element)"
                         class="single-task card p-2 mb-2 fw-bold">
                         <div class="d-flex align-items-center justify-content-between">
-                            <!-- <strong>
-                                <p class="mb-0">{{ element.job_number }} - {{ element.crew_type }}</p>
-                            </strong> -->
                             <a :href="`/jobs/${element.job_id}/overview`" class="text-white text-decoration-none"
                                 target="_blank">
                                 {{ element.job_number }}
@@ -140,6 +115,12 @@
                             <span v-if="element.notes" class="notes-icon" :title="element.notes">
                                 <i class="fa-solid fa-note"></i>
                             </span>
+                            <span class="copy-icon ms-2" title="Duplicate Task" @click.stop="copyTask(element)">
+                                <i class="fa-solid fa-copy"></i>
+                            </span>
+                            <span v-if="element.duplicated_from" class="badge bg-secondary px-1 py-0"
+                                :title="`Duplicated from ID #${element.duplicated_from}`">Copy</span>
+
                         </div>
                         <div>
                             <span>{{ element.contractor }}</span> <br>
@@ -165,43 +146,32 @@
     </div>
 
 
-<!-- Completion Popup -->
-<div v-if="showCompletionPopup" class="modal-overlay">
-  <div
-    class="bg-[#1e1e2f] text-black rounded-lg shadow-lg w-full max-w-md mx-4 p-6"
-    style="max-height: 90vh;"
-  >
-    <!-- Modal Body -->
-    <div>
-      <h2 class="text-2xl font-bold mb-4">Complete Task</h2>
-      <p class="mb-4">
-        <strong>Job:</strong> {{ selectedTask?.job_number }} - {{ selectedTask?.crew_type }}
-      </p>
+    <!-- Completion Popup -->
+    <div v-if="showCompletionPopup" class="modal-overlay">
+        <div class="bg-[#1e1e2f] text-black rounded-lg shadow-lg w-full max-w-md mx-4 p-6" style="max-height: 90vh;">
+            <!-- Modal Body -->
+            <div>
+                <h2 class="text-2xl font-bold mb-4">Complete Task</h2>
+                <p class="mb-4">
+                    <strong>Job:</strong> {{ selectedTask?.job_number }} - {{ selectedTask?.crew_type }}
+                </p>
 
-      <label class="block mb-2">Notes (Optional):</label><br>
-      <textarea
-        v-model="completionNote"
-        class="w-full p-2 rounded border border-gray-600 bg-[#2a2a3d] text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-        rows="3"
-      ></textarea>
+                <label class="block mb-2">Notes (Optional):</label><br>
+                <textarea v-model="completionNote"
+                    class="w-full p-2 rounded border border-gray-600 bg-[#2a2a3d] text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    rows="3"></textarea>
 
-      <div class="mt-6 flex justify-end space-x-2">
-        <button
-          class="btn btn-warning btn-block mt-4"
-          @click="submitCompletion"
-        >
-          Submit
-        </button>&nbsp&nbsp&nbsp
-        <button
-          class="btn btn-danger btn-block mt-4"
-          @click="closeCompletionPopup"
-        >
-          Cancel
-        </button>
-      </div>
+                <div class="mt-6 flex justify-end space-x-2">
+                    <button class="btn btn-warning btn-block mt-4" @click="submitCompletion">
+                        Submit
+                    </button>&nbsp&nbsp&nbsp
+                    <button class="btn btn-danger btn-block mt-4" @click="closeCompletionPopup">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
 
 
@@ -261,16 +231,6 @@ const fetchSuperintendentsAndTasks = async () => {
     }
 };
 
-// Computed Property for Filtering Tasks
-// const filteredTasks = computed(() => {
-//     if (!searchQuery.value) return overflowItems.value;
-//     return overflowItems.value.filter(task =>
-//         task.job_number.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//         task.crew_type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//         task.contractor.toLowerCase().includes(searchQuery.value.toLowerCase())
-//     );
-// });
-
 
 // Computed property to filter overflow items
 const filteredTasks = computed(() => {
@@ -290,7 +250,7 @@ const filteredTasks = computed(() => {
         );
     }
 
-   
+
     return filtered.sort((a, b) => {
         // Priority sort: traffic_shift first
         if (a.traffic_shift === 1 && b.traffic_shift !== 1) return -1;
@@ -302,7 +262,7 @@ const filteredTasks = computed(() => {
 
         return dateA - dateB;
     });
-	
+
 });
 
 // Format Dates for Display
@@ -310,65 +270,6 @@ const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
 };
-
-
-// Handle task assignment
-// const assignTask = (event, superintendent) => {
-
-//     const task = event.item._underlying_vm_;
-
-//     if (!task) return;  // Ensure task is valid
-
-//     // Find and remove only the dropped task from overflowItems
-//     const taskIndex = overflowItems.value.findIndex(t => t.id === task.id);
-//     if (taskIndex !== -1) {
-//         overflowItems.value.splice(taskIndex, 1);
-//     }
-
-//     // Add task to the superintendent's list
-//     if (!superintendent.tasks) {
-//         superintendent.tasks = [];  // Ensure it's initialized
-//     }
-//     superintendent.tasks.push(task);
-
-//     // Save task assignment to DB
-//     saveTaskAssignment(superintendent.id, task.id);
-// };
-
-// const assignTask = (event, superintendent) => {
-
-//     console.log("current tasks:", overflowItems.value)
-
-//     if (!event.added) return;
-
-//     const task = event.added.element;
-//     console.log("📝 Task being assigned:", JSON.parse(JSON.stringify(task)));
-
-//     if (!task || !task.id) {
-//         console.error("❌ Task is undefined or missing an ID:", task);
-//         return;
-//     }
-
-//     console.log("🌐 Current Overflow Items:", JSON.parse(JSON.stringify(overflowItems.value)));
-
-//     setTimeout(() => {
-//         const taskIndex = overflowItems.value.findIndex(t => Number(t.id) === Number(task.id));
-//         console.log("🔍 Found task index:", taskIndex);
-
-//         if (taskIndex !== -1) {
-//             overflowItems.value.splice(taskIndex, 1); // Remove from available tasks
-
-//             if (!superintendent.tasks.some(t => t.id === task.id)) {
-//                 superintendent.tasks.push(task);
-//             }
-
-//             console.log("✅ Task successfully assigned! Calling API...");
-//             saveTaskAssignment(superintendent.id, task.id);
-//         } else {
-//             console.error("❌ Task not found in overflowItems!");
-//         }
-//     }, 50);
-// };
 
 
 const handleTaskChange = (event, superintendent) => {
@@ -416,48 +317,6 @@ const saveTaskAssignment = async (superintendentId, taskId, action) => {
         console.error('Error saving task assignment:', error);
     }
 };
-
-
-// const handleDragEnd = (event) => {
-//     console.log("🛠 Drag End Event:", event);
-
-//     const task = event.item._underlying_vm_;
-//     const superintendent = superintendents.value.find(s => s.id === event.to.__vue__.user.id);
-
-//     if (!task || !superintendent) {
-//         console.error("❌ Task or Superintendent not found!", { task, superintendent });
-//         return;
-//     }
-
-//     console.log("📝 Task being assigned:", JSON.parse(JSON.stringify(task)));
-//     console.log("🌐 Current Overflow Items:", JSON.parse(JSON.stringify(overflowItems.value)));
-
-//     // Ensure IDs match correctly
-//     const taskIndex = overflowItems.value.findIndex(t => Number(t.id) === Number(task.id));
-//     console.log("🔍 Found task index:", taskIndex);
-
-//     if (taskIndex !== -1) {
-//         console.log("✅ Task exists in overflowItems. Removing now...");
-//         overflowItems.value.splice(taskIndex, 1);
-//         assignTask(superintendent.id, task.id);
-//     } else {
-//         console.warn("⚠ Task already removed from overflowItems!");
-//     }
-// };
-
-
-// // Send API request to save assigned task
-// const assignTask = async (superintendentId, taskId) => {
-//     try {
-//         await axios.post('/scheduling/assign-task', {
-//             superintendent_id: superintendentId,
-//             task_id: taskId
-//         });
-//         console.log(`📡 Task ${taskId} assigned to Superintendent ${superintendentId}`);
-//     } catch (error) {
-//         console.error('❌ Error saving task assignment:', error);
-//     }
-// };
 
 
 const updateTaskOrder = async (superintendentId, tasks) => {
@@ -540,12 +399,23 @@ const submitCompletion = async () => {
     }
 };
 
+const copyTask = async (task) => {
+    try {
+        const response = await axios.post(`/scheduling/overflow/copy/${task.id}`);
+        overflowItems.value.push(response.data); // Add new item to task list
+    } catch (error) {
+        console.error("Error duplicating task:", error);
+        alert("Failed to duplicate task.");
+    }
+};
+
+
 
 
 
 
 watch(showCompletionPopup, (val) => {
-  document.body.classList.toggle('modal-open', val)
+    document.body.classList.toggle('modal-open', val)
 })
 
 
@@ -555,30 +425,34 @@ watch(showCompletionPopup, (val) => {
 
 <style>
 .custom-search-input {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  font-weight: bold;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-radius: 6px;
 }
 
 .custom-search-input:focus {
-  outline: none;
-  border-color: #f3b700;
-  box-shadow: 0 0 5px rgba(243, 183, 0, 0.5);
+    outline: none;
+    border-color: #f3b700;
+    box-shadow: 0 0 5px rgba(243, 183, 0, 0.5);
 }
 
 
 .modal-overlay {
-  position: fixed !important;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  outline: 2px solid white;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    outline: 2px solid white;
 }
+
 .user-list {
     display: flex;
     flex-direction: column;
@@ -810,34 +684,40 @@ watch(showCompletionPopup, (val) => {
 
 :deep(.search-bar .dropdown),
 :deep(.search-bar .form-control) {
-    color: #fff !important;  /* White text */
-    border: 2px solid #fff !important;  /* White outline */
-    background-color: transparent !important; /* Keep background transparent */
+    color: #fff !important;
+    /* White text */
+    border: 2px solid #fff !important;
+    /* White outline */
+    background-color: transparent !important;
+    /* Keep background transparent */
     padding: 8px;
 }
 
 /* Ensure dropdown options are readable */
 :deep(.search-bar .dropdown option) {
-    color: #000 !important; /* Black text for dropdown options */
-    background-color: #fff !important; /* White background */
+    color: #000 !important;
+    /* Black text for dropdown options */
+    background-color: #fff !important;
+    /* White background */
 }
 
 /* Add hover effect */
 :deep(.search-bar .dropdown:hover),
 :deep(.search-bar .form-control:hover) {
-    border-color: #ddd !important; /* Lighter white on hover */
+    border-color: #ddd !important;
+    /* Lighter white on hover */
 }
 
 /* Ensure placeholder text is visible */
 :deep(.search-bar .form-control::placeholder) {
-    color: rgba(255, 255, 255, 0.7) !important; /* Light white placeholder */
+    color: rgba(255, 255, 255, 0.7) !important;
+    /* Light white placeholder */
     opacity: 1 !important;
 }
 
 /* Ensure input text remains white when typing */
 :deep(.search-bar .form-control) {
-    caret-color: #fff !important; /* White blinking cursor */
+    caret-color: #fff !important;
+    /* White blinking cursor */
 }
-
-
 </style>

@@ -4645,7 +4645,7 @@ textarea.form-control-lg {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1040;
+  z-index: 1019;
   width: 100vw;
   height: 100vh;
   background-color: #000; }
@@ -12742,7 +12742,7 @@ textarea.form-control-lg {
       .dark-version .sidenav.bg-transparent .nav .nav-link {
         color: #fff !important; }
     .dark-version .sidenav.bg-white {
-      background: #fff !important; }
+      background: #1a2035 !important; }
       .dark-version .sidenav.bg-white .navbar-nav .nav-link.active:after {
         color: rgba(206, 212, 218, 0.7); }
   .dark-version .fixed-plugin .btn.bg-gradient-dark, .dark-version .fixed-plugin .btn.btn-outline-dark {
@@ -14594,7 +14594,7 @@ hr.horizontal {
   transition: all 0.2s ease-in-out; }
 
 .sidenav {
-  z-index: 9999; }
+  z-index: 500; !important }
   .sidenav .navbar-brand,
   .sidenav .navbar-heading {
     display: block; }

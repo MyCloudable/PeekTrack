@@ -3,7 +3,7 @@
     <LoadingOverlay />
 
     <a href="javascript:;" class="nav-link" data-bs-toggle="modal" data-bs-target="#clockin"
-        @click="() => { getCrewMembers(); checkOrientation(); removeBackdrop(); }">
+        @click="() => { getCrewMembers(); checkOrientation(); }">
         <span class="sidenav-normal  ms-2  ps-1">
             <h2> <i class="fas fa-business-time"></i> </h2>
         </span>
@@ -203,15 +203,14 @@
         </div>
     </div>
     <!-- Edit Time Modal -->
-    <div class="modal fade" id="editTimeModal" tabindex="-1" role="dialog" aria-labelledby="editTimeModalLabel" aria-hidden="true">
-        <div v-if="isEditModalLandscape" class="rotate-overlay">
+    <div class="modal fade" id="editTimeModal" tabindex="-1" role="dialog" aria-labelledby="editTimeModalLabel"
+        aria-hidden="true">
+        <div v-if="isEditModalLandscape" class="rotate-notice rotate-portrait text-center">
             <div class="rotate-content">
                 <i class="fas fa-sync fa-spin fa-3x mb-3"></i>
-                <p>Please rotate your device to portait mode</p>
+                <p>Please rotate your device to landscape mode</p>
             </div>
         </div>
-		
-		
 
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content text-dark">
@@ -704,33 +703,20 @@ const applyManualTimes = () => {
 }
 
 
-// to fix popup style issue
-const removeBackdrop = () => {
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) backdrop.remove();
-
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = 'auto';
-}
-
-
 </script>
 
 <style scoped>
-
-
-
 /* General Modal & Content Styling */
 #clockin .modal,
 #clockin .modal-content,
 #clockin .modal-body {
     overflow: visible !important;
     position: relative !important;
-    z-index: 9999;
+    z-index: 99999;
 }
 
 /* Full width & height modal aligned to top-left */
-/* #clockin .modal-dialog {
+#clockin .modal-dialog {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -739,23 +725,7 @@ const removeBackdrop = () => {
     max-width: 100vw !important;
     margin: 0 !important;
     padding: 0 !important;
-} */
-
-#clockin .modal-dialog {
-    position: relative !important;
-    padding: 0 !important;
-    /* max-width: 1000px !important; */
-    width: 100% !important;
-    height: auto !important;
-    z-index: 2000 !important;
-    left: unset !important;
-    top: unset !important;
-    margin: auto !important;
-    box-shadow: none;
 }
-
-
-
 
 /* Full height modal content, no border radius */
 #clockin .modal-content {
@@ -775,14 +745,14 @@ const removeBackdrop = () => {
     padding-bottom: 5rem;
 }
 
-/* #clockin .modal-content { */
-/* width: auto !important; */
-/* height: auto !important; */
-/* z-index: 9999 !important; */
-/* Bootstrap default */
-/* border-radius: 0.5rem !important; */
+#clockin .modal-content {
+    width: auto !important;
+    height: auto !important;
+    z-index: 9999 !important;
+    /* Bootstrap default */
+    border-radius: 0.5rem !important;
 
-/* } */
+}
 
 
 /* Table layout */
@@ -895,6 +865,29 @@ const removeBackdrop = () => {
     }
 }
 
+/* Optional: Zoom out for iPads */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+
+    .modal-dialog {
+        transform: scale(0.9);
+        transform-origin: top left;
+    }
+
+    .modal-content {
+        font-size: 0.9rem;
+    }
+}
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
+
+    .modal-dialog {
+        transform: scale(0.85);
+    }
+
+    .modal-content {
+        font-size: 0.85rem;
+    }
+}
 
 
 
@@ -913,7 +906,7 @@ body.modal-open {
     top: 30% !important;
     bottom: 100% !important;
     left: 0 !important;
-    z-index: 9999 !important;
+    z-index: 99999 !important;
     margin-bottom: 8px !important;
     width: max-content;
     max-width: 100%;
@@ -947,7 +940,7 @@ body.modal-open {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9998;
+    z-index: 999999;
     text-align: center;
     overflow: hidden;
 }
@@ -972,23 +965,11 @@ body.modal-open .rotate-overlay {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 999999;
     text-align: center;
     overflow: hidden;
 }
 
-#editTimeModal .modal-content {
-    position: relative;
-    z-index: 100;
-}
-
-::v-deep(.modal-backdrop) {
-	z-index: 1 !important;
-}
-
-#editTimeModal .modal-backdrop.show {
-    opacity: 0;
-}
 .navbar-vertical.navbar-expand-xs.fixed-start {
     left: 0;
     z-index: 5;

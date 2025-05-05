@@ -243,8 +243,40 @@ class OverflowController extends Controller
         return response()->json(['message' => 'Overflow item deleted successfully!'], 200);
     }
 
+    public function copy($id)
+    {
+        $original = OverflowItem::findOrFail($id);
 
+        $copy = $original->replicate();
+        $copy->duplicated_from = $original->id;
+        $copy->created_at = now();
+        $copy->updated_at = now();
+        $copy->save();
 
+        // Fetch same structure as SchedulerController returns
+        $newItem = DB::table('overflow_items')
+            ->join('jobs', 'overflow_items.job_id', '=', 'jobs.id')
+            ->join('crew_types', 'overflow_items.crew_type_id', '=', 'crew_types.id')
+            ->join('branch', 'overflow_items.branch_id', '=', 'branch.id')
+            ->where('overflow_items.id', $copy->id)
+            ->select(
+                'jobs.job_number',
+                'crew_types.name as crew_type',
+                'jobs.contractor',
+                'overflow_items.id',
+                'overflow_items.traffic_shift',
+                'overflow_items.timein_date',
+                'overflow_items.timeout_date',
+                'overflow_items.notes',
+                'overflow_items.superintendent_id',
+                'overflow_items.task_order',
+                'overflow_items.job_id',
+                'overflow_items.duplicated_from',
+            )
+            ->first();
+
+        return response()->json($newItem);
+    }
 
 
 

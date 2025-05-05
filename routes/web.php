@@ -509,6 +509,9 @@ Route::group(['middleware' => 'auth'], function () {
 
 		Route::post('/complete-task', [SchedulingController::class, 'completeTask']);
 
+		Route::post('/overflow/copy/{id}', [OverflowController::class, 'copy']);
+
+
 	});
 
 

@@ -31,7 +31,7 @@ class SchedulingController extends Controller
     {
         $managerId = $request->query('manager_id');
 
-        $manager = User::where('id', $managerId)->select('location')->first();
+        $manager = User::where('id', $managerId)->select('id', 'name', 'location')->first();
         if (!$manager) {
             return response()->json(['error' => 'Manager not found'], 404);
         }
@@ -42,6 +42,13 @@ class SchedulingController extends Controller
             ->select('id', 'name', 'location')
             ->get();
 
+        // Prepend the manager as a superIntendent so they can assign to themselves
+        $superintendents = $superintendents
+        ->prepend($manager)
+        ->unique('id')   // remove duplicate if the manager was also a superintendent
+        ->values();
+
+        
         // Map users.location to correct branch descriptions
         $branchMapping = [
             'Columbus' => range(1, 10),
@@ -92,6 +99,7 @@ class SchedulingController extends Controller
                 'overflow_items.superintendent_id',
                 'overflow_items.task_order',
                 'overflow_items.job_id',
+                'overflow_items.duplicated_from',
             )
             ->orderBy('overflow_items.timeout_date', 'ASC') // Ensures dates are in ascending order
             ->get();

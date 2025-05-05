@@ -4,7 +4,7 @@
     <x-auth.navbars.navs.auth pageTitle="Crews"></x-auth.navbars.navs.auth>
     <div class="container-fluid py-4">
          <div class="row">
-            @if ($auth_role == 1 || $auth_role == 2)
+            @if ($auth_role == 1 || $auth_role == 2 || $auth_role == 7)
             <div class="col-md-12 mb-3">
                 <a href="{{route('crews.create')}}" class="btn btn-info">Create crew</a>
                 <x-alert />
@@ -36,7 +36,7 @@
                                     data-crew-id="{{$crew->id}}"
                                     >Show</button>
                                     <a href="{{route('crews.edit', $crew)}}" class="btn btn-warning">Edit</a>
-                                    @if ($auth_role == 1 || $auth_role == 2)
+                                    @if ($auth_role == 1 || $auth_role == 2 || $auth_role == 7)
                                     <form class="d-inline" action="{{ route('crews.destroy', $crew) }}" method="POST">
                                         @method('DELETE')
                                         @csrf
