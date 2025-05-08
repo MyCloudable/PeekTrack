@@ -60,12 +60,12 @@ onMounted(() => {
     }))
 
     // Format users for superintendents
-    formattedSuperIntendents.value = props.users
-        .filter(user => user.role_id === 3) // Filter for superintendents
-        .map(user => ({
-            id: user.id,
-            text: `${user.id} - ${user.name}` // Combine ID and Name
-        }))
+formattedSuperIntendents.value = props.users
+    .filter(user => user.role_id === 3 || user.role_id === 7)
+    .map(user => ({
+        id: user.id,
+        text: `${user.id} - ${user.name}`
+    }))
 
     // Format users for crew members
     formattedCrewMembers.value = props.users

@@ -50,18 +50,19 @@ class SchedulingController extends Controller
 
         
         // Map users.location to correct branch descriptions
-        $branchMapping = [
-            'Columbus' => range(1, 10),
-            'Cartersville' => [11],
-            'Locust Grove' => [12],
-            'Remerton' => [20],
-            'Byron' => range(30, 39),
-            'Cleveland' => range(50, 59),
-            'Columbia' => [40],
-            'Summerville' => [60],
-            'Spartanburg' => [70],
-            'Richmond Hill' => [80],
-        ];
+$branchMapping = [
+    'Columbus' => range(1, 10),
+    'Cartersville' => [11, 16],
+    'Locust Grove' => array_merge(range(12, 15), [18]),
+    'Remerton' => range(22, 25),
+    'Byron' => range(30, 39),
+    'Cleveland' => range(50, 59),
+    'Columbia' => [40],
+    'Summerville' => [60],
+    'Spartanburg' => [70],
+    'Richmond Hill' => [80],
+];
+
 
         // Find matching branch descriptions based on manager's location
         $matchingBranchDescriptions = [];

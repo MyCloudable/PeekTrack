@@ -108,17 +108,9 @@ class OverflowController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'job_id' => 'required|integer',
-            'phases' => 'required|array',
-            'branch_id' => 'integer',
-            'notes' => 'nullable|string|max:1000',
-            'timein_date' => 'date',
-            'timeout_date' => 'date',
-            'traffic_shift' => 'boolean',
-        ]);
+   
 
-        // dd($request->all());
+       // dd($request->all());
 
         $createdBy = auth()->id();
 

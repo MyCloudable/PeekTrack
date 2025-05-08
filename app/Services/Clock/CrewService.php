@@ -16,7 +16,7 @@ class CrewService {
 
         $query =  Crew::with(['superintendent:id,name,email', 'createdBy:id,name,email', 
                     'modifiedBy:id,name,email', 'crewType:id,name,value'])
-                    ->when(($role !== 1 && $role !== 2 && $role !== 7), function ($query, $role) {
+                    ->when(($role !== 1 && $role !== 2), function ($query, $role) {
                         $query->where('superintendentId', auth()->id());
                     });
 

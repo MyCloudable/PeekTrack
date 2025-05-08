@@ -25,6 +25,7 @@
                 <th>County</th>
                 <th>Contractor</th>
                 <th>Branch</th>
+				<th>Est. Comp</th>
             </tr>
         </thead>
 
@@ -79,6 +80,7 @@ const tableOptions = ref({
         { data: 'county', title: 'County' },
         { data: 'contractor', title: 'Contractor' },
         { data: 'branch', title: 'Branch' },
+		{ data: 'completion_date', title: 'Est. Comp' },
     ],
 
     initComplete: function () {

@@ -19,9 +19,16 @@
 
           <div class="input-group-outline mt-4">
             <label for="">Job phases (Hold CTRL for multi-select)</label>
-<select class="form-control clean-multiselect" v-model="formData.phases" multiple>
-  <option v-for="p in phases" :key="p.id" :value="p.id">{{ p.text }}</option>
-</select>
+<Multiselect
+  v-model="formData.phases"
+  :options="phases"
+  :multiple="true"
+  :close-on-select="false"
+  label="text"
+  track-by="id"
+  placeholder="Select job phases"
+/>
+
           </div>
 
           <div class="input-group-outline mt-4">
@@ -66,6 +73,8 @@ import { ref, onMounted } from 'vue'
 import { useToast } from "vue-toastification"
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
+
+
 
 const props = defineProps({
   job_id: Number,
@@ -206,22 +215,11 @@ const fetchOverflowItem = async (id) => {
 // Submit Form (Create or Edit)
 const submit = async () => {
   try {
-
     const payload = {
       ...formData.value,
       job_id: props.job_id,
+      phases: formData.value.phases.map(p => p.id), // Only send the ids!
     };
-
-
-    // const payload = {
-    //   job_id: props.job_id,
-    //   crew_type_id: Array.isArray(formData.value.phases) ? formData.value.phases[0] : formData.value.phases, // Extract the first element if it's an array
-    //   branch_id: formData.value.branch_id,
-    //   notes: formData.value.notes,
-    //   timein_date: formData.value.timein_date,
-    //   timeout_date: formData.value.timeout_date,
-    //   traffic_shift: formData.value.traffic_shift ? 1 : 0 // Ensure boolean is stored as 1 or 0
-    // };
 
     if (editMode.value) {
       await axios.put(`/scheduling/overflow/update/${formData.value.id}`, payload);
@@ -233,21 +231,15 @@ const submit = async () => {
 
     closePopup();
   } catch (error) {
-    if (error.response && error.response.data) {
-      // If Laravel returns validation errors
-      if (error.response.status === 422) {
-        const errors = error.response.data.errors;
-        let errorMessages = Object.values(errors).flat().join("\n"); // Convert errors to a readable format
-        toast.error(errorMessages);
-      } else {
-        toast.error(error.response.data.message || "Failed to save overflow item");
-      }
+    if (error.response?.status === 422) {
+      const errorMessages = Object.values(error.response.data.errors).flat().join("\n");
+      toast.error(errorMessages);
     } else {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
     }
   }
-
 };
+
 
 // Close Popup
 const closePopup = () => {

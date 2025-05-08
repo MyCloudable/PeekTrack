@@ -1,3 +1,4 @@
+<meta name="csrf-token" content="{{ csrf_token() }}">
 @if (auth()->user()->role_id == 6)
     <script type="text/javascript">
         window.location = "{{ url('/crewmember') }}";

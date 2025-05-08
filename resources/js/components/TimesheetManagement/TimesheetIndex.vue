@@ -82,6 +82,7 @@ const editingRows = reactive(new Set())
 const selectAllApproval = ref(false)
 
 const totalTimeFooter = ref('')
+axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
 
 
@@ -266,7 +267,8 @@ const tableOptions = ref({
             orderable: true,
             render: function (data, type, row) {
                 let isDisabled = false
-                if (props.authuser.role_id != 2 || row.crewmember_role == 6) {
+
+                if (props.authuser.role_id >= 3) {
                 isDisabled = true
                 }
                 return `<input type="checkbox" class="form-check-input weekend-out-approval-checkbox" data-id="${row.timesheet_id}" data-type="weekend_out" ${data ? 'checked' : ''} ${isDisabled ? 'disabled' : ''} />`
@@ -285,7 +287,7 @@ const tableOptions = ref({
             title: '<input type="checkbox" class="form-check-input select-all-approval" data-type="reviewer_approval" data-el="reviewer-approval-checkbox" /> RA',
             orderable: true,
             render: function (data, type, row) {
-                return `<input type="checkbox" class="form-check-input reviewer-approval-checkbox" data-id="${row.timesheet_id}" data-type="reviewer_approval" ${data ? 'checked' : ''} ${props.authuser.role_id == 2 ? '' : 'disabled'} />`
+                return `<input type="checkbox" class="form-check-input reviewer-approval-checkbox" data-id="${row.timesheet_id}" data-type="reviewer_approval" ${data ? 'checked' : ''} ${props.authuser.role_id <= 3 ? '' : 'disabled'} />`
             }
         },
 
@@ -309,6 +311,7 @@ const tableOptions = ref({
                     const isSuperintendent = props.authuser.role_id === 3
                     const isReviewer = props.authuser.role_id === 2
                     const isPayrollAdmin = props.authuser.role_id === 5
+					const isAdmin = props.authuser.role_id === 1
 
                     // Approval statuses
                     const isCmaApproved = row.crew_member_approval === 1
@@ -366,13 +369,13 @@ const tableOptions = ref({
 
 
                     if (isCmaApproved) { // only reviewer and payroll admin can interact
-                        if ((isReviewer || isPayrollAdmin) && (!isReviewerApproved && !isPayrollApproved)) {
+                        if ((isReviewer || isPayrollAdmin || isAdmin) && (!isReviewerApproved && !isPayrollApproved)) {
                             return true
                         } else {
                             return false
                         }
                     } else { // all users, superintendent , reviewer and payroll admin can interact
-                        if ((isSuperintendent || isReviewer || isPayrollAdmin) && (!isReviewerApproved && !isPayrollApproved)) {
+                        if ((isSuperintendent || isReviewer || isPayrollAdmin || isAdmin) && (!isReviewerApproved && !isPayrollApproved)) {
                             return true
                         } else {
                             return false
@@ -444,6 +447,8 @@ const handleCheckboxChange = async (event) => {
         const type = checkbox.dataset.type
 
         try {
+			
+			
             const response = await axios.post('/timesheet-management/update-checkbox-approval', {
                 id: id,
                 approved: isChecked,
@@ -457,9 +462,11 @@ const handleCheckboxChange = async (event) => {
                 }
                 toast.success('Approval status updated successfully')
             } else {
+			
                 toast.error('Failed to update approval status')
             }
         } catch (error) {
+
             toast.error('An error occurred while updating approval status')
         } finally {
             setLoading(false)
@@ -824,8 +831,13 @@ function selectOption(event, timesheetId) {
 
 body.dark-version table.dataTable tbody tr:nth-child(even) {
     background-color: #333;
+	
     /* Darker shade for dark theme */
-
+   
+}
+.dark-version .table tbody tr td {
+    color: #fff !important;
+ 
 }
 
 .custom-dropdown-list {

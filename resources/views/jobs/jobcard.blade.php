@@ -190,7 +190,7 @@
 											@endif
                                         </select></td>
 										
-                                    <td><input class="form-control-sm" type="number" step="0.001" name="ehours[]" value="{{ $jobequipment->hours }}"></td>
+                                    <td><input class="form-control-sm" type="number" step="0.001" min="0.001" name="ehours[]" value="{{ $jobequipment->hours }}"></td>
 <td><a href="{{ route('jobs.removeLineJBRE', ['link' => $jobcard[0]->link, 'id' => $jobequipment->id, 'ref' => '0']) }}" class="btn btn-danger" onclick="return confirm('Are you sure?');">Remove</a></td>									@endforeach
                                     <!-- Add more input fields for other attributes -->
                             </tbody>
@@ -668,7 +668,7 @@ window.addEventListener('popstate', function (event)
 			+ 
 			'<td><select style="background-color: white;color: black !important;" class="form-control-sm" name="etruck[]"><option value="">Make a selection</option><option value="03-99">Crew Cab Truck</option><option value="10-99">Paint Truck</option><option value="21-99">Haul Truck</option><option value="30-99">Longline Truck</option><option value="32-99">Handline Truck</option><option value="37-99">Marker Truck</option><option value="38-99">Sealer Truck</option><option value="39-99">Knock Up Truck</option><option value="40-99">Removal Truck</option><option value="42-96">Vacuum Truck</option><option value="42-97">Tape Truck</option><option value="42-98">Waterblast Truck</option><option value="42-99">Epoxy Truck</option></select></td>' 
 			+ 
-			'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="number" name="ehours[]" value="0" placeholder="0"></td>' 
+			'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="number" name="ehours[]" min="0.001" value="0" placeholder="0"></td>' 
 			+ 
 			'<td><input type="button" class="btn-warning" value="Delete Row" onclick="SomeDeleteRowFunction(this)"></td>';
             // Append the new row to the table
@@ -710,7 +710,7 @@ window.addEventListener('popstate', function (event)
 				+ 
 				'<td><select style="background-color: white;color: black !important;" class="form-control-sm" name="etruck[]"><option value="">Make a selection</option><option value="03-99">Crew Cab Truck</option><option value="10-99">Paint Truck</option><option value="21-99">Haul Truck</option><option value="30-99">Longline Truck</option><option value="32-99">Handline Truck</option><option value="37-99">Marker Truck</option><option value="38-99">Sealer Truck</option><option value="39-99">Knock Up Truck</option><option value="40-99">Removal Truck</option><option value="42-96">Vacuum Truck</option><option value="42-98">Tape Truck</option><option value="42-99">Waterblast Truck</option><option value="42-97">Epoxy Truck</option></select></td>'
 				+ 
-				'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="number" name="ehours[]" placeholder="0" value="0"></td>' 
+				'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="number" name="ehours[]" min="0.001" placeholder="0" value="0"></td>' 
 				+ 
 				'<td><input type="button" class="btn-warning" value="Delete Row" onclick="SomeDeleteRowFunction(this)"></td>';
                 // Append the new row to the table

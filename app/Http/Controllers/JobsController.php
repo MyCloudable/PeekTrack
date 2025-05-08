@@ -1033,7 +1033,18 @@ if (isset($request->mqty[$i])){
     ->join("production", "production.link", "=", "jobentries.link")
     ->select('production.phase','jobentries.workdate','jobentries.job_number','production.qty')
     ->whereBetween("jobentries.workdate", [$date1, $date2])->where('approved', '1')->where('qty','>', '0')->get();
-                
+    $links = \DB::table('jobentries')
+    ->join('production', 'production.link', '=', 'jobentries.link')
+    ->whereBetween('jobentries.workdate', [$date1, $date2])
+    ->where('approved', '1')
+    ->where('qty', '>', 0)
+    ->pluck('production.link');
+
+	// Step 2: Update the `billing_approval` column
+	\DB::table('jobentries')
+    ->whereIn('link', $links)
+    ->update(['billing_approval' => 1]); 
+    
     $csvFileName = 'production.txt';
 
 
@@ -1068,7 +1079,18 @@ if (isset($request->mqty[$i])){
         ->whereBetween("jobentries.workdate", [$date1, $date2])->where('approved', '1')->where('qty','>', '0')->get();
                     
         $csvFileName = 'material.txt';
-    
+		
+		$links = \DB::table('jobentries')
+    ->join('material', 'material.link', '=', 'jobentries.link')
+    ->whereBetween('jobentries.workdate', [$date1, $date2])
+    ->where('approved', '1')
+    ->where('qty', '>', 0)
+    ->pluck('material.link');
+
+	// Step 2: Update the `billing_approval` column
+	\DB::table('jobentries')
+    ->whereIn('link', $links)
+    ->update(['billing_approval' => 1]);
     
         $headers = [
             'Content-Type' => 'text/csv',
@@ -1348,7 +1370,7 @@ $weekendout = \DB::select("
 
         fclose($handle);
     };
-
+	
     return response()->stream($callback, 200, $headers);
 }
 

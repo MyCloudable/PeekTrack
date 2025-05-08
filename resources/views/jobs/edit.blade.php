@@ -148,7 +148,7 @@
                     </div>
                     <center>
                         <label>Notes</label><br>
-                        <textarea rows="4" cols="100" name="notes"></textarea><br>
+                        <textarea rows="4" style="background-color: #fff !important;" cols="100" name="notes"></textarea><br>
 						<label>Work Date </label> <input type="date" name="workdate" required>
                     </center>
                     <br><br>

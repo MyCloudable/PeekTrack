@@ -1,4 +1,61 @@
 <style scoped>
+
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_length {
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+        float: left;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+    }
+
+    .dataTables_filter label,
+    .dataTables_length label {
+        color: white; /* Matches your dark theme */
+        font-weight: bold;
+    }
+
+    .dataTables_filter input,
+    .dataTables_length select {
+        background-color: #1f1f2e;
+        color: #fff;
+        border: 1px solid #FFA500;
+        border-radius: 5px;
+        padding: 4px 8px;
+        margin-left: 8px;
+    }
+
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        color: white;
+        margin-top: 1rem;
+    }
+
+    .dataTables_wrapper .paginate_button {
+        background-color: #FFA500;
+        border: none;
+        border-radius: 3px;
+        color: #000;
+        margin: 0 2px;
+        padding: 5px 10px;
+    }
+
+    .dataTables_wrapper .paginate_button.current {
+        background-color: #e68a00;
+        font-weight: bold;
+    }
+
+    .dataTables_wrapper .paginate_button:hover {
+        background-color: #ffb84d;
+    }
+
+
+
 /* Ensure sidebar and nav are under modals */
 .g-sidenav-show .sidenav {
     z-index: 1030 !important; /* lower than Bootstrap modal */
@@ -214,7 +271,7 @@ $(document).ready(function () {
 													@endif
                                             <small>  
 												    <div class="form-group form-file-upload form-file-multiple">
-		@if(auth()->user()->role_id < 3)
+		@if(auth()->user()->role_id != 3)
 		<button type="button" class="btn btn-warning btn-block mt-4" data-bs-toggle="modal" style="float: left;" data-bs-target="#modal-uploadfile">Upload File</button>&nbsp&nbsp&nbsp
 		
 		<button type="button" class="btn btn-warning btn-block mt-4" data-bs-toggle="modal" style="float: right;" data-bs-target="#modal-inactivefiles">View Archive</button>
@@ -239,7 +296,7 @@ $(document).ready(function () {
                 <tbody>
 		@foreach ($files as $file)
 			@if( $file->active == "0" && $file->type != "Work Order")
-		<tr><td class="gray-100"><h5>{{ $file->type }}</h5></td><td class="font-weight-bolder opacity-9"><h5>{{ $file->description }}</h5></td><td class="td-name"><h5>{{ $file->created_at }}</h5></td><td><input type="button" value="View" class="btn btn-warning" onclick="window.open('/uploads/{{ $file->name }}');"></td><td>@if(auth()->user()->role_id < 3) <a href="/delete-file/{{ $file->id }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to archive this job document?');">ARCHIVE</a>@endif </td></tr>
+		<tr><td class="gray-100"><h5>{{ $file->type }}</h5></td><td class="font-weight-bolder opacity-9"><h5>{{ $file->description }}</h5></td><td class="td-name"><h5>{{ $file->created_at }}</h5></td><td><input type="button" value="View" class="btn btn-warning" onclick="window.open('/uploads/{{ $file->name }}');"></td><td>@if(auth()->user()->role_id != 3) <a href="/delete-file/{{ $file->id }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to archive this job document?');">ARCHIVE</a>@endif </td></tr>
 		    @endif
 		@endforeach
 	<!-- Add more input fields for other attributes -->
@@ -276,7 +333,7 @@ $(document).ready(function () {
                 <tbody>
 		@foreach ($files as $file)
 			@if( $file->active == "0" && $file->type == "Work Order" )
-		<tr><td class="gray-100"><h5>{{ $file->type }}</h5></td><td class="gray-100"><h5>{{ $file->description }}</h5></td><td class="gray-100" ><h5>{{ $file->created_at }}</h5></td><td><input type="button" value="View" class="btn btn-warning" onclick="window.open('/uploads/{{ $file->name }}');"></td><td>@if(auth()->user()->role_id < 3) <a href="/delete-file/{{ $file->id }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to archive this work order?');">ARCHIVE</a> @endif </td></tr>
+		<tr><td class="gray-100"><h5>{{ $file->type }}</h5></td><td class="gray-100"><h5>{{ $file->description }}</h5></td><td class="gray-100" ><h5>{{ $file->created_at }}</h5></td><td><input type="button" value="View" class="btn btn-warning" onclick="window.open('/uploads/{{ $file->name }}');"></td><td>@if(auth()->user()->role_id != 3) <a href="/delete-file/{{ $file->id }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to archive this work order?');">ARCHIVE</a> @endif </td></tr>
 		    @endif
 		@endforeach
 	<!-- Add more input fields for other attributes -->
@@ -292,7 +349,7 @@ $(document).ready(function () {
 </div>
 <br>
 <button type="button" class="btn btn-round bg-gradient-warning mb-1" style="margin-left: 73%;" data-bs-toggle="modal" data-bs-target="#modal-notification">New Job Card Entry</button>
-                        <div class="col-11 mt-3" style="overflow-y:scroll;max-height: 400px;">
+                        <div class="col-11 mt-3" style="overflow-y:scroll;">
                             <div class="card mt-4" >
                                 <div class="card-header p-3 pt-2">
                                     <div class="icon icon-lg icon-shape bg-gradient-warning shadow text-center border-radius-xl mt-n4 float-start">
@@ -314,35 +371,51 @@ $(document).ready(function () {
 													
 										    </div>
                                 </div>
-										<table class="table table-flush" id="datatable-basic">
-										<thead class="thead-light">
-										<tr>
-										<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2"></th>
-										<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2">Submitted</th>
-										<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2">Status</th>
-										<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2">Work Date</th>
-										<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2">User</th>
-										</tr>
-										</thead>
-										<tbody>
-                                        @foreach ($jobentries as $jobentry) 
-										@if (auth()->user()->name == $jobentry->name || auth()->user()->name = 1)
-										
-										<tr>
-										<td>@If ($jobentry->submitted == 1)<input type="button" class="btn btn-round bg-gradient-warning mb-3" value="View" onclick="location.href='/jobs/{{ $jobentry->link }}/view/';"> </td><td><h4>Yes</h4></td>
-										@else 
-										<input type="button" class="btn btn-round bg-gradient-warning mb-3" value="Open" onclick="location.href='/jobs/{{ $jobentry->link }}/jobcard/';"></td><td><h4>No</h4></td>
-										@endif
-										<td ><h4>@If ($jobentry->approved == 0) NA @ElseIf ($jobentry->approved == 1) Approved @ElseIf ($jobentry->approved == 3) Pending @Else ($jobentry->approved == 2) Rejected @endif</h4></td>
-										<td ><h4>{{ $jobentry->workdate }}</h4></td>
-										
-										<td><h4>{{ $jobentry->name }}</h4></td>
-										</tr>
-										@endif
-										@endforeach    
-                                        
-										</tbody>
-										</table>
+								<div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+										<table class="table table-flush" id="datatable-jobentry">
+    <thead class="thead-light">
+        <tr>
+            <th></th>
+            <th>Submitted</th>
+            <th>Status</th>
+            <th>Work Date</th>
+            <th>User</th>
+        </tr>
+    </thead>
+    <tbody>
+	@php
+    $user = auth()->user();
+@endphp
+        @foreach ($jobentries as $jobentry) 
+
+
+
+@if ($user->name === $jobentry->name || in_array($user->role_id, [1, 2, 7, 10]))
+                <tr>
+                    <td>
+                        @if ($jobentry->submitted == 1)
+                            <input type="button" class="btn btn-round bg-gradient-warning mb-3" value="View" onclick="location.href='/jobs/{{ $jobentry->link }}/view/';">
+                        @else
+                            <input type="button" class="btn btn-round bg-gradient-warning mb-3" value="Open" onclick="location.href='/jobs/{{ $jobentry->link }}/jobcard/';">
+                        @endif
+                    </td>
+                    <td><h4>{{ $jobentry->submitted == 1 ? 'Yes' : 'No' }}</h4></td>
+                    <td><h4>
+                        @switch($jobentry->approved)
+                            @case(1) Approved @break
+                            @case(2) Rejected @break
+                            @case(3) Pending @break
+                            @default NA
+                        @endswitch
+                    </h4></td>
+                    <td><h4>{{ $jobentry->workdate }}</h4></td>
+                    <td><h4>{{ $jobentry->name }}</h4></td>
+                </tr>
+            @endif
+        @endforeach
+    </tbody>
+</table>
+</div>
 										
                                  
                                 <hr class="dark horizontal my-0">
@@ -368,6 +441,10 @@ $(document).ready(function () {
     <script src="{{ asset('assets') }}/js/plugins/chartjs.min.js"></script>
     <!--  Plugin for TiltJS, full documentation here: https://gijsroge.github.io/tilt.js/ -->
     <script src="{{ asset('assets') }}/js/plugins/tilt.min.js"></script>
+	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
   
 
 	<!-- Modal -->
@@ -508,6 +585,19 @@ $(document).ready(function () {
       </div>
     </div>
     <script>
+$(document).ready(function () {
+    $('#datatable-jobentry').DataTable({
+        order: [[3, 'desc']], // Default sort by Work Date (4th column, index 3)
+        language: {
+            search: "Search Entries:",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            paginate: { previous: "<", next: ">" },
+            emptyTable: "No job entries available"
+        }
+    });
+});
+
 // Get references to the dropdown and button elements
 
 //Set onclick to alert the selected value

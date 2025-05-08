@@ -16,6 +16,9 @@ body {
   }
 
 
+textarea {
+    background-color: #fff !important;
+}
 
 
 </style>
@@ -152,7 +155,7 @@ body {
                 </div>
             </div>
             <center>
-                <label>Notes</label><br> @foreach ($jobnotes as $jobnote) <textarea rows="2" cols="100" disabled> {{ $jobnote->note_type }} -  {{ $jobnote->username }} - {{ $jobnote->created_at }} : {{ $jobnote->note }}</textarea></br> @endforeach <br><br>
+                <label>Notes</label><br> @foreach ($jobnotes as $jobnote) <textarea rows="2" style="background-color: #fff !important;" cols="100" disabled> {{ $jobnote->note_type }} -  {{ $jobnote->username }} - {{ $jobnote->created_at }} : {{ $jobnote->note }}</textarea></br> @endforeach <br><br>
                 <br></br>
                
             </center>

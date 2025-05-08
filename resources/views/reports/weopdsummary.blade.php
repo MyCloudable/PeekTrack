@@ -54,15 +54,17 @@
                                     $location = $row['location']; // Assuming 'location' is available in the query results
 
                                     // Initialize the array for this user if not already done
-                                    if (!isset($userTotals[$userId])) {
-                                        $userTotals[$userId] = [
-                                            'name' => $row['crew_member_name'],
-                                            'location' => $location, // Add location to user details
-                                            'per_diem_total' => 0,
-                                            'weekend_out_total' => 0,
-                                            'daily' => [], // Stores per-diem and weekend-out by day
-                                        ];
-                                    }
+if (!isset($userTotals[$userId])) {
+    $userTotals[$userId] = [
+        'id' => $userId, // ✅ Add this line
+        'name' => $row['crew_member_name'],
+        'location' => $location,
+        'per_diem_total' => 0,
+        'weekend_out_total' => 0,
+        'daily' => [],
+    ];
+}
+
 
                                     // If this is the first time we're seeing this date, add it to the array
                                     if (!isset($userTotals[$userId]['daily'][$workDate])) {

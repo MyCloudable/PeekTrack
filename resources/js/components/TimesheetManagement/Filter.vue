@@ -103,7 +103,7 @@ let filterData = ref({})
 onMounted(() => {
     console.log('authuser is ' + props.authuser.email)
     props.users.map(user => {
-        (user.role_id == 3) ? superIntendents.value.push(user) : '';
+        (user.role_id == 3  || user.role_id == 7) ? superIntendents.value.push(user) : '';
 
         // if logged in user is superintendent then auto select logged in superintentend and make this dropdown disabled, so only see his records
         if (props.authuser.role_id == 3 && props.authuser.id == user.id) {

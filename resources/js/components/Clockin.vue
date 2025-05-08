@@ -2,25 +2,16 @@
 
     <LoadingOverlay />
 
-    <a href="javascript:;" class="nav-link" data-bs-toggle="modal" data-bs-target="#clockin"
-        @click="() => { getCrewMembers(); checkOrientation(); removeBackdrop(); }">
+    <a href="javascript:;" class="nav-link text-body p-0" data-bs-toggle="modal" data-bs-target="#clockin"
+        @click="getCrewMembers" v-if="iconVisible">
         <span class="sidenav-normal  ms-2  ps-1">
             <h2> <i class="fas fa-business-time"></i> </h2>
         </span>
     </a>
 
-
     <div class="modal fade" id="clockin" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
-        <div v-if="isPortrait" class="rotate-overlay">
-            <div class="rotate-content">
-                <i class="fas fa-sync fa-spin fa-3x mb-3"></i>
-                <p>Please rotate your device to landscape mode</p>
-            </div>
-        </div>
-
-
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
@@ -36,14 +27,17 @@
                                 <i class="fa fa-clock-o" aria-hidden="true" @click="toggleLateEntryTime"></i>
                             </div>
                             <div class="col-3">
-                                <VueDatePicker v-model="lateEntryTime" :enable-time="true" :formate="dateTimeFormat"
-                                    class="responsive-datepicker" v-if="isLateEntryTimeVisible"></VueDatePicker>
+                                <VueDatePicker v-model="lateEntryTime" :enable-time="true" 
+                                :formate="dateTimeFormat" 
+                                class="responsive-datepicker"
+                                v-if="isLateEntryTimeVisible"
+                                ></VueDatePicker>
                             </div>
                             <div class="col-8"></div>
                         </div>
                         <!-- Late Entry Time Ends -->
 
-                        <i class="fas fa-yen-sign"></i>
+                        
                         <div class="col-md-6 text-dark"><span class="badge badge-info me-2">Status: </span> {{ status }}
                             <select class="d-inline w-50 ms-2 mt-3" v-if="!isAlreadyVerified || enableCrewTypeId"
                                 v-model="crewTypeId">
@@ -68,7 +62,8 @@
                                 @is-mobilization="enableCrewTypeId = !enableCrewTypeId"
                                 :is-late-entry-time-visible="isLateEntryTimeVisible"
                                 :late-entry-time="lateEntryTime ? format(lateEntryTime, dateTimeFormat) : lateEntryTime"
-                                @last-entry-time-done="lastEntryTimeDone" />
+                                @last-entry-time-done="lastEntryTimeDone"
+                                />
 
                             <button type="button" class="btn btn-secondary p-3" @click="weatherEntry"
                                 v-if="isAlreadyVerified && !isAlreadyClockedin">Weather</button>
@@ -90,14 +85,26 @@
 
                     <div class="table-responsive">
                         <table class="table table-flush table-striped verify-crew-members">
-                            <thead>
+                            <thead class="">
                                 <tr>
-                                    <th v-if="!isAlreadyVerified" title="Check All">✔️</th>
-                                    <th title="Crew Member Name">👤</th>
-                                    <th v-if="isAlreadyClockedin || isAlreadyClockedout" title="Status">Status</th>
-                                    <th v-if="isAlreadyClockedin" title="Time In">Punch Time</th>
-                                    <th v-if="isMenualClockinout" title="Time Out">Punch Time</th>
-                                    <th v-if="isAlreadyClockedin || isAlreadyClockedout" title="Time">Total</th>
+                                    <th v-if="!isAlreadyVerified">
+                                        <div>Check</div>
+                                    </th>
+                                    <th>
+                                        <div>Name</div>
+                                    </th>
+                                    <th v-if="isAlreadyClockedin || isAlreadyClockedout">
+                                        <div>Status</div>
+                                    </th>
+                                    <th v-if="isAlreadyClockedin">
+                                        <div>Time</div>
+                                    </th>
+                                    <th v-if="isMenualClockinout">
+                                        <div>Time Out</div>
+                                    </th>
+                                    <th v-if="isAlreadyClockedin || isAlreadyClockedout">
+                                        <div>Total</div>
+                                    </th>
                                     <th v-if="isAlreadyClockedin">
                                         <div><half-full-per-diem :timesheetId="allPerDiemTimesheetIds"
                                                 :perDiem="allPerDiemStatus" @hf-per-diem-done="hfPerDiemDone" /></div>
@@ -155,7 +162,7 @@
                                                 @change="menualClockinout($event, member.timesheet_id, 'clockin')"
                                                 :value="member.clockin_time"> -->
                                             <VueDatePicker v-model="member.clockin_time_edit" :enable-time="true"
-                                                :formate="dateTimeFormat" :auto-apply="true" :placement="'top'"
+                                                :formate="dateTimeFormat"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockin')"
                                                 class="responsive-datepicker"></VueDatePicker>
                                         </div>
@@ -167,7 +174,7 @@
                                                 @change="menualClockinout($event, member.timesheet_id, 'clockout')"
                                                 :value="(member.clockout_time) ? member.clockout_time : now"> -->
                                             <VueDatePicker v-model="member.clockout_time_edit" :enable-time="true"
-                                                :formate="dateTimeFormat" :auto-apply="true" :placement="'top'"
+                                                :formate="dateTimeFormat"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockout')"
                                                 class="responsive-datepicker"></VueDatePicker>
                                         </div>
@@ -180,9 +187,8 @@
 
                                     <td class="d-flex">
                                         <div v-if="isAlreadyClockedin">
-                                            <i class="fa fa-pencil cursor-pointer"
-                                                @click="openTimeEditModal(member)"></i>
-                                            &nbsp&nbsp&nbsp&nbsp
+                                            <i class="fa fa-pencil cursor-pointer" aria-hidden="true"
+                                                @click="enableMenualClock(member.id)"></i>&nbsp&nbsp&nbsp&nbsp
                                             <half-full-per-diem :timesheetId="member.timesheet_id"
                                                 :perDiem="member.per_diem"
                                                 @hf-per-diem-done="hfPerDiemDone" />&nbsp&nbsp&nbsp&nbsp
@@ -202,47 +208,6 @@
             </div>
         </div>
     </div>
-    <!-- Edit Time Modal -->
-    <div class="modal fade" id="editTimeModal" tabindex="-1" role="dialog" aria-labelledby="editTimeModalLabel" aria-hidden="true">
-        <div v-if="isEditModalLandscape" class="rotate-overlay">
-            <div class="rotate-content">
-                <i class="fas fa-sync fa-spin fa-3x mb-3"></i>
-                <p>Please rotate your device to portait mode</p>
-            </div>
-        </div>
-		
-		
-
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content text-dark">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editTimeModalLabel">Edit Clock In/Out</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body d-flex flex-column gap-3">
-                    <!-- Clock In -->
-                    <div class="datepicker-wrapper">
-                        <label>Clock In</label>
-                        <VueDatePicker v-model="modalClockin" :enable-time="true" :auto-apply="true"
-                            :formate="dateTimeFormat" class="form-control responsive-datepicker"
-                            @update:model-value="saveMenualTime('clockin')" />
-                    </div>
-
-                    <!-- Clock Out -->
-                    <div class="datepicker-wrapper">
-                        <label>Clock Out</label>
-                        <VueDatePicker v-model="modalClockout" :enable-time="true" :auto-apply="true"
-                            :formate="dateTimeFormat" class="form-control responsive-datepicker"
-                            @update:model-value="saveMenualTime('clockout')" />
-                    </div>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-warning" @click="applyManualTimes">Save</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
 
 </template>
 
@@ -262,64 +227,6 @@ import { format, parse } from 'date-fns'
 
 import LoadingOverlay from './shared/LoadingOverlay.vue'
 import { useLoading } from '../composables/useLoading'
-
-
-const isPortrait = ref(false)
-
-const checkOrientation = () => {
-    const isPortraitMode =
-        (window.screen.orientation && window.screen.orientation.type.startsWith('portrait')) ||
-        window.orientation === 0 || // fallback for older iOS
-        window.innerHeight > window.innerWidth
-
-    isPortrait.value = isPortraitMode
-}
-
-const checkEditModalOrientation = () => {
-    const isLandscape =
-        (window.screen.orientation && window.screen.orientation.type.startsWith('landscape')) ||
-        window.orientation === 90 || window.orientation === -90 ||
-        window.innerWidth > window.innerHeight
-
-    isEditModalLandscape.value = isLandscape
-}
-
-
-onMounted(() => {
-    checkOrientation()
-    checkEditModalOrientation()
-
-    window.addEventListener('resize', () => {
-        checkOrientation()
-        checkEditModalOrientation()
-    })
-    window.addEventListener('orientationchange', () => {
-        checkOrientation()
-        checkEditModalOrientation()
-    })
-
-    const editModal = document.getElementById('editTimeModal')
-    if (editModal) {
-        editModal.addEventListener('shown.bs.modal', checkEditModalOrientation)
-    }
-})
-
-onUnmounted(() => {
-    window.removeEventListener('resize', checkOrientation)
-    window.removeEventListener('resize', checkEditModalOrientation)
-    window.removeEventListener('orientationchange', checkOrientation)
-    window.removeEventListener('orientationchange', checkEditModalOrientation)
-
-    const editModal = document.getElementById('editTimeModal')
-    if (editModal) {
-        editModal.removeEventListener('shown.bs.modal', checkEditModalOrientation)
-    }
-})
-
-const forceReflow = () => {
-    document.body.offsetHeight // triggers reflow
-}
-const isEditModalLandscape = ref(false)
 
 const toast = useToast()
 
@@ -680,45 +587,9 @@ const handleScroll = (() => {
 
 })
 
-const modalClockin = ref('')
-const modalClockout = ref('')
-const activeMemberId = ref(null)
-
-const openTimeEditModal = (member) => {
-    modalClockin.value = member.clockin_time_edit
-    modalClockout.value = member.clockout_time_edit
-    activeMemberId.value = member.id
-    const modal = new bootstrap.Modal(document.getElementById('editTimeModal'))
-    modal.show()
-}
-
-const applyManualTimes = () => {
-    const member = CrewMembersTobeVerified.value.find(m => m.id === activeMemberId.value)
-    if (member) {
-        member.clockin_time_edit = modalClockin.value
-        member.clockout_time_edit = modalClockout.value
-        menualClockinout(modalClockin.value, member.timesheet_id, 'clockin')
-        menualClockinout(modalClockout.value, member.timesheet_id, 'clockout')
-    }
-    bootstrap.Modal.getInstance(document.getElementById('editTimeModal')).hide()
-}
-
-
-// to fix popup style issue
-const removeBackdrop = () => {
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) backdrop.remove();
-
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = 'auto';
-}
-
-
 </script>
 
-<style scoped>
-
-
+<style>
 
 /* General Modal & Content Styling */
 #clockin .modal,
@@ -786,18 +657,18 @@ const removeBackdrop = () => {
 
 
 /* Table layout */
-.table-responsive {
+#clockin .table-responsive {
     overflow-x: auto !important;
 }
 
-.table {
+#clockin .table {
 
     table-layout: fixed !important;
     width: 100% !important;
 }
 
-.table th,
-.table td {
+#clockin .table th,
+#clockin .table td {
     white-space: nowrap;
     text-align: center;
     vertical-align: middle;
