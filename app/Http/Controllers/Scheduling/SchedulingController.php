@@ -53,14 +53,16 @@ class SchedulingController extends Controller
 $branchMapping = [
     'Columbus' => range(1, 10),
     'Cartersville' => [11, 16],
-    'Locust Grove' => array_merge(range(12, 15), [18]),
+    'Locust_Grove' => array_merge(range(12, 15), [18]),
     'Remerton' => range(22, 25),
     'Byron' => range(30, 39),
     'Cleveland' => range(50, 59),
-    'Columbia' => [40],
-    'Summerville' => [60],
-    'Spartanburg' => [70],
-    'Richmond Hill' => [80],
+    'Columbia' => range(40, 45),
+    'Summerville' => range(60, 65),
+    'Spartanburg' => range(70, 75),
+    'Richmond_Hill' => range(80, 85),
+	'Conway' => range(90, 96),
+
 ];
 
 

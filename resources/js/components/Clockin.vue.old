@@ -920,7 +920,7 @@ body.modal-open {
 }
 
 /* Optional: Prevent overflow in smaller screens */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
     .datepicker-wrapper .dp__outer_menu_wrap {
         left: 50% !important;
         transform: translateX(-50%);
@@ -980,6 +980,8 @@ body.modal-open .rotate-overlay {
 #editTimeModal .modal-content {
     position: relative;
     z-index: 100;
+	width: 100vw !important;
+	height: 100vh !important;
 }
 
 ::v-deep(.modal-backdrop) {
@@ -992,5 +994,34 @@ body.modal-open .rotate-overlay {
 .navbar-vertical.navbar-expand-xs.fixed-start {
     left: 0;
     z-index: 5;
+}
+
+/* tablet / small desktop: 768px up to 1200px */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  /* target only your clock‑in modal (or edit modal) */
+  #clockin .modal-dialog.modal-xl,
+  #editTimeModal .modal-dialog {
+    /* span the full viewport */
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* its content must match the dialog size */
+  #clockin .modal-content,
+  #editTimeModal .modal-content {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+  }
+
+  /* make sure the body scroll area is correct */
+  #clockin .modal-body,
+  #editTimeModal .modal-body {
+    height: calc(100vh - 100px) !important; /* adjust for your header/footer */
+    overflow-y: auto !important;
+  }
 }
 </style>

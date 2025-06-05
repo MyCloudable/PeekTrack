@@ -27,14 +27,16 @@
   label="text"
   track-by="id"
   placeholder="Select job phases"
+  :disabled="editMode"  
 />
+
 
           </div>
 
           <div class="input-group-outline mt-4">
             <label>Branch</label>
 			<select class="form-control custom-white-select mt-3" v-model="formData.branch_id">
-				<option v-for="b in branches" :key="b.id" :value="b.id">{{ b.text }}</option>
+				<option v-for="b in branches" :key="b.id" :value="b.id">{{ b.text.substring(b.text.lastIndexOf(' ') + 1) }}</option>
 			</select>
           </div>
 
@@ -172,10 +174,11 @@ const fetchOverflowItem = async (id) => {
     const response = await axios.get(`/scheduling/overflow/item/${id}`);
     let data = response.data;
 
-    // Convert crew_type_id to an array
-    data.phases = data.phases ? [data.phases] : [];
+    // Match the returned phase ID with one of the existing phase option objects
+    const selectedPhase = phases.value.find(p => p.id === data.phases);
 
-    // Convert traffic_shift to Boolean (0 → false, 1 → true)
+    data.phases = selectedPhase || null; // Fallback to null if not found
+
     data.traffic_shift = !!data.traffic_shift;
 
     formData.value = data;
@@ -183,6 +186,7 @@ const fetchOverflowItem = async (id) => {
     console.error("Error fetching overflow item:", error);
   }
 };
+
 
 
 
@@ -215,12 +219,15 @@ const fetchOverflowItem = async (id) => {
 // Submit Form (Create or Edit)
 const submit = async () => {
   try {
-    const payload = {
-      ...formData.value,
-      job_id: props.job_id,
-      phases: formData.value.phases.map(p => p.id), // Only send the ids!
-    };
+const payload = {
+  ...formData.value,
+  job_id: props.job_id,
+  phases: editMode.value
+    ? [formData.value.phases?.id]   // wrap single ID in array
+    : formData.value.phases.map(p => p.id),  // multiple IDs in create mode
+};
 
+	
     if (editMode.value) {
       await axios.put(`/scheduling/overflow/update/${formData.value.id}`, payload);
       toast.success("Overflow item updated successfully!");
@@ -238,7 +245,7 @@ const submit = async () => {
       toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
     }
   }
-};
+};	
 
 
 // Close Popup

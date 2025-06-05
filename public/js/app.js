@@ -22599,7 +22599,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     // Fetch overflow item for update
     var fetchOverflowItem = /*#__PURE__*/function () {
       var _ref6 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(id) {
-        var response, data;
+        var response, data, selectedPhase;
         return _regeneratorRuntime().wrap(function _callee5$(_context5) {
           while (1) switch (_context5.prev = _context5.next) {
             case 0:
@@ -22608,23 +22608,25 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return axios.get("/scheduling/overflow/item/".concat(id));
             case 3:
               response = _context5.sent;
-              data = response.data; // Convert crew_type_id to an array
-              data.phases = data.phases ? [data.phases] : [];
+              data = response.data; // Match the returned phase ID with one of the existing phase option objects
+              selectedPhase = phases.value.find(function (p) {
+                return p.id === data.phases;
+              });
+              data.phases = selectedPhase || null; // Fallback to null if not found
 
-              // Convert traffic_shift to Boolean (0 → false, 1 → true)
               data.traffic_shift = !!data.traffic_shift;
               formData.value = data;
-              _context5.next = 13;
+              _context5.next = 14;
               break;
-            case 10:
-              _context5.prev = 10;
+            case 11:
+              _context5.prev = 11;
               _context5.t0 = _context5["catch"](0);
               console.error("Error fetching overflow item:", _context5.t0);
-            case 13:
+            case 14:
             case "end":
               return _context5.stop();
           }
-        }, _callee5, null, [[0, 10]]);
+        }, _callee5, null, [[0, 11]]);
       }));
       return function fetchOverflowItem(_x) {
         return _ref6.apply(this, arguments);
@@ -22659,16 +22661,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     // Submit Form (Create or Edit)
     var submit = /*#__PURE__*/function () {
       var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
-        var payload, _error$response, errorMessages, _error$response2;
+        var _formData$value$phase, payload, _error$response, errorMessages, _error$response2;
         return _regeneratorRuntime().wrap(function _callee6$(_context6) {
           while (1) switch (_context6.prev = _context6.next) {
             case 0:
               _context6.prev = 0;
               payload = _objectSpread(_objectSpread({}, formData.value), {}, {
                 job_id: props.job_id,
-                phases: formData.value.phases.map(function (p) {
+                phases: editMode.value ? [(_formData$value$phase = formData.value.phases) === null || _formData$value$phase === void 0 ? void 0 : _formData$value$phase.id] // wrap single ID in array
+                : formData.value.phases.map(function (p) {
                   return p.id;
-                }) // Only send the ids!
+                }) // multiple IDs in create mode
               });
               if (!editMode.value) {
                 _context6.next = 8;
@@ -24002,7 +24005,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 
           // Determine if the pencil icon should be shown based on edit permissions
           var showPencilIcon = canEdit();
-          var showTrashIcon = (props.authuser.role_id === 3 || props.authuser.role_id === 2 || props.authuser.role_id === 5) && !row.payroll_approval;
+          var showTrashIcon = (props.authuser.role_id === 3 || props.authuser.role_id === 2 || props.authuser.role_id === 5 || props.authuser.role_id === 1) && !row.payroll_approval;
           var actionButtons = '';
           if (showPencilIcon) {
             actionButtons += "<i class=\"fa fa-pencil cursor-pointer edit-icon\" data-id=\"".concat(row.timesheet_id, "\" aria-hidden=\"true\"></i>");
@@ -24017,7 +24020,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 
           // if user is Admin, give recover option for deleted items
           console.log('give admin recover icon');
-          if (props.authuser.role_id == 1) {
+          if (props.authuser.role_id == 11) {
             if (row.deleted_at) {
               actionButtons += "<i class=\"fas fa-trash-restore cursor-pointer recover-icon\" data-id=\"".concat(row.timesheet_id, "\" style=\"margin-left:10px;\"></i>");
             }
@@ -24714,10 +24717,10 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0":
-/*!*****************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0 ***!
-  \*****************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0&scoped=true":
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0&scoped=true ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -24727,11 +24730,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
-var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
-  "class": "sidenav-normal ms-2 ps-1"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h2", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
-  "class": "fas fa-business-time"
-})])], -1 /* HOISTED */);
+var _withScopeId = function _withScopeId(n) {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.pushScopeId)("data-v-736f94d0"), n = n(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.popScopeId)(), n;
+};
+var _hoisted_1 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "sidenav-normal ms-2 ps-1"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h2", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-business-time"
+  })])], -1 /* HOISTED */);
+});
 var _hoisted_2 = [_hoisted_1];
 var _hoisted_3 = {
   "class": "modal fade",
@@ -24742,22 +24750,24 @@ var _hoisted_3 = {
   "aria-hidden": "true"
 };
 var _hoisted_4 = {
-  "class": "modal-dialog modal-dialog-centered modal-lg",
+  "class": "modal-dialog modal-dialog-centered modal-fullscreen",
   role: "document"
 };
 var _hoisted_5 = {
   "class": "modal-content"
 };
-var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-  "class": "modal-header"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-  type: "button",
-  "class": "btn-close",
-  "data-bs-dismiss": "modal",
-  "aria-label": "Close"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
-  "aria-hidden": "true"
-}, "×")])], -1 /* HOISTED */);
+var _hoisted_6 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": "modal-header"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    type: "button",
+    "class": "btn-close",
+    "data-bs-dismiss": "modal",
+    "aria-label": "Close"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "aria-hidden": "true"
+  }, "×")])], -1 /* HOISTED */);
+});
 var _hoisted_7 = {
   "class": "modal-body"
 };
@@ -24770,15 +24780,19 @@ var _hoisted_9 = {
 var _hoisted_10 = {
   "class": "col-3"
 };
-var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-  "class": "col-8"
-}, null, -1 /* HOISTED */);
+var _hoisted_11 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": "col-8"
+  }, null, -1 /* HOISTED */);
+});
 var _hoisted_12 = {
   "class": "col-md-6 text-dark"
 };
-var _hoisted_13 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
-  "class": "badge badge-info me-2"
-}, "Status: ", -1 /* HOISTED */);
+var _hoisted_13 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "badge badge-info me-2"
+  }, "Status: ", -1 /* HOISTED */);
+});
 var _hoisted_14 = ["value"];
 var _hoisted_15 = {
   "class": "col-md-6 d-flex justify-content-end"
@@ -24816,28 +24830,40 @@ var _hoisted_24 = {
 var _hoisted_25 = {
   key: 0
 };
-var _hoisted_26 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Check", -1 /* HOISTED */);
+var _hoisted_26 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Check", -1 /* HOISTED */);
+});
 var _hoisted_27 = [_hoisted_26];
-var _hoisted_28 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Name")], -1 /* HOISTED */);
+var _hoisted_28 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Name")], -1 /* HOISTED */);
+});
 var _hoisted_29 = {
   key: 1
 };
-var _hoisted_30 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Status", -1 /* HOISTED */);
+var _hoisted_30 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Status", -1 /* HOISTED */);
+});
 var _hoisted_31 = [_hoisted_30];
 var _hoisted_32 = {
   key: 2
 };
-var _hoisted_33 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Time", -1 /* HOISTED */);
+var _hoisted_33 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Time", -1 /* HOISTED */);
+});
 var _hoisted_34 = [_hoisted_33];
 var _hoisted_35 = {
   key: 3
 };
-var _hoisted_36 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Time Out", -1 /* HOISTED */);
+var _hoisted_36 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Time Out", -1 /* HOISTED */);
+});
 var _hoisted_37 = [_hoisted_36];
 var _hoisted_38 = {
   key: 4
 };
-var _hoisted_39 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Total", -1 /* HOISTED */);
+var _hoisted_39 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Total", -1 /* HOISTED */);
+});
 var _hoisted_40 = [_hoisted_39];
 var _hoisted_41 = {
   key: 5
@@ -24845,8 +24871,12 @@ var _hoisted_41 = {
 var _hoisted_42 = {
   key: 0
 };
-var _hoisted_43 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, null, -1 /* HOISTED */);
-var _hoisted_44 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, null, -1 /* HOISTED */);
+var _hoisted_43 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, null, -1 /* HOISTED */);
+});
+var _hoisted_44 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, null, -1 /* HOISTED */);
+});
 var _hoisted_45 = {
   key: 1,
   ref: "departWrapper"
@@ -24887,13 +24917,15 @@ var _hoisted_58 = {
   key: 0
 };
 var _hoisted_59 = ["onClick"];
-var _hoisted_60 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-  "class": "modal-footer"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-  type: "button",
-  "class": "btn bg-gradient-secondary",
-  "data-bs-dismiss": "modal"
-}, "Close")], -1 /* HOISTED */);
+var _hoisted_60 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": "modal-footer"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    type: "button",
+    "class": "btn bg-gradient-secondary",
+    "data-bs-dismiss": "modal"
+  }, "Close")], -1 /* HOISTED */);
+});
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_VueDatePicker = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("VueDatePicker");
   var _component_Select2 = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Select2");
@@ -24998,6 +25030,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     }),
     "enable-time": true,
     formate: $setup.dateTimeFormat,
+    teleport: "body",
     "class": "responsive-datepicker"
   }, null, 8 /* PROPS */, ["modelValue"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     "class": "btn btn-success",
@@ -25022,6 +25055,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       }],
       "enable-time": true,
       formate: $setup.dateTimeFormat,
+      teleport: "body",
       "class": "responsive-datepicker"
     }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])]))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_54, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <input type=\"datetime-local\" class=\"form-controll datetime\"\n                                                @change=\"menualClockinout($event, member.timesheet_id, 'clockout')\"\n                                                :value=\"(member.clockout_time) ? member.clockout_time : now\"> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
       modelValue: member.clockout_time_edit,
@@ -25032,6 +25066,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       }],
       "enable-time": true,
       formate: $setup.dateTimeFormat,
+      teleport: "body",
       "class": "responsive-datepicker"
     }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isMenualClockinout && !member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_55)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_56, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_57, [$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
       "class": "fa fa-pencil cursor-pointer",
@@ -25574,8 +25609,9 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     "close-on-select": false,
     label: "text",
     "track-by": "id",
-    placeholder: "Select job phases"
-  }, null, 8 /* PROPS */, ["modelValue", "options"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, [_hoisted_12, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    placeholder: "Select job phases",
+    disabled: $setup.editMode
+  }, null, 8 /* PROPS */, ["modelValue", "options", "disabled"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, [_hoisted_12, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     "class": "form-control custom-white-select mt-3",
     "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {
       return $setup.formData.branch_id = $event;
@@ -25584,7 +25620,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
       key: b.id,
       value: b.id
-    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(b.text), 9 /* TEXT, PROPS */, _hoisted_13);
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(b.text.substring(b.text.lastIndexOf(' ') + 1)), 9 /* TEXT, PROPS */, _hoisted_13);
   }), 128 /* KEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.branch_id]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_14, [_hoisted_15, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("textarea", {
     "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
       return $setup.formData.notes = $event;
@@ -26821,10 +26857,10 @@ ___CSS_LOADER_EXPORT___.push([module.id, "/* sass-plugin-1:/Users/maronato/Devel
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css":
-/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -26838,7 +26874,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n\n/* General Modal & Content Styling */\n#clockin .modal,\n#clockin .modal-content,\n#clockin .modal-body {\n    overflow: visible !important;\n    position: relative !important;\n    z-index: 9999;\n}\n\n/* Full width & height modal aligned to top-left */\n/* #clockin .modal-dialog {\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 100vw !important;\n    height: 100vh !important;\n    max-width: 100vw !important;\n    margin: 0 !important;\n    padding: 0 !important;\n} */\n#clockin .modal-dialog {\n    position: relative !important;\n    padding: 0 !important;\n    /* max-width: 1000px !important; */\n    width: 100% !important;\n    height: auto !important;\n    z-index: 2000 !important;\n    left: unset !important;\n    top: unset !important;\n    margin: auto !important;\n    box-shadow: none;\n}\n\n\n\n\n/* Full height modal content, no border radius */\n#clockin .modal-content {\n    width: 100vw !important;\n    height: 100vh !important;\n    border-radius: 0 !important;\n    font-size: 1rem;\n}\n\n/* Modal body scrollable */\n#clockin .modal-body {\n    height: calc(100vh - 120px) !important;\n    /* adjust if you have header/footer */\n    overflow-y: auto !important;\n    overflow-x: visible !important;\n    -webkit-overflow-scrolling: touch;\n    padding-bottom: 5rem;\n}\n\n/* #clockin .modal-content { */\n/* width: auto !important; */\n/* height: auto !important; */\n/* z-index: 9999 !important; */\n/* Bootstrap default */\n/* border-radius: 0.5rem !important; */\n\n/* } */\n\n\n/* Table layout */\n#clockin .table-responsive {\n    overflow-x: auto !important;\n}\n#clockin .table {\n\n    table-layout: fixed !important;\n    width: 100% !important;\n}\n#clockin .table th,\n#clockin .table td {\n    white-space: nowrap;\n    text-align: center;\n    vertical-align: middle;\n    line-height: 10px;\n}\n.dark-version .table> :not(caption)>*>* {\n    border-color: rgba(255, 255, 255, 0.4) !important;\n    color: #fff !important;\n}\n.verify-crew-members th,\n.verify-crew-members td {\n    white-space: nowrap;\n    text-align: center;\n    font-size: 0.85rem;\n    vertical-align: middle;\n    font-weight: bold;\n}\n.verify-crew-members td.d-flex {\n    gap: 6px;\n    justify-content: center;\n    align-items: center;\n}\n.verify-crew-members .responsive-datepicker {\n    max-width: 160px !important;\n}\n\n/* Make sure the modal and table adjust on smaller screens */\n@media (max-width: 1024px) {\n.verify-crew-members {\n        font-size: 0.75rem;\n}\n.verify-crew-members .responsive-datepicker {\n        max-width: 140px !important;\n}\n}\n.table td.text-truncate {\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n/* Date picker wrapper fixes */\n.dp__main {\n    overflow: visible !important;\n    position: relative !important;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper {\n    position: absolute !important;\n    z-index: 999999999 !important;\n    top: 200px !important;\n    left: 35% !important;\n}\n.dp__pointer.dp__input_readonly {\n    min-width: 210px !important;\n}\n\n/* Remove clear (X) button from date picker */\n.dp--clear-btn {\n    display: none !important;\n}\n\n/* Responsive fix for smaller mobile screens */\n@media (max-width: 767px) {\n.modal-dialog,\n    .modal-content {\n        width: 100vw !important;\n        height: 100vh !important;\n}\n.responsive-datepicker {\n        width: 100%;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper {\n        left: 10% !important;\n}\n.dp--menu-wrapper {\n        z-index: 9999999999 !important;\n}\n.dp__menu_inner {\n        position: relative;\n        z-index: 1200;\n}\n}\nbody.modal-open {\n    overflow: visible !important;\n}\n.datepicker-wrapper {\n    position: relative;\n}\n\n/* Force the picker popup to go above the input */\n.datepicker-wrapper .dp__outer_menu_wrap {\n    position: absolute !important;\n    top: 30% !important;\n    bottom: 100% !important;\n    left: 0 !important;\n    z-index: 9999 !important;\n    margin-bottom: 8px !important;\n    width: -moz-max-content;\n    width: max-content;\n    max-width: 100%;\n}\n\n/* Optional: Prevent overflow in smaller screens */\n@media (max-width: 768px) {\n.datepicker-wrapper .dp__outer_menu_wrap {\n        left: 50% !important;\n        transform: translateX(-50%);\n        width: 90vw !important;\n}\n}\n.rotate-notice {\n    background: #ffeeba;\n    color: #856404;\n    padding: 1rem;\n    border-radius: 8px;\n    border: 1px solid #ffeeba;\n    margin-bottom: 1rem;\n}\n.rotate-overlay {\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    background: rgba(255, 235, 59, 0.95);\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    z-index: 9998;\n    text-align: center;\n    overflow: hidden;\n}\nbody.modal-open .rotate-overlay {\n    overflow: hidden;\n}\n.rotate-content {\n    color: #333;\n    font-size: 1.2rem;\n}\n.rotate-portrait {\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    background: rgba(255, 235, 59, 0.95);\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    z-index: 9999;\n    text-align: center;\n    overflow: hidden;\n}\n#editTimeModal .modal-content {\n    position: relative;\n    z-index: 100;\n}\n::v-deep(.modal-backdrop) {\n\tz-index: 1 !important;\n}\n#editTimeModal .modal-backdrop.show {\n    opacity: 0;\n}\n.navbar-vertical.navbar-expand-xs.fixed-start {\n    left: 0;\n    z-index: 5;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n/* only apply 50vw when it’s NOT fullscreen */\n#clockin .modal-dialog:not(.modal-fullscreen) .modal-content[data-v-736f94d0] {\n  width: 50vw !important;\n}\n\n/* override for when you *do* use modal-fullscreen */\n#clockin .modal-dialog.modal-fullscreen .modal-content[data-v-736f94d0] {\n  width: 100vw !important;\n  margin: 0; /* ensure it hugs the edges */\n  height: 100vh !important; /* if you want full-height, too */\n}\n#clockin .modal-dialog[data-v-736f94d0] {\n  width: 100vw;\n  max-width: none;\n  height: 100vh;\n  margin: 0;\n}\n#clockin .modal-content[data-v-736f94d0] {\n  height: 100%;\n  border-radius: 0;\n}\n#clockin .modal-body[data-v-736f94d0] {\n  overflow-y: auto;\n}\n#clockin input[data-v-736f94d0],\n#clockin select[data-v-736f94d0],\n#clockin .responsive-datepicker[data-v-736f94d0],\n#clockin .select2-search__field[data-v-736f94d0] {\n  font-size: 16px !important;\n}\n.verify-crew-members[data-v-736f94d0] {\n    font-size: 14px;\n    background: #1A2035 !important;\n    min-height: 400px;\n    /* to fit date picker in all screens */\n}\n.verify-crew-members thead[data-v-736f94d0] {\n    height: 100px;\n    /* to fit date picker in all screens */\n}\n.table td[data-v-736f94d0],\n.table th[data-v-736f94d0] {\n    text-align: center;\n}\n.clr-light[data-v-736f94d0] {\n    color: rgba(255, 255, 255, 0.6) !important;\n}\n.dark-version .table tbody tr td[data-v-736f94d0] {\n    color: #fff !important;\n}\n.dark-version .table thead tr th[data-v-736f94d0] {\n    font-size: large !important;\n}\n\n/* to manage date picker  */\n.dp__pointer.dp__input_readonly[data-v-736f94d0] {\n    min-width: 210px !important;\n}\n\n\n\n/* to manage date picker ends  */\n\n\n/* to fit datepicker on mobile devices */\n@media (max-width: 767px) {\n.modal-dialog[data-v-736f94d0] {\n        max-width: 100%;\n        margin: 0;\n}\n.modal-content[data-v-736f94d0] {\n        border-radius: 0;\n}\n.responsive-datepicker[data-v-736f94d0] {\n        width: 100%;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper[data-v-736f94d0] {\n        left: 10% !important;\n        /* top: 30% !important; */\n}\n.dp--menu-wrapper[data-v-736f94d0] {\n        z-index: 9999999999 !important;\n}\n.dp__menu_inner[data-v-736f94d0] {\n        position: relative;\n        z-index: 1200;\n}\n}\n\n/* to fit datepicker on mobile devices ends */\n@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {\n.modal-lg[data-v-736f94d0] {\n        max-width: 100% !important;\n}\n}\n\n/* remove cross icon from date picker */\n.dp--clear-btn[data-v-736f94d0] {\n    display: none !important;\n}\n.form-control[data-v-736f94d0], select[data-v-736f94d0], textarea[data-v-736f94d0] {\n    background-color: #fff;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -65931,10 +65967,10 @@ var update = _style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMP
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css":
-/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css ***!
-  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css":
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -65944,7 +65980,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
 /* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_0_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!../../../node_modules/vue-loader/dist/stylePostLoader.js!../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css");
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_0_id_736f94d0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!../../../node_modules/vue-loader/dist/stylePostLoader.js!../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css");
 
             
 
@@ -65953,11 +65989,11 @@ var options = {};
 options.insert = "head";
 options.singleton = false;
 
-var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_0_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_1__["default"], options);
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_0_id_736f94d0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_1__["default"], options);
 
 
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_0_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_1__["default"].locals || {});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_0_id_736f94d0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_1__["default"].locals || {});
 
 /***/ }),
 
@@ -66624,9 +66660,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _Clockin_vue_vue_type_template_id_736f94d0__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Clockin.vue?vue&type=template&id=736f94d0 */ "./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0");
+/* harmony import */ var _Clockin_vue_vue_type_template_id_736f94d0_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Clockin.vue?vue&type=template&id=736f94d0&scoped=true */ "./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0&scoped=true");
 /* harmony import */ var _Clockin_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Clockin.vue?vue&type=script&setup=true&lang=js */ "./resources/js/components/Clockin.vue?vue&type=script&setup=true&lang=js");
-/* harmony import */ var _Clockin_vue_vue_type_style_index_0_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css */ "./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css");
+/* harmony import */ var _Clockin_vue_vue_type_style_index_0_id_736f94d0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css */ "./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css");
 /* harmony import */ var _var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
@@ -66635,7 +66671,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,_var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_Clockin_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Clockin_vue_vue_type_template_id_736f94d0__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/Clockin.vue"]])
+const __exports__ = /*#__PURE__*/(0,_var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_Clockin_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Clockin_vue_vue_type_template_id_736f94d0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-736f94d0"],['__file',"resources/js/components/Clockin.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -67414,18 +67450,18 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0":
-/*!***************************************************************************!*\
-  !*** ./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0 ***!
-  \***************************************************************************/
+/***/ "./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0&scoped=true":
+/*!***************************************************************************************!*\
+  !*** ./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0&scoped=true ***!
+  \***************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   render: () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_template_id_736f94d0__WEBPACK_IMPORTED_MODULE_0__.render)
+/* harmony export */   render: () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_template_id_736f94d0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render)
 /* harmony export */ });
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_template_id_736f94d0__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Clockin.vue?vue&type=template&id=736f94d0 */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0");
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_template_id_736f94d0_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Clockin.vue?vue&type=template&id=736f94d0&scoped=true */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0&scoped=true");
 
 
 /***/ }),
@@ -67686,15 +67722,15 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css":
-/*!*****************************************************************************************!*\
-  !*** ./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css ***!
-  \*****************************************************************************************/
+/***/ "./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css":
+/*!*****************************************************************************************************!*\
+  !*** ./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css ***!
+  \*****************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_0_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader/dist/cjs.js!../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!../../../node_modules/vue-loader/dist/stylePostLoader.js!../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&lang=css");
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_0_id_736f94d0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader/dist/cjs.js!../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!../../../node_modules/vue-loader/dist/stylePostLoader.js!../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css");
 
 
 /***/ }),

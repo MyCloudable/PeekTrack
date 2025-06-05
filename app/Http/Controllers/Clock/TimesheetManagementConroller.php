@@ -272,7 +272,7 @@ public function summary()
         }
 
         // don't show deleted items to other users if they are not admin , role 1 is admin here
-        if(Auth::user()->role_id !== 1){
+        if(Auth::user()->role_id !== 11){
             $query->whereNull('timesheets.deleted_at');
         }
 
@@ -551,7 +551,7 @@ public function summary()
         $timesheet = Timesheet::findOrFail($id);
 
         // Add your role checks here
-        if (($user->role_id == 2 || $user->role_id == 3 || $user->role_id == 5) && !$timesheet->payroll_approval) {
+        if (($user->role_id == 2 || $user->role_id == 3 || $user->role_id == 5 || $user->role_id == 1) && !$timesheet->payroll_approval) {
             $timesheet->delete();
             return response()->json(['success' => true, 'message' => 'Timesheet deleted successfully', 200]);
         }else{
@@ -599,6 +599,7 @@ public function summary()
 
                 // Timesheet::create($timesheetData);
 
+					
                 $clockinTime = Carbon::parse($timesheetData['clockin_time']);
                 $clockoutTime = Carbon::parse($timesheetData['clockout_time']);
 

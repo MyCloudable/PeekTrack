@@ -1,4 +1,52 @@
+<style>
+.form-control, select, textarea {
+    background-color: #fff !important;
 
+}
+
+/* Modal Base */
+.modal {
+    padding: 1rem;
+}
+
+/* Properly centered modal dialog */
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 600px;
+    width: 100%;
+	box-shadow: none !important;
+
+
+}
+
+/* Styled modal content */
+.modal-content {
+    background-color: #fefefe;
+    color: #222;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* Scrollable modal body if needed */
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* Close button contrast */
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.4); /* softer dark */
+    backdrop-filter: blur(2px);
+}
+
+
+</style>
     
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
      <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -392,150 +440,173 @@
             </div>
         </div>
     </div>
-		<div class="modal fade" id="modal-jobcardpos" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="background-color: black;">
-                    <div class="py-3 text-center">
-                        <table class="table table-flush" id="datatable-basic">
-                            <thead class="thead-light">
+<!-- Job Card PO Modal -->
+<div class="modal fade" id="modal-jobcardpos" tabindex="-1" role="dialog" aria-labelledby="modal-jobcardpos-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="modal-jobcardpos-label">Job Card Purchase Orders</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-black text-white">
+                <div class="py-3 text-center">
+                    <table class="table table-flush text-white" id="datatable-basic">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Signer</th>
+                                <th>PO Number</th>
+                                <th>Note</th>
+                                <th>Signature</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($pos as $po)
                                 <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2">Date</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2">Signer</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2">PO Number</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2">Note</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2" >Signature</th>
-                                </tr>
-                            </thead>
-                            <tbody> @foreach ($pos as $po) <tr>
-                                    <td>{{ $po->created_at}}</td>
+                                    <td>{{ $po->created_at }}</td>
                                     <td>{{ $po->signer_name }}</td>
-									<td>{{ $po->po_number }}</td>
+                                    <td>{{ $po->po_number }}</td>
                                     <td>{{ $po->notes }}</td>
-                                    <td style="background-color: #fff; !important "><img width="100" height="30" src="{{ $po->signature }}" alt="Red dot" /></td>
-                                </tr>@endforeach
-                                <!-- Add more input fields for other attributes -->
-                            </tbody>
-                        </table>
+                                    <td><img src="{{ $po->signature }}" alt="Signature" width="100" height="30" class="bg-white p-1" /></td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-dark">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rejection Modal -->
+<div class="modal fade" id="reject-submit" tabindex="-1" aria-labelledby="reject-submit-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="post" id="rejectForm" action="{{ route('jobs.rejectcard') }}">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="reject-submit-label">Reject Job Card</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-black text-white">
+                    <p class="text-center">Please explain the reason for the rejection:</p>
+                    <div class="mb-3">
+                        <label for="note-reject" class="form-label">Note</label>
+                        <textarea name="note" id="note-reject" class="form-control" required></textarea>
+                    </div>
+                    <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
+                    <input type="hidden" name="username" value="{{ Auth::user()->name }}">
+                    <input type="hidden" name="email" value="{{ Auth::user()->email }}">
+                    <input type="hidden" name="userId" value="{{ $jobcard[0]->userId }}">
+                </div>
+                <div class="modal-footer bg-dark">
+                    <button type="submit" class="btn btn-warning">Reject Job Card</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Estimating Queue Modal -->
+<div class="modal fade" id="est-submit" tabindex="-1" aria-labelledby="est-submit-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="post" id="estForm" action="{{ route('jobs.estqueue') }}">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="est-submit-label">Send to Estimating</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-black text-white">
+                    <p class="text-center">Please explain the reason for sending to the estimating queue:</p>
+                    <div class="mb-3">
+                        <label for="note-est" class="form-label">Note</label>
+                        <textarea name="note" id="note-est" class="form-control" required></textarea>
+                    </div>
+                    <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
+                    <input type="hidden" name="username" value="{{ Auth::user()->name }}">
+                    <input type="hidden" name="email" value="{{ Auth::user()->email }}">
+                    <input type="hidden" name="userId" value="{{ $jobcard[0]->userId }}">
+                </div>
+                <div class="modal-footer bg-dark">
+                    <button type="submit" class="btn btn-warning">Send to Estimating</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Approval Modal -->
+<div class="modal fade" id="approve" tabindex="-1" aria-labelledby="approve-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="post" id="approveForm" action="{{ route('jobs.updatecard') }}">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="approve-label">Approve Job Card</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-black text-white text-center">
+                    Are you sure you want to approve this job card?
+                    <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
+                    <input type="hidden" name="username" value="{{ Auth::user()->name }}">
+                </div>
+                <div class="modal-footer bg-dark">
+                    <button type="submit" class="btn btn-warning">Approve Job Card</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Change Job Number Modal -->
+<div class="modal fade" id="modal-changeJob" tabindex="-1" aria-labelledby="modal-changeJob-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="post" action="{{ route('jobs.changeJobNum') }}">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="modal-changeJob-label">Change Job Number</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-black text-white">
+                    <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
+                    <input type="hidden" name="job_number" value="{{ $jobcard[0]->job_number }}">
+                    <input type="hidden" name="csrf-token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="userId" value="{{ Auth::user()->id }}">
+
+                    <div class="mb-3">
+                        <label for="jobnumber" class="form-label">Select New Job Number</label>
+                        <select name="jobnumber" id="jobnumber" class="form-select" required>
+                            @foreach ($jobnumbers as $jobnumber)
+                                <option value="{{ $jobnumber->job_number }}">{{ $jobnumber->job_number }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
+                <div class="modal-footer bg-dark">
+                    <button type="submit" class="btn btn-warning">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
-    <div class="modal fade" id="reject-submit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="background-color: black;">
-                    <div class="py-3 text-center"> 
-					Please explain the reason for the rejection? 
-					<form method="post" id="rejectForm" action="{{ route('jobs.rejectcard')}}">
-                            <!-- We display the details entered by the user here -->
-                            <table class="table">
-                                <tr>
-                                    <th>Note</th>
-                                    <td><textarea name="note"></textarea></td>
-                                </tr>
-                            </table>
-                            <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
-                            <input type="hidden" name="username" value="{{Auth::user()->name}}">
-							<input type="hidden" name="email" value="{{Auth::user()->email}}">
-							<input type="hidden" name="userId" value="{{ $jobcard[0]->userId }}">
-                    </div> @csrf <input type="submit" class="btn-warning" form="rejectForm" value="Reject Job Card" />
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-	 <div class="modal fade" id="est-submit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="background-color: black;">
-                    <div class="py-3 text-center"> 
-					Please explain the reason for sending to the estimating queue? 
-					<form method="post" id="estForm" action="{{ route('jobs.estqueue')}}">
-                            <!-- We display the details entered by the user here -->
-                            <table class="table">
-                                <tr>
-                                    <th>Note</th>
-                                    <td><textarea name="note" required></textarea></td>
-                                </tr>
-                            </table>
-                            <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
-                            <input type="hidden" name="username" value="{{Auth::user()->name}}">
-							<input type="hidden" name="email" value="{{Auth::user()->email}}">
-							<input type="hidden" name="userId" value="{{ $jobcard[0]->userId }}">
-                    </div> @csrf <input type="submit" class="btn-warning" form="estForm" value="Send to Estimating" />
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="approve" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="background-color: black;">
-                    <div class="py-3 text-center"> Are you sure you want to approve this job card? 
-					<form method="post" id="approveForm" action="{{ route('jobs.updatecard')}}">
-                            <!-- We display the details entered by the user here -->
-                            <input type="hidden" name="link" value="{{ $jobcard[0]->link }}">
-                            <input type="hidden" name="username" value="{{Auth::user()->name}}">
-                    </div> @csrf <input type="submit" class="btn-warning" form="approveForm" value="Approve Job Card" />
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> 
-		        <div class="modal fade" id="modal-changeJob" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="background-color: black;">
-                    <div class="py-3 text-center"> 
-					<form method="post" id="modal-changeJob" action="{{ route('jobs.changeJobNum') }}">
-					@csrf
-							<input type="hidden" id="link" name="link" value="{{ $jobcard[0]->link }}">
-							<input type="hidden" id="link" name="job_number" value="{{ $jobcard[0]->job_number }}">
-							<input type="hidden" id="csrf-token" name="csrf-token" value="{{ csrf_token() }}">
-							<input type="hidden" id="userId" name="userId" value="{{Auth::user()->id}}">
-							<select name="jobnumber">
-							@foreach ($jobnumbers as $jobnumber)
-							<option value="{{ $jobnumber->job_number }}">{{ $jobnumber->job_number }}</>
-							@endforeach
-							</select>
-							<div>
-							<button type="submit" class=" btn btn-warning" id="save">Save</button>
-							</form>
-                </div>
-            </div>
-        </div>
-    </div> 
-    </div>
-	
+</div>
 
+	
+@push('css')
+    <!-- Select2 CSS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+        rel="stylesheet"
+    />
+@endpush
 
 	@push('js') <script src="{{ asset('assets') }}/js/plugins/perfect-scrollbar.min.js"></script>
 	<script>
@@ -548,6 +619,30 @@ function getSig(signature){
 
 
 </script>
+<!-- jQuery (required by Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"
+    ></script>
+
+    <script>
+      $(document).ready(function () {
+        // Initialize Select2 on the job-number <select>, inside the Bootstrap modal
+        $('#jobnumber').select2({
+          width: '100%',
+          placeholder: 'Search or select a job number',
+          dropdownParent: $('#modal-changeJob'),
+          allowClear: false
+        });
+
+        // Optional: auto-open the search field when the modal is shown
+        $('#modal-changeJob').on('shown.bs.modal', function () {
+          $('#jobnumber').select2('open');
+        });
+      });
+    </script>
     <script>
         /* Prevent accidental back navigation click */
 history.pushState(null, document.title, location.href);

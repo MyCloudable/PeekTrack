@@ -389,7 +389,7 @@ const tableOptions = ref({
                 // Determine if the pencil icon should be shown based on edit permissions
                 const showPencilIcon = canEdit();
 
-                const showTrashIcon = (props.authuser.role_id === 3 || props.authuser.role_id === 2 || props.authuser.role_id === 5) && !row.payroll_approval;
+                const showTrashIcon = (props.authuser.role_id === 3 || props.authuser.role_id === 2 || props.authuser.role_id === 5 || props.authuser.role_id === 1) && !row.payroll_approval;
 
                 let actionButtons = '';
 
@@ -406,7 +406,7 @@ const tableOptions = ref({
 
                 // if user is Admin, give recover option for deleted items
                 console.log('give admin recover icon')
-                if(props.authuser.role_id == 1){
+                if(props.authuser.role_id == 11){
                     if (row.deleted_at) {
                         actionButtons+=`<i class="fas fa-trash-restore cursor-pointer recover-icon" data-id="${row.timesheet_id}" style="margin-left:10px;"></i>`
                     }

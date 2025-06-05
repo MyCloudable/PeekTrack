@@ -100,7 +100,7 @@
 					<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Submitted On</th>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Job #</th>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Branch</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Superintendent</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Approved By</th>
 					<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Phase</th>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Start Date</th>
 					<th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9">Timeout Date</th>
@@ -177,7 +177,7 @@
         <div class="modal-header">
           <h5 class="modal-title">Approve or Reject</h5>
           <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-            <span>&times;</span>
+            <span></span>
           </button>
         </div>
         <div class="modal-body">

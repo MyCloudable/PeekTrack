@@ -48,6 +48,7 @@
                                 echo "<thead><tr>";
                                 echo "<th><h5>Employee Name</h5></th>";
                                 echo "<th><h5>Certified Class</h5></th>";
+								echo "<th><h5>Role</h5></th>";
                                 echo "<th><h5>Employee Department</h5></th>";
                                 echo "<th><h5>Job Number</h5></th>";
                                 echo "<th><h5>Job Department</h5></th>";
@@ -63,6 +64,7 @@
                                     echo "<tr>";
                                     echo "<td><h6>{$row['Employee Name']}</h6></td>";
                                     echo "<td><h6>{$row['Certified Class']}</h6></td>";
+									echo "<td><h6>{$row['Role']}</h6></td>";
                                     echo "<td><h6>{$row['Employee Department']}</h6></td>";
                                     echo "<td><h6>{$row['Job Number']}</h6></td>";
                                     echo "<td><h6>{$row['Job Department']}</h6></td>";

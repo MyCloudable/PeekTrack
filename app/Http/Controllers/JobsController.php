@@ -76,7 +76,7 @@ class JobsController extends Controller
 $overflow = DB::table('overflow_items')
     ->join('jobs', 'overflow_items.job_id', '=', 'jobs.id')
     ->join('crew_types', 'overflow_items.crew_type_id', '=', 'crew_types.id')
-    ->leftJoin('users', 'users.id', '=', 'overflow_items.superintendent_id')
+    ->leftJoin('users', 'users.id', '=', 'overflow_items.complete_user_id')
     ->join('branch', 'branch.id', '=', 'overflow_items.branch_id') // Ensure NULLs for superintendent are included
     ->leftJoin('overflow_notes', 'overflow_notes.overflow_item_id', '=', 'overflow_items.id') // Ensure left join to include all overflow items
     ->where('overflow_items.approved', '=', '0')

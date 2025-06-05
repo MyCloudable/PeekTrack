@@ -60,7 +60,51 @@
 .g-sidenav-show .sidenav {
     z-index: 1030 !important; /* lower than Bootstrap modal */
 }
+.form-control, select, textarea {
+    background-color: #fff !important;
 
+}
+
+/* Modal Base */
+.modal {
+    padding: 1rem;
+}
+
+/* Properly centered modal dialog */
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 600px;
+    width: 100%;
+	box-shadow: none !important;
+
+
+}
+
+/* Styled modal content */
+.modal-content {
+    background-color: #fefefe;
+    color: #222;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* Scrollable modal body if needed */
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* Close button contrast */
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.4); /* softer dark */
+    backdrop-filter: blur(2px);
+}
 /* Ensure the modal is on top */
 .modal-backdrop {
     z-index: 1040 !important;

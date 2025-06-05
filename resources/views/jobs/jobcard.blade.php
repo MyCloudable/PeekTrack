@@ -1,3 +1,52 @@
+<style>
+.form-control, select, textarea {
+    background-color: #fff !important;
+
+}
+
+/* Modal Base */
+.modal {
+    padding: 1rem;
+}
+
+/* Properly centered modal dialog */
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 600px;
+    width: 100%;
+	box-shadow: none !important;
+
+
+}
+
+/* Styled modal content */
+.modal-content {
+    background-color: #fefefe;
+    color: #222;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* Scrollable modal body if needed */
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* Close button contrast */
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.4); /* softer dark */
+    backdrop-filter: blur(2px);
+}
+
+
+</style>
 <x-page-template bodyClass='g-sidenav-show  bg-gray-200 dark-version'>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -710,7 +759,7 @@ window.addEventListener('popstate', function (event)
 				+ 
 				'<td><select style="background-color: white;color: black !important;" class="form-control-sm" name="etruck[]"><option value="">Make a selection</option><option value="03-99">Crew Cab Truck</option><option value="10-99">Paint Truck</option><option value="21-99">Haul Truck</option><option value="30-99">Longline Truck</option><option value="32-99">Handline Truck</option><option value="37-99">Marker Truck</option><option value="38-99">Sealer Truck</option><option value="39-99">Knock Up Truck</option><option value="40-99">Removal Truck</option><option value="42-96">Vacuum Truck</option><option value="42-98">Tape Truck</option><option value="42-99">Waterblast Truck</option><option value="42-97">Epoxy Truck</option></select></td>'
 				+ 
-				'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="number" name="ehours[]" min="0.001" placeholder="0" value="0"></td>' 
+				'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="number" name="ehours[]" min="0.001" required></td>' 
 				+ 
 				'<td><input type="button" class="btn-warning" value="Delete Row" onclick="SomeDeleteRowFunction(this)"></td>';
                 // Append the new row to the table
@@ -747,22 +796,27 @@ window.addEventListener('popstate', function (event)
             p.parentNode.removeChild(p);
         }
 		
-		function validateForm() {
-		if (table.rows.length > 1 && table2.rows.length < 2 || table.rows.length < 2 && table2.rows.length > 1) {
+function validateForm() {
+    // 1) Make sure you have both production and material if either one exists
+    if (
+        (table.rows.length > 1 && table2.rows.length < 2) ||
+        (table.rows.length < 2 && table2.rows.length > 1)
+    ) {
+        alert("You must have both production and material line items on your job card. Please correct and then save again.");
+        return false;
+    }
 
-	    alert("You must have both production and material line items on your job card. Please correct and then save again.");
-	
-		return false;
-		}
-		if (table.rows.length > 1 && table2.rows.length > 1 && table3.rows.lenght < 2) {
+    // 2) If you have both production AND material, force at least one equipment row
+    if (
+        table.rows.length > 1 &&
+        table2.rows.length > 1 &&
+        table3.rows.length < 2  // <-- fixed typo here
+    ) {
+        alert("You must have equipment on your job card!");
+        return false;
+    }
 
-	    alert("You must have equipment on your job card!");
-	
-		return false;
-		}
-		
-
-			
+    return true; // allow submit if everything is okay
 }
 		function changeCheckboxValue(checkboxId) {
     var $checkbox = $('#' + checkboxId);
