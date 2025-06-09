@@ -465,6 +465,7 @@ tr:hover {
                     <table id="superintendentTaskList" class="table table-hover table-striped align-middle">
                         <thead class="bg-gradient-dark text-white">
                             <tr>
+								<th class="text-center fw-bold">Traffic Shift</th>
                                 <th class="text-center fw-bold">Job Number</th>
                                 <th class="text-center fw-bold">Phase</th>
                                 <th class="text-center fw-bold">Start Date</th>
@@ -476,6 +477,11 @@ tr:hover {
                                 <tr onclick="window.location='{{ route('jobs.overview', ['id' => $task->job_id]) }}'" 
                                     class="clickable-row fw-bold" 
                                     style="cursor: pointer; height: 50px;">
+									@if ($task->traffic_shift == 1)
+									<td class="text-center"><span class="traffic-icon text-bright-white"><i class="fa-solid fa-light-emergency"></i></span></td>
+									@else
+									<td class="text-center">N/A</td>
+									@endif
                                     <td class="text-center">{{ $task->job_number }}</td>
                                     <td class="text-center">{{ $task->phase }}</td>
                                     <td class="text-center">

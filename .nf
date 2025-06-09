@@ -19,15 +19,15 @@
 [30C[0m-----------------------[0m 
 [30C[0m[31m[1mOS[0m[0m:[0m Debian GNU/Linux 12 (bookworm) x86_64[0m 
 [30C[0m[31m[1mHost[0m[0m:[0m VHP pc-q35-8.2[0m 
-[30C[0m[31m[1mKernel[0m[0m:[0m 6.10.4-amd64[0m 
-[30C[0m[31m[1mUptime[0m[0m:[0m 91 days, 10 hours, 46 mins[0m 
-[30C[0m[31m[1mPackages[0m[0m:[0m 1296 (dpkg)[0m 
+[30C[0m[31m[1mKernel[0m[0m:[0m 6.12.29-amd64[0m 
+[30C[0m[31m[1mUptime[0m[0m:[0m 7 days, 15 hours, 50 mins[0m 
+[30C[0m[31m[1mPackages[0m[0m:[0m 1299 (dpkg)[0m 
 [30C[0m[31m[1mShell[0m[0m:[0m bash 5.2.15[0m 
 [30C[0m[31m[1mResolution[0m[0m:[0m 1280x800[0m 
 [30C[0m[31m[1mTerminal[0m[0m:[0m node[0m 
 [30C[0m[31m[1mCPU[0m[0m:[0m AMD EPYC-Rome (2) @ 1.996GHz[0m 
 [30C[0m[31m[1mGPU[0m[0m:[0m 00:01.0 Vendor 1234 Device 1111[0m 
-[30C[0m[31m[1mMemory[0m[0m:[0m 952MiB / 1968MiB[0m 
+[30C[0m[31m[1mMemory[0m[0m:[0m 1351MiB / 1967MiB[0m 
 
 [30C[30m[40m   [31m[41m   [32m[42m   [33m[43m   [34m[44m   [35m[45m   [36m[46m   [37m[47m   [m
 [30C[38;5;8m[48;5;8m   [38;5;9m[48;5;9m   [38;5;10m[48;5;10m   [38;5;11m[48;5;11m   [38;5;12m[48;5;12m   [38;5;13m[48;5;13m   [38;5;14m[48;5;14m   [38;5;15m[48;5;15m   [m

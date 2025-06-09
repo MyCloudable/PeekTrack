@@ -50,7 +50,7 @@ import { useToast } from "vue-toastification";
 import LoadingOverlay from '../shared/LoadingOverlay.vue'
 import { useLoading } from '../../composables/useLoading'
 
-import {useRecovery} from "../../composables/useRecovery"
+import { useRecovery } from "../../composables/useRecovery"
 
 
 import { createApp } from 'vue';
@@ -160,20 +160,24 @@ const tableOptions = ref({
     },
 
     columns: [
-{
-        data: 'created_by',
-        title: 'Created By',
-        render: function(data, type, row, meta) {
-            return `<small><small><small>${data}</small></small></small>`;
-        }
-    },
-        { data: 'timesheet_id', title: 'ID',render: function(data, type, row, meta) {
-            return `<small><small><small>${data}</small></small></small>`;
-        } },
+        {
+            data: 'created_by',
+            title: 'Created By',
+            render: function (data, type, row, meta) {
+                return `<small><small><small>${data}</small></small></small>`;
+            }
+        },
+        {
+            data: 'timesheet_id', title: 'ID', render: function (data, type, row, meta) {
+                return `<small><small><small>${data}</small></small></small>`;
+            }
+        },
         { data: 'crewmember_name', title: 'Crew Member' },
-        { data: 'superintendent_name', title: 'Superintendent',render: function(data, type, row, meta) {
-            return `<small><small><small>${data}</small></small></small>`;
-        } },
+        {
+            data: 'superintendent_name', title: 'Superintendent', render: function (data, type, row, meta) {
+                return `<small><small><small>${data}</small></small></small>`;
+            }
+        },
 
         {
             data: 'job_number_county',
@@ -268,8 +272,9 @@ const tableOptions = ref({
             render: function (data, type, row) {
                 let isDisabled = false
 
-                if (props.authuser.role_id >= 3) {
-                isDisabled = true
+                //if (props.authuser.role_id >= 3) {
+                if (row.crewmember_role == 6) { // if time entry user role is crew member then make WEO disable
+                    isDisabled = true
                 }
                 return `<input type="checkbox" class="form-check-input weekend-out-approval-checkbox" data-id="${row.timesheet_id}" data-type="weekend_out" ${data ? 'checked' : ''} ${isDisabled ? 'disabled' : ''} />`
             }
@@ -311,7 +316,7 @@ const tableOptions = ref({
                     const isSuperintendent = props.authuser.role_id === 3
                     const isReviewer = props.authuser.role_id === 2
                     const isPayrollAdmin = props.authuser.role_id === 5
-					const isAdmin = props.authuser.role_id === 1
+                    const isAdmin = props.authuser.role_id === 1
 
                     // Approval statuses
                     const isCmaApproved = row.crew_member_approval === 1
@@ -406,9 +411,9 @@ const tableOptions = ref({
 
                 // if user is Admin, give recover option for deleted items
                 console.log('give admin recover icon')
-                if(props.authuser.role_id == 11){
+                if (props.authuser.role_id == 11) {
                     if (row.deleted_at) {
-                        actionButtons+=`<i class="fas fa-trash-restore cursor-pointer recover-icon" data-id="${row.timesheet_id}" style="margin-left:10px;"></i>`
+                        actionButtons += `<i class="fas fa-trash-restore cursor-pointer recover-icon" data-id="${row.timesheet_id}" style="margin-left:10px;"></i>`
                     }
                 }
 
@@ -416,7 +421,7 @@ const tableOptions = ref({
             }
         },
     ],
-	order: [[7, 'asc']],
+    order: [[7, 'asc']],
     footerCallback: function (tfoot, data, start, end, display) {
         totalTimeFooter.value = TimeConvert(data.reduce((acc, row) => acc + parseFloat(row.total_time), 0)) // Calculate total_time sum
     },
@@ -447,8 +452,8 @@ const handleCheckboxChange = async (event) => {
         const type = checkbox.dataset.type
 
         try {
-			
-			
+
+
             const response = await axios.post('/timesheet-management/update-checkbox-approval', {
                 id: id,
                 approved: isChecked,
@@ -462,7 +467,7 @@ const handleCheckboxChange = async (event) => {
                 }
                 toast.success('Approval status updated successfully')
             } else {
-			
+
                 toast.error('Failed to update approval status')
             }
         } catch (error) {
@@ -737,18 +742,18 @@ const TimesheetCreated = () => {
 const handleRecoverDelete = (event) => {
     const id = event.target.getAttribute('data-id')
     if (confirm(`Are you sure you want to recover this record?`)) {
-    const res = recover('timesheet', id)
-    if (res) {
-        toast.success("Record have been recoverd successfully")
-        if (dataTableRef.value && dataTableRef.value.dt) {
-            setTimeout(() => {
-                dataTableRef.value.dt.ajax.reload(null, false)
-            }, 500);
+        const res = recover('timesheet', id)
+        if (res) {
+            toast.success("Record have been recoverd successfully")
+            if (dataTableRef.value && dataTableRef.value.dt) {
+                setTimeout(() => {
+                    dataTableRef.value.dt.ajax.reload(null, false)
+                }, 500);
+            }
+        } else {
+            toast.error("Something went wrong")
         }
-    }else{
-        toast.error("Something went wrong")
     }
-  }
 
 }
 
@@ -831,13 +836,14 @@ function selectOption(event, timesheetId) {
 
 body.dark-version table.dataTable tbody tr:nth-child(even) {
     background-color: #333;
-	
+
     /* Darker shade for dark theme */
-   
+
 }
+
 .dark-version .table tbody tr td {
     color: #fff !important;
- 
+
 }
 
 .custom-dropdown-list {

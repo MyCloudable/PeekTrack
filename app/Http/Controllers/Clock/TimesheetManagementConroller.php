@@ -594,10 +594,12 @@ public function summary()
             foreach ($userIds as $userId) {
                 $timesheetData = array_merge($data, [
                     'user_id' => $userId,
-                    'per_diem' => TimesheetService::checkIfPreviousEntriesOfTheDayHavePd($userId, $data['clockin_time'])
+                    // 'per_diem' => TimesheetService::checkIfPreviousEntriesOfTheDayHavePd($userId, $data['clockin_time'])
+                    'per_diem' => !empty($data['per_diem']) ? $data['per_diem'] : TimesheetService::checkIfPreviousEntriesOfTheDayHavePd($userId, $data['clockin_time']),
+
                 ]);
 
-                // Timesheet::create($timesheetData);
+                // dd($timesheetData);
 
 					
                 $clockinTime = Carbon::parse($timesheetData['clockin_time']);
