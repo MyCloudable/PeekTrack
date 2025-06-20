@@ -22,14 +22,14 @@ class TimesheetManagementConroller extends Controller
 {
     public function index()
     {
-        $users = User::select('id', 'name AS text', 'role_id', 'location')->get();
+        $users = User::select('id', 'name AS text', 'role_id', 'location')->where('active', 1)->get();
         $jobs = Job::where('status', 'In progress')->select('id', DB::raw("CONCAT(job_number,' (',county, ')') as text"))->get();
         $timeTypes = TimeType::select('id', 'name', 'value', DB::raw('name as text'))->get();
         $authuser = Auth::user();
         $crewTypes = CrewType::select('id', 'name as text')->get();
         
         // get this to show in super intendent dropdown while creating a new entry.So that we can grab crew_id from this
-        $uniqueSuperintendents = User::whereIn('id', Crew::select('superintendentId')->distinct())->select('id', 'name as text')->get();
+        $uniqueSuperintendents = User::where('active', 1)->whereIn('id', Crew::select('superintendentId')->distinct())->select('id', 'name as text')->get();
 
         return view('clock.timesheetManagement.index', compact('users', 'jobs', 'timeTypes', 'authuser', 'crewTypes', 'uniqueSuperintendents'));
     }

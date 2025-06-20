@@ -11,7 +11,7 @@
         <label for="">Crew Type</label>
         <Select2 :options="crewtypes" v-model="formData.crew_type_id" required />
       </div>
-      
+
       <div class="col-md-3">
         <label for="">Job</label>
         <Select2 :options="props.jobs" v-model="formData.job_id" required />
@@ -26,7 +26,7 @@
         <label for="">Per diem</label>
         <Select2 :options="diem" v-model="formData.per_diem" />
       </div>
-      
+
       <div class="col-md-3 mt-2">
         <label for="">Clock in</label>
         <input type="datetime-local" class="form-control bg-white" v-model="formData.clockin_time" required>
@@ -38,7 +38,8 @@
 
       <div class="col-md-3 mt-2">
         <label for="">Super Intendent</label>
-        <Select2 :options="props.uniqueSuperintendents" v-model="formData.superintendentId" :disabled="superintendentDisabled" required />
+        <Select2 :options="props.uniqueSuperintendents" v-model="formData.superintendentId"
+          :disabled="superintendentDisabled" required />
       </div>
 
       <div class="col-md-9 mt-2">
@@ -63,7 +64,7 @@ import { ref, watch, onMounted, nextTick } from 'vue'
 
 import { useToast } from "vue-toastification";
 
-import {useLoading} from '../../composables/useLoading'
+import { useLoading } from '../../composables/useLoading'
 
 const props = defineProps({
   users: Object,
@@ -77,8 +78,8 @@ const props = defineProps({
 const emit = defineEmits(['create-timesheet'])
 
 let select2SettingsCrews = ref({
-    'width': '100%',
-    multiple: true
+  'width': '100%',
+  multiple: true
 })
 
 const toast = useToast()
@@ -154,7 +155,7 @@ const back = () => {
 onMounted(() => {
   props.users.map(user => {
     // (user.role_id == 3) ? superIntendents.value.push(user) : '';
-    (user.role_id == 6 || user.role_id == 3) ? crewMembers.value.push(user) : '';
+    (user.role_id == 6 || user.role_id == 3 || user.role_id == 7) ? crewMembers.value.push(user) : '';
 
   })
 

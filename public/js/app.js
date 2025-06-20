@@ -23565,7 +23565,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     (0,vue__WEBPACK_IMPORTED_MODULE_0__.onMounted)(function () {
       props.users.map(function (user) {
         // (user.role_id == 3) ? superIntendents.value.push(user) : '';
-        user.role_id == 6 || user.role_id == 3 ? crewMembers.value.push(user) : '';
+        user.role_id == 6 || user.role_id == 3 || user.role_id == 7 ? crewMembers.value.push(user) : '';
       });
 
       // if logged in user is superintendent then auto select logged in superintentend
