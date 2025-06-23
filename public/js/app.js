@@ -21193,7 +21193,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var formData = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)({});
     (0,vue__WEBPACK_IMPORTED_MODULE_0__.onMounted)(function () {
       props.users.map(function (user) {
-        user.role_id == 3 ? superIntendents.value.push(user) : '';
+        // Superintendent (role_id 3) or Manager (role_id 7) can act as Superintendent
+        user.role_id == 3 || user.role_id == 7 ? superIntendents.value.push(user) : '';
         user.role_id == 6 ? crewMembers.value.push(user) : '';
         user.role_id == 7 ? managers.value.push(user) : '';
       });
@@ -23936,6 +23937,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             var isReviewer = props.authuser.role_id === 2;
             var isPayrollAdmin = props.authuser.role_id === 5;
             var isAdmin = props.authuser.role_id === 1;
+            var isManager = props.authuser.role_id === 7; // allow managers also to edit
 
             // Approval statuses
             var isCmaApproved = row.crew_member_approval === 1;
@@ -23991,14 +23993,14 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 
             if (isCmaApproved) {
               // only reviewer and payroll admin can interact
-              if ((isReviewer || isPayrollAdmin || isAdmin) && !isReviewerApproved && !isPayrollApproved) {
+              if ((isReviewer || isPayrollAdmin || isAdmin || isManager) && !isReviewerApproved && !isPayrollApproved) {
                 return true;
               } else {
                 return false;
               }
             } else {
               // all users, superintendent , reviewer and payroll admin can interact
-              if ((isSuperintendent || isReviewer || isPayrollAdmin || isAdmin) && !isReviewerApproved && !isPayrollApproved) {
+              if ((isSuperintendent || isReviewer || isPayrollAdmin || isAdmin || isManager) && !isReviewerApproved && !isPayrollApproved) {
                 return true;
               } else {
                 return false;
@@ -24008,7 +24010,10 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 
           // Determine if the pencil icon should be shown based on edit permissions
           var showPencilIcon = canEdit();
-          var showTrashIcon = (props.authuser.role_id === 3 || props.authuser.role_id === 2 || props.authuser.role_id === 5 || props.authuser.role_id === 1) && !row.payroll_approval;
+
+          // const showTrashIcon = (props.authuser.role_id === 3 || props.authuser.role_id === 2 || props.authuser.role_id === 5 || props.authuser.role_id === 1) && !row.payroll_approval;
+          var showTrashIcon = [1, 2, 3, 5, 7].includes(props.authuser.role_id) && !row.payroll_approval; // allow manager also to delete
+
           var actionButtons = '';
           if (showPencilIcon) {
             actionButtons += "<i class=\"fa fa-pencil cursor-pointer edit-icon\" data-id=\"".concat(row.timesheet_id, "\" aria-hidden=\"true\"></i>");

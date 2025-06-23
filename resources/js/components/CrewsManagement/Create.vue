@@ -54,7 +54,9 @@ let formData = ref({})
 onMounted(() => {
 
   props.users.map(user => {
-    (user.role_id == 3) ? superIntendents.value.push(user) : '';
+
+    // Superintendent (role_id 3) or Manager (role_id 7) can act as Superintendent
+    (user.role_id == 3 || user.role_id == 7) ? superIntendents.value.push(user) : '';
 
     (user.role_id == 6) ? crewMembers.value.push(user) : '';
 

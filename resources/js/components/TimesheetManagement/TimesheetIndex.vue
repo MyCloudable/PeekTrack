@@ -317,6 +317,8 @@ const tableOptions = ref({
                     const isReviewer = props.authuser.role_id === 2
                     const isPayrollAdmin = props.authuser.role_id === 5
                     const isAdmin = props.authuser.role_id === 1
+                    const isManager = props.authuser.role_id === 7 // allow managers also to edit
+
 
                     // Approval statuses
                     const isCmaApproved = row.crew_member_approval === 1
@@ -374,13 +376,13 @@ const tableOptions = ref({
 
 
                     if (isCmaApproved) { // only reviewer and payroll admin can interact
-                        if ((isReviewer || isPayrollAdmin || isAdmin) && (!isReviewerApproved && !isPayrollApproved)) {
+                        if ((isReviewer || isPayrollAdmin || isAdmin || isManager) && (!isReviewerApproved && !isPayrollApproved)) {
                             return true
                         } else {
                             return false
                         }
                     } else { // all users, superintendent , reviewer and payroll admin can interact
-                        if ((isSuperintendent || isReviewer || isPayrollAdmin || isAdmin) && (!isReviewerApproved && !isPayrollApproved)) {
+                        if ((isSuperintendent || isReviewer || isPayrollAdmin || isAdmin || isManager) && (!isReviewerApproved && !isPayrollApproved)) {
                             return true
                         } else {
                             return false
@@ -394,7 +396,9 @@ const tableOptions = ref({
                 // Determine if the pencil icon should be shown based on edit permissions
                 const showPencilIcon = canEdit();
 
-                const showTrashIcon = (props.authuser.role_id === 3 || props.authuser.role_id === 2 || props.authuser.role_id === 5 || props.authuser.role_id === 1) && !row.payroll_approval;
+                // const showTrashIcon = (props.authuser.role_id === 3 || props.authuser.role_id === 2 || props.authuser.role_id === 5 || props.authuser.role_id === 1) && !row.payroll_approval;
+                const showTrashIcon = ([1, 2, 3, 5, 7].includes(props.authuser.role_id)) && !row.payroll_approval; // allow manager also to delete
+
 
                 let actionButtons = '';
 
