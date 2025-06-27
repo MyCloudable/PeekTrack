@@ -520,6 +520,9 @@ $(document).ready(function () {
 			  @if ($jobitems->contains('phase', '51'))
 			  <option value="51">Waterblast Removal</option>
 		  @endif
+		  @if ($jobitems->contains('phase', '55'))
+			  <option value="51">Signs</option>
+		  @endif
 			  @if ($jobitems->contains('phase', '60'))
 			  <option value="60">Paint</option>
 		  @endif
