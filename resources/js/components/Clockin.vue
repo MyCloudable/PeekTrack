@@ -496,7 +496,7 @@ const menualClockinout = (event, timesheetId, type) => {
 // add new crew member
 const GetAllUsers = (users) => {
     allUsers.value = users
-        .filter(user => user.role_id === 6)  // Only add crew members
+        .filter(user => [6, 3, 7].includes(user.role_id))  // Include roles 6, 3, and 7
         .map(user => ({
             id: user.id,
             text: `${user.id} - ${user.name}`,  // Format as "ID - Name"
