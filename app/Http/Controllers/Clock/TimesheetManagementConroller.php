@@ -633,31 +633,65 @@ public function summary()
 
     public function validateTimesheetOverlap($user_id, $clockin_time, $clockout_time, $exclude_id = null)
     {
-        // dd($exclude_id);
 
         try {
-            $query = Timesheet::where('user_id', $user_id)
-                ->whereDate('clockin_time', '<=', date('Y-m-d', strtotime($clockout_time))) // Check if existing timesheets start before or on the new timesheet's clockout_date
-                ->whereDate('clockout_time', '>=', date('Y-m-d', strtotime($clockin_time))); // Check if existing timesheets end after or on the new timesheet's clockin_date
-    
-            // dd($query->get());
-            $query->where(function ($query) use ($clockin_time, $clockout_time) {
-                $query->where(function ($query) use ($clockin_time, $clockout_time) {
-                    $query->where('clockin_time', '<', $clockout_time)
-                        ->where('clockout_time', '>', $clockin_time);
-                })->orWhere(function ($query) use ($clockin_time, $clockout_time) {
-                    $query->where('clockin_time', '>=', $clockin_time)
-                        ->where('clockout_time', '<=', $clockout_time);
-                });
-            });
-    
-            if ($exclude_id) {
-                $query->where('id', '!=', $exclude_id);
-            }
-    
-            $overlappingTimesheets = $query->get();
 
-            // dd($overlappingTimesheets);
+            // == comment this query as it was not validating with the time entries where clockout time = NULL (23 Jul 2025)
+
+            // $query = Timesheet::where('user_id', $user_id)
+            //     ->whereDate('clockin_time', '<=', date('Y-m-d', strtotime($clockout_time))) // Check if existing timesheets start before or on the new timesheet's clockout_date
+            //     ->whereDate('clockout_time', '>=', date('Y-m-d', strtotime($clockin_time))); // Check if existing timesheets end after or on the new timesheet's clockin_date
+    
+            // $query->where(function ($query) use ($clockin_time, $clockout_time) {
+            //     $query->where(function ($query) use ($clockin_time, $clockout_time) {
+            //         $query->where('clockin_time', '<', $clockout_time)
+            //             ->where('clockout_time', '>', $clockin_time);
+            //     })->orWhere(function ($query) use ($clockin_time, $clockout_time) {
+            //         $query->where('clockin_time', '>=', $clockin_time)
+            //             ->where('clockout_time', '<=', $clockout_time);
+            //     });
+            // });
+    
+            // if ($exclude_id) {
+            //     $query->where('id', '!=', $exclude_id);
+            // }
+    
+            // $overlappingTimesheets = $query->get();
+
+            // == END comment this query as it was not validating with the time entries where clockout time = NULL 
+
+
+
+                // == updated query, that will also cover those existing times where clockout time = NULL (23 Jul 2025)
+
+                $query = Timesheet::where('user_id', $user_id)
+                ->whereDate('clockin_time', '<=', date('Y-m-d', strtotime($clockout_time)))
+                ->where(function ($q) use ($clockin_time) {
+                    $q->whereDate('clockout_time', '>=', date('Y-m-d', strtotime($clockin_time)))
+                    ->orWhereNull('clockout_time'); // ✅ include open timesheets
+                });
+
+                $query->where(function ($query) use ($clockin_time, $clockout_time) {
+                    $query->where(function ($query) use ($clockin_time, $clockout_time) {
+                        $query->where('clockin_time', '<', $clockout_time)
+                            ->where(function ($query) use ($clockin_time) {
+                                $query->where('clockout_time', '>', $clockin_time)
+                                        ->orWhereNull('clockout_time'); // ✅ overlap with open timesheets
+                            });
+                    })->orWhere(function ($query) use ($clockin_time, $clockout_time) {
+                        $query->where('clockin_time', '>=', $clockin_time)
+                            ->where('clockout_time', '<=', $clockout_time);
+                    });
+                });
+
+                if ($exclude_id) {
+                    $query->where('id', '!=', $exclude_id);
+                }
+
+                $overlappingTimesheets = $query->get();
+
+                // == END updated query, that will also cover those existing times where clockout time = NULL
+
             
             if ($overlappingTimesheets->isNotEmpty()) {
                 // Prepare an array of overlapping timesheet IDs
@@ -666,15 +700,9 @@ public function summary()
                 // Get the user name
                 $userName = User::where('id', $user_id)->value('name');
 
-                // throw ValidationException::withMessages([
-                //     'error' => 'Overlapping timesheets for user ' .  $userName .  ' with these ids. ' . implode(',', $overlappingIds),
-                // ]);
-
                 // Return the error message instead of throwing it
                 return 'Overlapping timesheets for user ' . $userName . ' with these ids: ' . implode(',', $overlappingIds);
             }
-    
-            // return $overlappingTimesheets;
 
             return null; // No overlap
 

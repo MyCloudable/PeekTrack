@@ -551,29 +551,27 @@ class TimesheetService {
         if ($clockin && $clockout) {
             // Validate that clockout is not less than clockin
             if ($clockout->lessThan($clockin)) {
-                // dd('1');
-                return 'Clockout time should not be less than Clockin time.';
-
-                // throw ValidationException::withMessages([
-                //     'clockout' => 'Clockout time should not be less than Clockin time.',
-                // ]);
+                
+                throw ValidationException::withMessages([
+                    'clockout' => 'Clockout time should not be less than Clockin time.',
+                ]);
             }
 
             // Validate that clockin is not greater than clockout
             if ($clockin->greaterThan($clockout)) {
-                return 'Clockin time should not be greater than Clockout time.';
-                // throw ValidationException::withMessages([
-                //     'clockin' => 'Clockin time should not be greater than Clockout time.',
-                // ]);
+
+                throw ValidationException::withMessages([
+                    'clockin' => 'Clockin time should not be greater than Clockout time.',
+                ]);
             }
         }
 
         // Validate that clockin is not greater than current time
         if ($clockin && $now->lessThan($clockin)) {
-            return 'Clockin time should not be greater than the current time.';
-            // throw ValidationException::withMessages([
-            //     'clockin' => 'Clockin time should not be greater than the current time.',
-            // ]);
+
+            throw ValidationException::withMessages([
+                'clockin' => 'Clockin time should not be greater than the current time.',
+            ]);
         }
 
         // If no validation errors
