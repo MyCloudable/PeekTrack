@@ -87,9 +87,19 @@ if (!isset($userTotals[$userId])) {
 
                                     // Update weekend_out, ensuring it's only counted on weekends and has a truthy value
                                     $dayOfWeek = date('N', strtotime($workDate)); // 6 = Saturday, 7 = Sunday
-                                    if (!empty($weekendOut) && in_array($dayOfWeek, [6, 7])) {
-                                        $userTotals[$userId]['daily'][$workDate]['weekend_out'] = 1;
-                                    }
+
+// Only consider Saturday and Sunday
+if (in_array($dayOfWeek, [6, 7])) {
+    // Initialize to 0 if not already
+    if (!isset($userTotals[$userId]['daily'][$workDate]['weekend_out'])) {
+        $userTotals[$userId]['daily'][$workDate]['weekend_out'] = 0;
+    }
+
+    // Upgrade to 1 only if this row has weekend_out == 1
+    if ((int)$weekendOut === 1) {
+        $userTotals[$userId]['daily'][$workDate]['weekend_out'] = 1;
+    }
+}
                                 }
 
                                 // Now calculate the totals for each user

@@ -180,12 +180,34 @@
                     </form>
                 
             </div>
+			</div>
+			<div class="card mt-4">
+    <div class="card-header p-3 pb-0">
+        <h4 class="mb-0">Overflow Items Report</h4>
+        <p class="text-sm mb-0 text-capitalize font-weight-normal"></p>
+    </div>
+    <div class="card-body border-radius-lg p-3">
+        <form id="overflowItemsForm" action="{{ route('reports.overflowitems') }}" method="POST">
+            @csrf
+            <div class="form-group">
+                <label for="overflow_daterange" style="color: #000;">Select Date Range:</label>
+                <input type="text" id="overflow_daterange" class="form-control" style="width: 100%; border: 1px solid #ccc;" />
+                <input type="hidden" name="date1" id="overflow_date1">
+                <input type="hidden" name="date2" id="overflow_date2">
+            </div>
+            <br>
+            <button type="submit" class="btn btn-warning">Generate Overflow Items Report</button>
+        </form>
+    </div>
+</div>
 		<div id="loading-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255, 255, 255, 0.8); z-index:9999; text-align:center; padding-top:20%;">
     <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>
     <h3>Loading...<br> Please note larger reports will take longer to generate.</h3>
 </div>
+
+
     </main>
     <x-auth.footers.auth.footer></x-auth.footers.auth.footer>
 
@@ -210,6 +232,14 @@
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
 <script>
+// Initialize Date Range Picker for Overflow Items Report
+$('#overflow_daterange').daterangepicker({
+    opens: 'left'
+}, function(start, end, label) {
+    $('#overflow_date1').val(start.format('YYYY-MM-DD'));
+    $('#overflow_date2').val(end.format('YYYY-MM-DD'));
+});
+
     $(document).ready(function() {
         // Initialize Select2 on the jobnumber dropdown
         $('#jobnumber').select2({

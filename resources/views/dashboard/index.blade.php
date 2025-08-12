@@ -245,7 +245,7 @@ tr:hover {
     </thead>
     <tbody>
         @forelse ($filteredUnsubmitCards as $jobcard)
-            <tr onclick="window.location='{{ route('jobs.view', ['id' => $jobcard->link]) }}'" style="cursor: pointer;">
+            <tr onclick="window.location='{{ route('jobs.jobcard', ['id' => $jobcard->link]) }}'" style="cursor: pointer;">
                 <td>{{ $jobcard->workdate }}</td>
                 <td>{{ $jobcard->job_number }}</td>
                 <td>{{ $jobcard->name ?? 'Job Card ' . $jobcard->job_number }}</td>
@@ -470,6 +470,7 @@ tr:hover {
                                 <th class="text-center fw-bold">Phase</th>
                                 <th class="text-center fw-bold">Start Date</th>
                                 <th class="text-center fw-bold">Timeout Date</th>
+								<th class="text-center fw-bold">Notes</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -490,6 +491,9 @@ tr:hover {
                                     <td class="text-center">
                                         {{ $task->timeout_date ? \Carbon\Carbon::parse($task->timeout_date)->format('Y-m-d') : 'N/A' }}
                                     </td>
+									<td>
+										{{ $task->notes }}
+									</td>
                                 </tr>
                             @empty
                             

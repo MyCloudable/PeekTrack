@@ -42,10 +42,13 @@
 
                                             <!-- Icons -->
                                             <div class="d-flex align-items-center gap-1">
+												<span v-if="element.duplicated_from" class="badge bg-secondary px-1 py-0"
+												:title="`Duplicated from ID #${element.duplicated_from}`">Copy</span>
                                                 <span v-if="element.traffic_shift === 1"
                                                     class="traffic-icon text-bright-white" title="Traffic Shift Task">
                                                     <i class="fa-solid fa-light-emergency"></i>
                                                 </span>
+												
                                                 <span v-if="element.notes" class="notes-icon text-bright-white"
                                                     :title="element.notes">
                                                     <i class="fa-solid fa-note"></i>

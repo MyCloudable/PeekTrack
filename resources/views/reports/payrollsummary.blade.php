@@ -1,3 +1,8 @@
+<style>
+    table.dataTable thead th h5 {
+        color: black !important; 
+    }
+</style>
 <x-page-template bodyClass='g-sidenav-show bg-gray-600'>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Include DataTables CSS -->

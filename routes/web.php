@@ -122,6 +122,8 @@ Route::get('reports', [ReportsController::class, 'index'])->middleware('auth')->
 
 Route::get('reports/{jobnumber}/jobsummary', [ReportsController::class, 'jobsummary'])->name('reports.jobsummary');
 
+Route::post('/reports/overflowitems', [ReportsController::class, 'overflowItemsReport'])->name('reports.overflowitems');
+
 Route::post('reports/payrollsummary', [ReportsController::class, 'payrollSummary'])->name('reports.payrollsummary');
 
 Route::post('reports/archivesummary', [ReportsController::class, 'archiveSummary'])->name('reports.archivesummary');

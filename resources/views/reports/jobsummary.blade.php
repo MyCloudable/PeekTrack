@@ -1,3 +1,8 @@
+<style>
+    table.dataTable thead th h5 {
+        color: black !important;
+    }
+</style>
 <x-page-template bodyClass='g-sidenav-show bg-gray-600'>
     <!-- Include DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">

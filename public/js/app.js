@@ -25719,102 +25719,103 @@ var _hoisted_14 = {
 var _hoisted_15 = {
   "class": "d-flex align-items-center gap-1"
 };
-var _hoisted_16 = {
-  key: 0,
+var _hoisted_16 = ["title"];
+var _hoisted_17 = {
+  key: 1,
   "class": "traffic-icon text-bright-white",
   title: "Traffic Shift Task"
 };
-var _hoisted_17 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+var _hoisted_18 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
   "class": "fa-solid fa-light-emergency"
 }, null, -1 /* HOISTED */);
-var _hoisted_18 = [_hoisted_17];
-var _hoisted_19 = ["title"];
-var _hoisted_20 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+var _hoisted_19 = [_hoisted_18];
+var _hoisted_20 = ["title"];
+var _hoisted_21 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
   "class": "fa-solid fa-note"
 }, null, -1 /* HOISTED */);
-var _hoisted_21 = [_hoisted_20];
-var _hoisted_22 = {
+var _hoisted_22 = [_hoisted_21];
+var _hoisted_23 = {
   "class": "text-bright-white fw-bold contractor-name"
 };
-var _hoisted_23 = {
-  "class": "d-flex justify-content-between align-items-center text-bright-white dates"
-};
 var _hoisted_24 = {
-  "class": "small-date"
+  "class": "d-flex justify-content-between align-items-center text-bright-white dates"
 };
 var _hoisted_25 = {
   "class": "small-date"
 };
-var _hoisted_26 = ["onClick"];
-var _hoisted_27 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+var _hoisted_26 = {
+  "class": "small-date"
+};
+var _hoisted_27 = ["onClick"];
+var _hoisted_28 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
   "class": "fa-solid fa-check-circle"
 }, null, -1 /* HOISTED */);
-var _hoisted_28 = [_hoisted_27];
-var _hoisted_29 = {
+var _hoisted_29 = [_hoisted_28];
+var _hoisted_30 = {
   "class": "col-md-3 task-container"
 };
-var _hoisted_30 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", {
+var _hoisted_31 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", {
   "class": "task-header"
 }, "Available Tasks", -1 /* HOISTED */);
-var _hoisted_31 = {
+var _hoisted_32 = {
   "class": "search-bar"
 };
-var _hoisted_32 = {
+var _hoisted_33 = {
   "class": "mb-2"
 };
-var _hoisted_33 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+var _hoisted_34 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": "trafficShiftFilter"
 }, "Show Only Traffic Shift Tasks", -1 /* HOISTED */);
-var _hoisted_34 = {
+var _hoisted_35 = {
   "class": "mb-2"
 };
-var _hoisted_35 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+var _hoisted_36 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": "startDateFilter"
 }, "Sort by Start Date", -1 /* HOISTED */);
-var _hoisted_36 = {
+var _hoisted_37 = {
   "class": "d-flex align-items-center justify-content-between"
 };
-var _hoisted_37 = ["href"];
-var _hoisted_38 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+var _hoisted_38 = ["href"];
+var _hoisted_39 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
   "class": "fa-solid fa-light-emergency"
 }, null, -1 /* HOISTED */);
-var _hoisted_39 = [_hoisted_38];
-var _hoisted_40 = ["title"];
-var _hoisted_41 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+var _hoisted_40 = [_hoisted_39];
+var _hoisted_41 = ["title"];
+var _hoisted_42 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
   "class": "fa-solid fa-note"
 }, null, -1 /* HOISTED */);
-var _hoisted_42 = [_hoisted_41];
-var _hoisted_43 = ["onClick"];
-var _hoisted_44 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+var _hoisted_43 = [_hoisted_42];
+var _hoisted_44 = ["onClick"];
+var _hoisted_45 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
   "class": "fa-solid fa-copy"
 }, null, -1 /* HOISTED */);
-var _hoisted_45 = [_hoisted_44];
-var _hoisted_46 = ["title"];
-var _hoisted_47 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
-var _hoisted_48 = {
+var _hoisted_46 = [_hoisted_45];
+var _hoisted_47 = ["title"];
+var _hoisted_48 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
+var _hoisted_49 = {
   "class": "d-flex justify-content-between fw-normal"
 };
-var _hoisted_49 = {
+var _hoisted_50 = {
   key: 0,
   "class": "modal-overlay"
 };
-var _hoisted_50 = {
+var _hoisted_51 = {
   "class": "bg-[#1e1e2f] text-black rounded-lg shadow-lg w-full max-w-md mx-4 p-6",
   style: {
     "max-height": "90vh"
   }
 };
-var _hoisted_51 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h2", {
+var _hoisted_52 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h2", {
   "class": "text-2xl font-bold mb-4"
 }, "Complete Task", -1 /* HOISTED */);
-var _hoisted_52 = {
+var _hoisted_53 = {
   "class": "mb-4"
 };
-var _hoisted_53 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Job:", -1 /* HOISTED */);
-var _hoisted_54 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+var _hoisted_54 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Job:", -1 /* HOISTED */);
+var _hoisted_55 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "class": "block mb-2"
 }, "Notes (Optional):", -1 /* HOISTED */);
-var _hoisted_55 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
+var _hoisted_56 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1 /* HOISTED */);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _$setup$selectedTask, _$setup$selectedTask2;
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Left Side: Superintendents "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [_hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
@@ -25853,40 +25854,44 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
           href: "/jobs/".concat(element.job_id, "/overview"),
           "class": "text-bright-white text-decoration-none job-number",
           target: "_blank"
-        }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.job_number), 9 /* TEXT, PROPS */, _hoisted_13), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_14, " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.crew_type), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Icons "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_15, [element.traffic_shift === 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_16, [].concat(_hoisted_18))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), element.notes ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
-          key: 1,
+        }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.job_number), 9 /* TEXT, PROPS */, _hoisted_13), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_14, " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.crew_type), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Icons "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_15, [element.duplicated_from ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
+          key: 0,
+          "class": "badge bg-secondary px-1 py-0",
+          title: "Duplicated from ID #".concat(element.duplicated_from)
+        }, "Copy", 8 /* PROPS */, _hoisted_16)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), element.traffic_shift === 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_17, [].concat(_hoisted_19))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), element.notes ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
+          key: 2,
           "class": "notes-icon text-bright-white",
           title: element.notes
-        }, [].concat(_hoisted_21), 8 /* PROPS */, _hoisted_19)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Contractor Name "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_22, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.contractor), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Dates at the Bottom (Now Closer Together) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_23, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_24, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timein_date), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_25, "[" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timeout_date) + "]", 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Completion Checkmark ✅ (Bottom Right) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+        }, [].concat(_hoisted_22), 8 /* PROPS */, _hoisted_20)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Contractor Name "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_23, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.contractor), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Dates at the Bottom (Now Closer Together) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_24, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_25, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timein_date), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_26, "[" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timeout_date) + "]", 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Completion Checkmark ✅ (Bottom Right) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
           "class": "complete-icon ms-2",
           title: "Mark as Complete",
           onClick: function onClick($event) {
             return $setup.openCompletionPopup(element);
           }
-        }, [].concat(_hoisted_28), 8 /* PROPS */, _hoisted_26)])], 2 /* CLASS */)];
+        }, [].concat(_hoisted_29), 8 /* PROPS */, _hoisted_27)])], 2 /* CLASS */)];
       }),
       _: 2 /* DYNAMIC */
     }, 1032 /* PROPS, DYNAMIC_SLOTS */, ["modelValue", "onUpdate:modelValue", "onChange"])])])]);
-  }), 128 /* KEYED_FRAGMENT */))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Right Side: Overflow Items (Tasks) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_29, [_hoisted_30, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_31, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+  }), 128 /* KEYED_FRAGMENT */))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Right Side: Overflow Items (Tasks) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_30, [_hoisted_31, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_32, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     "onUpdate:modelValue": _cache[1] || (_cache[1] = function ($event) {
       return $setup.searchQuery = $event;
     }),
     type: "text",
     "class": "form-control mb-2 custom-search-input",
     placeholder: "Search tasks..."
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.searchQuery]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_32, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.searchQuery]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_33, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "checkbox",
     id: "trafficShiftFilter",
     "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {
       return $setup.filterTrafficShift = $event;
     })
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.filterTrafficShift]]), _hoisted_33]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_34, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.filterTrafficShift]]), _hoisted_34]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_35, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "checkbox",
     id: "startDateFilter",
     "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
       return $setup.filterStartDate = $event;
     })
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.filterStartDate]]), _hoisted_35]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["draggable"], {
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.filterStartDate]]), _hoisted_36]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["draggable"], {
     modelValue: $setup.overflowItems,
     "onUpdate:modelValue": _cache[4] || (_cache[4] = function ($event) {
       return $setup.overflowItems = $event;
@@ -25903,32 +25908,32 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return [$setup.filteredTasks.includes(element) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
         key: 0,
         "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([$setup.getTaskColor(element), "single-task card p-2 mb-2 fw-bold"])
-      }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_36, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
+      }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_37, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
         href: "/jobs/".concat(element.job_id, "/overview"),
         "class": "text-white text-decoration-none",
         target: "_blank"
-      }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.job_number), 9 /* TEXT, PROPS */, _hoisted_37), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.crew_type) + " ", 1 /* TEXT */), element.traffic_shift === 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
+      }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.job_number), 9 /* TEXT, PROPS */, _hoisted_38), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.crew_type) + " ", 1 /* TEXT */), element.traffic_shift === 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
         key: 0,
         "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([$setup.getFlashingClass(element), "traffic-icon"]),
         title: "Traffic Shift Task"
-      }, [].concat(_hoisted_39), 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), element.notes ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
+      }, [].concat(_hoisted_40), 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), element.notes ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
         key: 1,
         "class": "notes-icon",
         title: element.notes
-      }, [].concat(_hoisted_42), 8 /* PROPS */, _hoisted_40)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+      }, [].concat(_hoisted_43), 8 /* PROPS */, _hoisted_41)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
         "class": "copy-icon ms-2",
         title: "Duplicate Task",
         onClick: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function ($event) {
           return $setup.copyTask(element);
         }, ["stop"])
-      }, [].concat(_hoisted_45), 8 /* PROPS */, _hoisted_43), element.duplicated_from ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
+      }, [].concat(_hoisted_46), 8 /* PROPS */, _hoisted_44), element.duplicated_from ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
         key: 2,
         "class": "badge bg-secondary px-1 py-0",
         title: "Duplicated from ID #".concat(element.duplicated_from)
-      }, "Copy", 8 /* PROPS */, _hoisted_46)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.contractor), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(), _hoisted_47, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_48, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timein_date), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, " [" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timeout_date) + "] ", 1 /* TEXT */)])])], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+      }, "Copy", 8 /* PROPS */, _hoisted_47)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.contractor), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(), _hoisted_48, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_49, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timein_date), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, " [" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(element.timeout_date) + "] ", 1 /* TEXT */)])])], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
     }),
     _: 1 /* STABLE */
-  }, 8 /* PROPS */, ["modelValue"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Completion Popup "), $setup.showCompletionPopup ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_49, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_50, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Modal Body "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [_hoisted_51, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_52, [_hoisted_53, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((_$setup$selectedTask = $setup.selectedTask) === null || _$setup$selectedTask === void 0 ? void 0 : _$setup$selectedTask.job_number) + " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((_$setup$selectedTask2 = $setup.selectedTask) === null || _$setup$selectedTask2 === void 0 ? void 0 : _$setup$selectedTask2.crew_type), 1 /* TEXT */)]), _hoisted_54, _hoisted_55, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("textarea", {
+  }, 8 /* PROPS */, ["modelValue"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Completion Popup "), $setup.showCompletionPopup ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_50, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_51, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Modal Body "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [_hoisted_52, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_53, [_hoisted_54, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((_$setup$selectedTask = $setup.selectedTask) === null || _$setup$selectedTask === void 0 ? void 0 : _$setup$selectedTask.job_number) + " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)((_$setup$selectedTask2 = $setup.selectedTask) === null || _$setup$selectedTask2 === void 0 ? void 0 : _$setup$selectedTask2.crew_type), 1 /* TEXT */)]), _hoisted_55, _hoisted_56, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("textarea", {
     "onUpdate:modelValue": _cache[6] || (_cache[6] = function ($event) {
       return $setup.completionNote = $event;
     }),

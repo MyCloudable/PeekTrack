@@ -18,7 +18,7 @@ class SchedulingController extends Controller
 
     public function getManagers()
     {
-        $managers = User::where('role_id', 7)->select('id', 'name')->get();
+        $managers = User::where('role_id', 7)->where('active', 1)->select('id', 'name')->get();
         $loggedInManagerId = auth()->user()->id;
 
         return response()->json([

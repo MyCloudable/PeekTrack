@@ -60,6 +60,15 @@ public function archiveSummary(Request $request)
     return view('reports.archivesummary', compact('startDate', 'endDate'));
 }
 
+public function overflowItemsReport(Request $request)
+{
+    $startDate = $request->input('date1');
+    $endDate = $request->input('date2');
+
+    // Pass dates to the view
+    return view('reports.overflowitems', compact('startDate', 'endDate'));
+}
+
 public function materialUsage(Request $request)
 {
 	
