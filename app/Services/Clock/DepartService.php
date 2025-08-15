@@ -183,8 +183,12 @@ class DepartService {
                 $time_type_id = $timeType->id;
             }
             if($type == 'arrive_for_office'){
-                $timeType = TimeType::where('name', 'Shop')->first();
-                $time_type_id = $timeType->id;
+                // $timeType = TimeType::where('name', 'Shop')->first();
+                // $time_type_id = $timeType->id;
+
+                // will be set via departForm.time_type_id; fallback to Shop
+                $time_type_id = request('departForm.time_type_id')
+                    ?: TimeType::where('name', 'Shop')->value('id');
             }
 
 

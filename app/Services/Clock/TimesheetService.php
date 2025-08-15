@@ -178,6 +178,10 @@ class TimesheetService {
         $crewMembersArray = $this->getCrewMembersArray($crew->crew_members, $crew->superintendentId);
 
         if($data['type'] == 'clockin'){
+
+            // get time type selected while Clockin
+            $selectedTimeTypeId = isset($data['timeTypeId']) ? $data['timeTypeId'] : TimeType::where('name', 'Shop')->value('id'); // fallback
+
             foreach ($crewMembersArray as $member) {
                 $timesheet = Timesheet::create([
                     'crew_id' => $crew->id,
@@ -185,7 +189,8 @@ class TimesheetService {
                     'user_id' => $member,
                     'clockin_time' => $data['lateEntryTime'] ? $data['lateEntryTime'] : Carbon::now()->format('Y-m-d H:i:00'),
                     'job_id' => Job::where('job_number', '9-99-9998')->first()->id,
-                    'time_type_id' => TimeType::where('name', 'Shop')->first()->id,
+                    // 'time_type_id' => TimeType::where('name', 'Shop')->first()->id,
+                    'time_type_id' => $selectedTimeTypeId,
                     'created_by' => auth()->id(),
                     'modified_by' => auth()->id(),
                 ]);
@@ -202,8 +207,6 @@ class TimesheetService {
                 ->select('id', 'crew_id', 'user_id', 'clockout_time')
                 ->get()
             ]);
-
-
             
             // dd(session('alreadyClockedOutMembers'));
 
@@ -723,6 +726,26 @@ class TimesheetService {
             return NULL;
         }
 
+    }
+
+    public function getTimeTypes()
+    {
+        // Map DB names -> UI labels (only where you want the text to differ)
+        $labels = [
+            'Mobilization' => 'Mobilization & Prep',
+            'Shop'         => 'Shop Time',
+            'Weather'      => 'Weather Time',
+            // leave others unmapped to show their DB name as-is
+        ];
+
+        return TimeType::where('name', '!=', 'Production')
+            ->select('id', 'name', 'value')
+            ->orderBy('id')
+            ->get()
+            ->map(function ($t) use ($labels) {
+                $t->display_name = $labels[$t->name] ?? $t->name; // fallback to DB name
+                return $t;
+            });
     }
 
 

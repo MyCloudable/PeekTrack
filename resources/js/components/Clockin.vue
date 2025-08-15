@@ -27,17 +27,14 @@
                                 <i class="fa fa-clock-o" aria-hidden="true" @click="toggleLateEntryTime"></i>
                             </div>
                             <div class="col-3">
-                                <VueDatePicker v-model="lateEntryTime" :enable-time="true" 
-                                :formate="dateTimeFormat" 
-                                class="responsive-datepicker"
-                                v-if="isLateEntryTimeVisible"
-                                ></VueDatePicker>
+                                <VueDatePicker v-model="lateEntryTime" :enable-time="true" :formate="dateTimeFormat"
+                                    class="responsive-datepicker" v-if="isLateEntryTimeVisible"></VueDatePicker>
                             </div>
                             <div class="col-8"></div>
                         </div>
                         <!-- Late Entry Time Ends -->
 
-                        
+
                         <div class="col-md-6 text-dark"><span class="badge badge-info me-2">Status: </span> {{ status }}
                             <select class="d-inline w-50 ms-2 mt-3" v-if="!isAlreadyVerified || enableCrewTypeId"
                                 v-model="crewTypeId">
@@ -62,8 +59,7 @@
                                 @is-mobilization="enableCrewTypeId = !enableCrewTypeId"
                                 :is-late-entry-time-visible="isLateEntryTimeVisible"
                                 :late-entry-time="lateEntryTime ? format(lateEntryTime, dateTimeFormat) : lateEntryTime"
-                                @last-entry-time-done="lastEntryTimeDone"
-                                />
+                                @last-entry-time-done="lastEntryTimeDone" :time-types="timeTypes" />
 
                             <button type="button" class="btn btn-secondary p-3" @click="weatherEntry"
                                 v-if="isAlreadyVerified && !isAlreadyClockedin">Weather</button>
@@ -73,8 +69,28 @@
 
                             <button type="button" class="btn btn-primary p-3" @click="verifyTeam"
                                 v-if="!isAlreadyVerified">Verify Crew</button>
-                            <button type="button" class="btn btn-success p-3" @click="clockinout('clockin')"
-                                v-if="isAlreadyVerified && !isAlreadyClockedin">Clock in</button>
+
+                            <!-- <button type="button" class="btn btn-success p-3" @click="clockinout('clockin')"
+                                v-if="isAlreadyVerified && !isAlreadyClockedin">Clock in</button> -->
+
+                            <!-- Time Type + Clock in (inline) -->
+                            <div class="d-flex align-items-center justify-content-end gap-3 flex-column flex-md-row mt-2"
+                                v-if="isAlreadyVerified && !isAlreadyClockedin">
+                                <label class="text-white mb-0 text-nowrap me-2">Time type</label>
+
+                                <select class="form-select form-select-sm w-auto" v-model="selectedClockinTypeId">
+                                    <option :value="null" disabled>Select time type…</option>
+                                    <option v-for="t in timeTypes" :key="t.id" :value="t.id">
+                                        {{ t.display_name }}
+                                    </option>
+                                </select>
+
+                                <button type="button" class="btn btn-success p-3" @click="clockinout('clockin')">
+                                    CLOCK IN
+                                </button>
+                            </div>
+
+
                             <button type="button" class="btn btn-danger p-3" @click="clockinout('clockout')"
                                 v-if="isAlreadyClockedin && !isAlreadyClockedout">Clock out
                             </button>
@@ -132,7 +148,8 @@
                                         <!-- <input type="datetime-local" class="form-controll datetime"
                                             v-model="createNewCrewForm[0].clockin_time"> -->
                                         <VueDatePicker v-model="createNewCrewForm[0].clockin_time" :enable-time="true"
-                                            :formate="dateTimeFormat" teleport="body" class="responsive-datepicker"></VueDatePicker>
+                                            :formate="dateTimeFormat" teleport="body" class="responsive-datepicker">
+                                        </VueDatePicker>
                                     </td>
                                     <td>
                                         <button class="btn btn-success" @click="addNewCrew"
@@ -162,8 +179,7 @@
                                                 @change="menualClockinout($event, member.timesheet_id, 'clockin')"
                                                 :value="member.clockin_time"> -->
                                             <VueDatePicker v-model="member.clockin_time_edit" :enable-time="true"
-                                                :formate="dateTimeFormat"
-												teleport="body"
+                                                :formate="dateTimeFormat" teleport="body"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockin')"
                                                 class="responsive-datepicker"></VueDatePicker>
                                         </div>
@@ -175,8 +191,7 @@
                                                 @change="menualClockinout($event, member.timesheet_id, 'clockout')"
                                                 :value="(member.clockout_time) ? member.clockout_time : now"> -->
                                             <VueDatePicker v-model="member.clockout_time_edit" :enable-time="true"
-                                                :formate="dateTimeFormat"
-												teleport="body"
+                                                :formate="dateTimeFormat" teleport="body"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockout')"
                                                 class="responsive-datepicker"></VueDatePicker>
                                         </div>
@@ -282,8 +297,23 @@ let lateEntryTime = ref('')
 let isLateEntryTimeVisible = ref(false)
 
 
+// to show timeTypes dropdown
+const timeTypes = ref([])
+const selectedClockinTypeId = ref(null)
+
+const getTimeTypes = () => {
+    axios.get('/time-types').then(res => {
+        timeTypes.value = res.data
+        // optional: default to "Shop Time" if present
+        const shop = timeTypes.value.find(t => t.name?.toLowerCase().includes('shop'))
+        if (shop) selectedClockinTypeId.value = shop.id
+    })
+}
+
+
 // things to manage multi tabs issue
 let initialLoad = true // Flag to handle initial load
+
 
 const setLocalStorageFlag = () => {
     localStorage.setItem('crewMembersUpdated', Date.now())
@@ -305,6 +335,8 @@ onMounted(() => {
 
     // Reset initial load flag after mounted hook completes
     initialLoad = false
+
+    getTimeTypes()
 
 })
 onBeforeUnmount(() => {
@@ -423,6 +455,14 @@ const clockinout = (type) => {
         return
     }
 
+    // timeType should be selected from dropdown if its ClockIn
+    if (type === 'clockin') {
+        if (!selectedClockinTypeId.value) {
+            toast.error('Please select a time type for Clock in')
+            return
+        }
+    }
+
     if (!confirm(`Are you sure you want to ${type} ?`)) return
 
     setLoading(true)
@@ -431,7 +471,8 @@ const clockinout = (type) => {
         'crewId': crewId.value,
         'type': type,
         'isMenual': false,
-        'lateEntryTime': lateEntryTime.value ? format(lateEntryTime.value, dateTimeFormat) : lateEntryTime.value
+        'lateEntryTime': lateEntryTime.value ? format(lateEntryTime.value, dateTimeFormat) : lateEntryTime.value,
+        timeTypeId: selectedClockinTypeId.value, // <— send it
     })
         .then(res => {
             setLocalStorageFlag()
@@ -594,35 +635,41 @@ const handleScroll = (() => {
 <style scoped>
 /* only apply 50vw when it’s NOT fullscreen */
 #clockin .modal-dialog:not(.modal-fullscreen) .modal-content {
-  width: 50vw !important;
+    width: 50vw !important;
 }
 
 /* override for when you *do* use modal-fullscreen */
 #clockin .modal-dialog.modal-fullscreen .modal-content {
-  width: 100vw !important;
-  margin: 0; /* ensure it hugs the edges */
-  height: 100vh !important; /* if you want full-height, too */
+    width: 100vw !important;
+    margin: 0;
+    /* ensure it hugs the edges */
+    height: 100vh !important;
+    /* if you want full-height, too */
 }
 
 #clockin .modal-dialog {
-  width: 100vw;
-  max-width: none;
-  height: 100vh;
-  margin: 0;
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    margin: 0;
 }
+
 #clockin .modal-content {
-  height: 100%;
-  border-radius: 0;
+    height: 100%;
+    border-radius: 0;
 }
+
 #clockin .modal-body {
-  overflow-y: auto;
+    overflow-y: auto;
 }
+
 #clockin input,
 #clockin select,
 #clockin .responsive-datepicker,
 #clockin .select2-search__field {
-  font-size: 16px !important;
+    font-size: 16px !important;
 }
+
 .verify-crew-members {
     font-size: 14px;
     background: #1A2035 !important;
@@ -709,7 +756,10 @@ const handleScroll = (() => {
 .dp--clear-btn {
     display: none !important;
 }
-.form-control, select, textarea {
+
+.form-control,
+select,
+textarea {
     background-color: #fff;
-	}
+}
 </style>

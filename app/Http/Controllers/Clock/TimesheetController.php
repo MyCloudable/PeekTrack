@@ -63,4 +63,10 @@ class TimesheetController extends Controller
     {
         return response()->json($this->timesheetService->weatherEntry($request->all()), 200);
     }
+
+    // Get all time types for crew entry. This method returns all time types except "Production"
+    public function getTimeTypes()
+    {
+        return response()->json($this->timesheetService->getTimeTypes(), 200);
+    }
 }

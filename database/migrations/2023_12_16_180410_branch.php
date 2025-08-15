@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-                        Schema::create('branch', function (Blueprint $table) {
-            $table->id();
-            $table->integer('department');
-			$table->string('branch');
-            $table->timestamps();
+            Schema::create('branch', function (Blueprint $table) {
+                $table->id();
+                $table->integer('department');
+                $table->string('branch');
+                $table->timestamps();
         });
     }
 

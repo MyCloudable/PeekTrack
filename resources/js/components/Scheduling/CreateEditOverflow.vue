@@ -19,25 +19,18 @@
 
           <div class="input-group-outline mt-4">
             <label for="">Job phases (Hold CTRL for multi-select)</label>
-<Multiselect
-  v-model="formData.phases"
-  :options="phases"
-  :multiple="true"
-  :close-on-select="false"
-  label="text"
-  track-by="id"
-  placeholder="Select job phases"
-  :disabled="editMode"  
-/>
+            <Multiselect v-model="formData.phases" :options="phases" :multiple="true" :close-on-select="false"
+              label="text" track-by="id" placeholder="Select job phases" :disabled="editMode" />
 
 
           </div>
 
           <div class="input-group-outline mt-4">
             <label>Branch</label>
-			<select class="form-control custom-white-select mt-3" v-model="formData.branch_id">
-				<option v-for="b in branches" :key="b.id" :value="b.id">{{ b.text.substring(b.text.lastIndexOf(' ') + 1) }}</option>
-			</select>
+            <select class="form-control custom-white-select mt-3" v-model="formData.branch_id">
+              <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.text.substring(b.text.lastIndexOf(' ') + 1)
+                }}</option>
+            </select>
           </div>
 
           <div class="input-group-outline mt-4">
@@ -74,7 +67,8 @@
 import { ref, onMounted } from 'vue'
 import { useToast } from "vue-toastification"
 import Multiselect from 'vue-multiselect'
-import 'vue-multiselect/dist/vue-multiselect.min.css'
+// import 'vue-multiselect/dist/vue-multiselect.min.css'
+import 'vue-multiselect/dist/vue-multiselect.css'
 
 
 
@@ -219,15 +213,15 @@ const fetchOverflowItem = async (id) => {
 // Submit Form (Create or Edit)
 const submit = async () => {
   try {
-const payload = {
-  ...formData.value,
-  job_id: props.job_id,
-  phases: editMode.value
-    ? [formData.value.phases?.id]   // wrap single ID in array
-    : formData.value.phases.map(p => p.id),  // multiple IDs in create mode
-};
+    const payload = {
+      ...formData.value,
+      job_id: props.job_id,
+      phases: editMode.value
+        ? [formData.value.phases?.id]   // wrap single ID in array
+        : formData.value.phases.map(p => p.id),  // multiple IDs in create mode
+    };
 
-	
+
     if (editMode.value) {
       await axios.put(`/scheduling/overflow/update/${formData.value.id}`, payload);
       toast.success("Overflow item updated successfully!");
@@ -245,7 +239,7 @@ const payload = {
       toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
     }
   }
-};	
+};
 
 
 // Close Popup
@@ -320,7 +314,7 @@ defineExpose({ openPopup });
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  
+
   animation: slideIn 0.3s ease-in-out;
 }
 
@@ -405,7 +399,4 @@ button.btn {
     opacity: 1;
   }
 }
-
-
-
 </style>

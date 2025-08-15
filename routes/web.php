@@ -460,6 +460,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('ready-for-verification', [TimesheetController::class, 'readyForVerification']);
 	Route::post('wather-entry', [TimesheetController::class, 'weatherEntry']);
 
+	Route::get('time-types', [TimesheetController::class, 'getTimeTypes']); // to get all time types for crew entry
+
 	// depart
 	Route::get('getjobs-for-depart', [DepartController::class, 'getAllJobs']);
 	Route::post('track-time-travel', [DepartController::class, 'trackTravelTime']);
