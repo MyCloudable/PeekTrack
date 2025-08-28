@@ -749,4 +749,77 @@ class TimesheetService {
     }
 
 
+    // Switch time type for all open entries for a crew since last verification
+    public function switchTimeType(array $data)
+    {
+        $crew = Crew::findOrFail($data['crewId']);
+        $newTypeId = (int) $data['timeTypeId'];
+        $switchAt  = isset($data['lateEntryTime'])
+            ? Carbon::parse($data['lateEntryTime'])->seconds(0)
+            : Carbon::now()->seconds(0);
+
+        // future time validation
+        if ($switchAt->greaterThan(Carbon::now())) {
+            throw ValidationException::withMessages([
+                'lateEntryTime' => ['Switch time cannot be in the future.'],
+            ]);
+        }
+
+        // All open entries for this crew since last verification
+        $openEntries = Timesheet::where('crew_id', $crew->id)
+            ->where('created_at', '>=', $crew->last_verified_date)
+            ->whereNull('clockout_time')
+            ->get();
+
+        if ($openEntries->isEmpty()) {
+            throw ValidationException::withMessages([
+                'error' => 'No active time to switch.',
+            ]);
+        }
+
+        $shopJobId = Job::where('job_number', '9-99-9998')->value('id');
+
+        // Guard: must be on indirect time for ALL open entries
+        foreach ($openEntries as $entry) {
+            if ((int) $entry->job_id !== (int) $shopJobId) {
+                throw ValidationException::withMessages([
+                    'error' => 'Cannot change time type during Mobilization or Production.',
+                ]);
+            }
+            if (Carbon::parse($entry->clockin_time)->greaterThan($switchAt)) {
+                throw ValidationException::withMessages([
+                    'lateEntryTime' => ['Switch time cannot be before an existing open entry start.'],
+                ]);
+            }
+        }
+
+        DB::transaction(function () use ($openEntries, $crew, $shopJobId, $newTypeId, $switchAt) {
+            // 1) close current slices at switch time (handles midnight)
+            foreach ($openEntries as $entry) {
+                self::handleMidnightSplit($entry, $switchAt->toDateTimeString());
+            }
+
+            // 2) start new slices with the new time type
+            foreach ($openEntries as $entry) {
+                Timesheet::create([
+                    'crew_id'      => $crew->id,
+                    'crew_type_id' => $entry->crew_type_id,
+                    'user_id'      => $entry->user_id,
+                    'clockin_time' => $switchAt->toDateTimeString(),
+                    'job_id'       => $shopJobId,
+                    'time_type_id' => $newTypeId,
+                    'created_by'   => auth()->id(),
+                    'modified_by'  => auth()->id(),
+                    'per_diem'     => self::checkIfPreviousEntriesOfTheDayHavePd(
+                        $entry->user_id,
+                        $switchAt->toDateTimeString()
+                    ),
+                ]);
+            }
+        });
+
+        return true;
+    }
+
+
 }

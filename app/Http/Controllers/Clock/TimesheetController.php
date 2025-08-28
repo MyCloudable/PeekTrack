@@ -69,4 +69,16 @@ class TimesheetController extends Controller
     {
         return response()->json($this->timesheetService->getTimeTypes(), 200);
     }
+
+    // Loop through time types dropdown and switch time type for a crew member
+    public function switchTimeType(Request $request)
+    {
+        $validated = $request->validate([
+            'crewId'       => 'required|integer|exists:crews,id',
+            'timeTypeId'   => 'required|integer|exists:time_types,id',
+            'lateEntryTime'=> 'nullable|date',
+        ]);
+
+        return response()->json($this->timesheetService->switchTimeType($validated), 200);
+    }
 }

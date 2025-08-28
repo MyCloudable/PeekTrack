@@ -41,12 +41,27 @@
             <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Arrive</button>
         </div>
 
+        <!-- Switch time type AFTER arriving at office (loop until clock out) -->
+        <div class="d-flex align-items-center gap-3 flex-column flex-md-row mt-2" v-if="canSwitchTypesHere">
+            <label class="text-dark me-1">Switch time type</label>
+            <select v-model="selectedSwitchTypeId" style="width:200px;" class="bg-white">
+                <option :value="null" disabled>Select time type…</option>
+                <option v-for="t in props.timeTypes" :key="t.id" :value="t.id">
+                    {{ t.display_name }}
+                </option>
+            </select>
+            <button type="button" class="btn btn-outline-info btn-sm mt-3 ms-1" @click="switchTimeType">
+                Apply
+            </button>
+        </div>
+
+
     </div>
 </template>
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 import { useToast } from "vue-toastification"
 // import LoadingOverlay from './shared/LoadingOverlay.vue'
@@ -88,8 +103,23 @@ let departForm = ref({
 const arriveOfficeTypeId = ref(null) // to select time type from dropdown
 
 
-onMounted(() => {
+const selectedSwitchTypeId = ref(null) // for switch time type dropdown
+const shopTypeId = ref(null)   // cache Shop’s id for reuse
 
+// show the switcher only when we’re back from the job and at office (indirect time)
+const canSwitchTypesHere = computed(() => {
+    const tt = travelTime.value
+    return !!(tt && tt.type === 'depart_for_office' && tt.arrive)
+})
+
+
+onMounted(() => {
+    // default to “Shop” if present (switch time type dropdown)
+    const shop = (props.timeTypes || []).find(t => t.name?.toLowerCase().includes('shop'))
+    if (shop) {
+        selectedSwitchTypeId.value = shop.id
+        shopTypeId.value = shop.id
+    }
 })
 
 const getAllJobs = () => {
@@ -200,6 +230,37 @@ const getSelectedJobContent = () => {
 
     return jobContent
 
+}
+
+// switch time type AFTER arriving at office (loop until clock out)
+const switchTimeType = () => {
+    if (!selectedSwitchTypeId.value) {
+        toast.error('Please select a time type')
+        return
+    }
+    // follow the same Late Entry rule as elsewhere
+    if (props.isLateEntryTimeVisible && !props.lateEntryTime) {
+        toast.error('Please select the late entry time or toggle it off')
+        return
+    }
+    if (!confirm('Apply new time type now?')) return
+
+    setLoading(true)
+    axios.post('/switch-time-type', {
+        crewId: props.crewId,
+        timeTypeId: selectedSwitchTypeId.value,
+        // parent already passes a formatted string or null
+        lateEntryTime: props.lateEntryTime || null,
+    })
+        .then(() => {
+            selectedSwitchTypeId.value = shopTypeId.value ?? null // reset the switch dropdown to Shop
+            emit('track-time-done')       // refresh crew/times
+            emit('last-entry-time-done')  // reset the Late Entry toggle in parent
+        })
+        .catch(err => {
+            toast.error(err?.response?.data?.message || 'Something went wrong')
+        })
+        .finally(() => setLoading(false))
 }
 
 </script>

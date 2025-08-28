@@ -20662,7 +20662,10 @@ var scrollThreshold = 50; // Adjust the threshold as needed
 
     // to show timeTypes dropdown
     var timeTypes = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)([]);
-    var selectedClockinTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null);
+    var selectedClockinTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // for CLOCK IN dropdown
+    var selectedSwitchTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // for mid-shift SWITCH dropdown
+    var shopTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // cache Shop’s id for reuse
+
     var getTimeTypes = function getTimeTypes() {
       axios__WEBPACK_IMPORTED_MODULE_0___default().get('/time-types').then(function (res) {
         timeTypes.value = res.data;
@@ -20671,7 +20674,14 @@ var scrollThreshold = 50; // Adjust the threshold as needed
           var _t$name;
           return (_t$name = t.name) === null || _t$name === void 0 ? void 0 : _t$name.toLowerCase().includes('shop');
         });
-        if (shop) selectedClockinTypeId.value = shop.id;
+        if (shop) {
+          shopTypeId.value = shop.id;
+          selectedClockinTypeId.value = shop.id;
+          selectedSwitchTypeId.value = shop.id;
+        } else {
+          selectedClockinTypeId.value = null;
+          selectedSwitchTypeId.value = null;
+        }
       });
     };
 
@@ -20708,15 +20718,13 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       var day = String(noww.getDate()).padStart(2, '0');
       var hours = String(noww.getHours()).padStart(2, '0');
       var minutes = String(noww.getMinutes()).padStart(2, '0');
-      //   const seconds = String(noww.getSeconds()).padStart(2, '0');
-
       now.value = "".concat(year, "-").concat(month, "-").concat(day, "T").concat(hours, ":").concat(minutes);
     };
     var getCrewMembers = function getCrewMembers() {
       axios__WEBPACK_IMPORTED_MODULE_0___default().get('/crew-members').then(function (res) {
         isAlreadyVerified.value = res.data.isAlreadyVerified;
-        isAlreadyClockedin = res.data.isAlreadyClockedin;
-        isAlreadyClockedout = res.data.isAlreadyClockedout;
+        isAlreadyClockedin.value = res.data.isAlreadyClockedin;
+        isAlreadyClockedout.value = res.data.isAlreadyClockedout;
         crewId.value = res.data.crewId;
         CrewMembersTobeVerified.value = res.data.crewMembers;
         timesheet.value = res.data.timesheet;
@@ -20852,7 +20860,6 @@ var scrollThreshold = 50; // Adjust the threshold as needed
         'type': type,
         'isMenual': true,
         'timesheetId': timesheetId,
-        // 'time': event.target.value
         'time': formatedDateTime
       }).then(function (res) {
         return setLocalStorageFlag();
@@ -20946,6 +20953,51 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       } else {
         iconVisible.value = true;
       }
+    };
+
+    // Show right-side "Switch time type" only BEFORE mobilization starts (shop time)
+    // and only while the crew is currently clocked in.
+    var canSwitchTypes = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      if (!isAlreadyClockedin.value || isAlreadyClockedout.value) return false;
+      return !travelTime.value; // no travel record yet => still at shop
+    });
+
+    // Clock out only on indirect time (shop before MOB, or after arrival back at office)
+    var canClockOut = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      if (!isAlreadyClockedin.value || isAlreadyClockedout.value) return false;
+      var tt = travelTime.value;
+      return !tt || tt.type === 'depart_for_office' && !!tt.arrive;
+    });
+    var switchTimeType = function switchTimeType() {
+      if (!selectedSwitchTypeId.value) {
+        toast.error('Please select a time type');
+        return;
+      }
+
+      // if Late Entry toggle is on, require a value (same rule you use elsewhere)
+      if (isLateEntryTimeVisible.value && !lateEntryTime.value) {
+        toast.error('Please select the late entry time or toggle it off');
+        return;
+      }
+      if (!confirm('Apply new time type now?')) return;
+      setLoading(true);
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/switch-time-type', {
+        crewId: crewId.value,
+        timeTypeId: selectedSwitchTypeId.value,
+        // reuse your existing Late Entry toggle; if empty, backend uses "now"
+        lateEntryTime: lateEntryTime.value ? (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.format)(lateEntryTime.value, dateTimeFormat) : null
+      }).then(function () {
+        var _shopTypeId$value;
+        selectedSwitchTypeId.value = (_shopTypeId$value = shopTypeId.value) !== null && _shopTypeId$value !== void 0 ? _shopTypeId$value : null; // reset the switch dropdown to Shop
+        setLocalStorageFlag();
+        lastEntryTimeDone(); // hide/reset the Late Entry picker
+      })["catch"](function (error) {
+        var _error$response;
+        var msg = (error === null || error === void 0 || (_error$response = error.response) === null || _error$response === void 0 || (_error$response = _error$response.data) === null || _error$response === void 0 ? void 0 : _error$response.message) || 'Something went wrong';
+        toast.error(msg);
+      })["finally"](function () {
+        return setLoading(false);
+      });
     };
     var __returned__ = {
       toast: toast,
@@ -21106,6 +21158,8 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       },
       timeTypes: timeTypes,
       selectedClockinTypeId: selectedClockinTypeId,
+      selectedSwitchTypeId: selectedSwitchTypeId,
+      shopTypeId: shopTypeId,
       getTimeTypes: getTimeTypes,
       get initialLoad() {
         return initialLoad;
@@ -21132,6 +21186,9 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       toggleLateEntryTime: toggleLateEntryTime,
       lastEntryTimeDone: lastEntryTimeDone,
       handleScroll: handleScroll,
+      canSwitchTypes: canSwitchTypes,
+      canClockOut: canClockOut,
+      switchTimeType: switchTimeType,
       get axios() {
         return (axios__WEBPACK_IMPORTED_MODULE_0___default());
       },
@@ -21139,6 +21196,7 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       onMounted: vue__WEBPACK_IMPORTED_MODULE_1__.onMounted,
       onUnmounted: vue__WEBPACK_IMPORTED_MODULE_1__.onUnmounted,
       onBeforeUnmount: vue__WEBPACK_IMPORTED_MODULE_1__.onBeforeUnmount,
+      computed: vue__WEBPACK_IMPORTED_MODULE_1__.computed,
       get useToast() {
         return vue_toastification__WEBPACK_IMPORTED_MODULE_2__.useToast;
       },
@@ -21724,7 +21782,25 @@ __webpack_require__.r(__webpack_exports__);
     });
     var arriveOfficeTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // to select time type from dropdown
 
-    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)(function () {});
+    var selectedSwitchTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // for switch time type dropdown
+    var shopTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // cache Shop’s id for reuse
+
+    // show the switcher only when we’re back from the job and at office (indirect time)
+    var canSwitchTypesHere = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      var tt = travelTime.value;
+      return !!(tt && tt.type === 'depart_for_office' && tt.arrive);
+    });
+    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)(function () {
+      // default to “Shop” if present (switch time type dropdown)
+      var shop = (props.timeTypes || []).find(function (t) {
+        var _t$name;
+        return (_t$name = t.name) === null || _t$name === void 0 ? void 0 : _t$name.toLowerCase().includes('shop');
+      });
+      if (shop) {
+        selectedSwitchTypeId.value = shop.id;
+        shopTypeId.value = shop.id;
+      }
+    });
     var getAllJobs = function getAllJobs() {
       axios__WEBPACK_IMPORTED_MODULE_0___default().get('/getjobs-for-depart').then(function (res) {
         jobs.value = res.data;
@@ -21809,6 +21885,37 @@ __webpack_require__.r(__webpack_exports__);
       }
       return jobContent;
     };
+
+    // switch time type AFTER arriving at office (loop until clock out)
+    var switchTimeType = function switchTimeType() {
+      if (!selectedSwitchTypeId.value) {
+        toast.error('Please select a time type');
+        return;
+      }
+      // follow the same Late Entry rule as elsewhere
+      if (props.isLateEntryTimeVisible && !props.lateEntryTime) {
+        toast.error('Please select the late entry time or toggle it off');
+        return;
+      }
+      if (!confirm('Apply new time type now?')) return;
+      setLoading(true);
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/switch-time-type', {
+        crewId: props.crewId,
+        timeTypeId: selectedSwitchTypeId.value,
+        // parent already passes a formatted string or null
+        lateEntryTime: props.lateEntryTime || null
+      }).then(function () {
+        var _shopTypeId$value;
+        selectedSwitchTypeId.value = (_shopTypeId$value = shopTypeId.value) !== null && _shopTypeId$value !== void 0 ? _shopTypeId$value : null; // reset the switch dropdown to Shop
+        emit('track-time-done'); // refresh crew/times
+        emit('last-entry-time-done'); // reset the Late Entry toggle in parent
+      })["catch"](function (err) {
+        var _err$response;
+        toast.error((err === null || err === void 0 || (_err$response = err.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || 'Something went wrong');
+      })["finally"](function () {
+        return setLoading(false);
+      });
+    };
     var __returned__ = {
       props: props,
       emit: emit,
@@ -21847,15 +21954,20 @@ __webpack_require__.r(__webpack_exports__);
         departForm = v;
       },
       arriveOfficeTypeId: arriveOfficeTypeId,
+      selectedSwitchTypeId: selectedSwitchTypeId,
+      shopTypeId: shopTypeId,
+      canSwitchTypesHere: canSwitchTypesHere,
       getAllJobs: getAllJobs,
       depart: depart,
       setType: setType,
       getSelectedJobContent: getSelectedJobContent,
+      switchTimeType: switchTimeType,
       get axios() {
         return (axios__WEBPACK_IMPORTED_MODULE_0___default());
       },
       ref: vue__WEBPACK_IMPORTED_MODULE_1__.ref,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_1__.onMounted,
+      computed: vue__WEBPACK_IMPORTED_MODULE_1__.computed,
       get useToast() {
         return vue_toastification__WEBPACK_IMPORTED_MODULE_2__.useToast;
       },
@@ -24866,10 +24978,10 @@ var _hoisted_19 = {
   "class": "row actions mt-3 mb-3"
 };
 var _hoisted_20 = {
-  "class": "col-md-8"
+  "class": "col-md-6"
 };
 var _hoisted_21 = {
-  "class": "col-md-3"
+  "class": "col-md-6 d-flex gap-3"
 };
 var _hoisted_22 = {
   key: 1,
@@ -24888,105 +25000,121 @@ var _hoisted_24 = /*#__PURE__*/_withScopeId(function () {
 });
 var _hoisted_25 = ["value"];
 var _hoisted_26 = {
+  key: 2,
+  "class": "d-flex align-items-center justify-content-end gap-3 flex-column flex-md-row mt-2"
+};
+var _hoisted_27 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "class": "text-white mb-0 text-nowrap me-2"
+  }, "Switch time type", -1 /* HOISTED */);
+});
+var _hoisted_28 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+    value: null,
+    disabled: ""
+  }, "Select time type…", -1 /* HOISTED */);
+});
+var _hoisted_29 = ["value"];
+var _hoisted_30 = {
   "class": "table-responsive"
 };
-var _hoisted_27 = {
+var _hoisted_31 = {
   "class": "table table-flush table-striped verify-crew-members"
 };
-var _hoisted_28 = {
+var _hoisted_32 = {
   "class": ""
 };
-var _hoisted_29 = {
-  key: 0
-};
-var _hoisted_30 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Check", -1 /* HOISTED */);
-});
-var _hoisted_31 = [_hoisted_30];
-var _hoisted_32 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Name")], -1 /* HOISTED */);
-});
 var _hoisted_33 = {
-  key: 1
+  key: 0
 };
 var _hoisted_34 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Status", -1 /* HOISTED */);
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Check", -1 /* HOISTED */);
 });
 var _hoisted_35 = [_hoisted_34];
-var _hoisted_36 = {
+var _hoisted_36 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Name")], -1 /* HOISTED */);
+});
+var _hoisted_37 = {
+  key: 1
+};
+var _hoisted_38 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Status", -1 /* HOISTED */);
+});
+var _hoisted_39 = [_hoisted_38];
+var _hoisted_40 = {
   key: 2
 };
-var _hoisted_37 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_41 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Time", -1 /* HOISTED */);
 });
-var _hoisted_38 = [_hoisted_37];
-var _hoisted_39 = {
+var _hoisted_42 = [_hoisted_41];
+var _hoisted_43 = {
   key: 3
 };
-var _hoisted_40 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_44 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Time Out", -1 /* HOISTED */);
 });
-var _hoisted_41 = [_hoisted_40];
-var _hoisted_42 = {
+var _hoisted_45 = [_hoisted_44];
+var _hoisted_46 = {
   key: 4
 };
-var _hoisted_43 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_47 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Total", -1 /* HOISTED */);
 });
-var _hoisted_44 = [_hoisted_43];
-var _hoisted_45 = {
+var _hoisted_48 = [_hoisted_47];
+var _hoisted_49 = {
   key: 5
 };
-var _hoisted_46 = {
+var _hoisted_50 = {
   key: 0
 };
-var _hoisted_47 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_51 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, null, -1 /* HOISTED */);
 });
-var _hoisted_48 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_52 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, null, -1 /* HOISTED */);
 });
-var _hoisted_49 = {
+var _hoisted_53 = {
   key: 1,
   ref: "departWrapper"
 };
-var _hoisted_50 = {
+var _hoisted_54 = {
   "class": "input-group input-group-outline"
 };
-var _hoisted_51 = ["disabled"];
-var _hoisted_52 = {
-  key: 0
-};
-var _hoisted_53 = ["checked", "onClick"];
-var _hoisted_54 = {
-  key: 1
-};
-var _hoisted_55 = {
-  key: 2
-};
+var _hoisted_55 = ["disabled"];
 var _hoisted_56 = {
   key: 0
 };
-var _hoisted_57 = {
+var _hoisted_57 = ["checked", "onClick"];
+var _hoisted_58 = {
   key: 1
 };
-var _hoisted_58 = {
-  key: 3
-};
 var _hoisted_59 = {
-  key: 4
+  key: 2
 };
 var _hoisted_60 = {
-  key: 5
-};
-var _hoisted_61 = {
-  "class": "d-flex"
-};
-var _hoisted_62 = {
   key: 0
 };
-var _hoisted_63 = ["onClick"];
-var _hoisted_64 = /*#__PURE__*/_withScopeId(function () {
+var _hoisted_61 = {
+  key: 1
+};
+var _hoisted_62 = {
+  key: 3
+};
+var _hoisted_63 = {
+  key: 4
+};
+var _hoisted_64 = {
+  key: 5
+};
+var _hoisted_65 = {
+  "class": "d-flex"
+};
+var _hoisted_66 = {
+  key: 0
+};
+var _hoisted_67 = ["onClick"];
+var _hoisted_68 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "modal-footer"
   }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
@@ -25056,7 +25184,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     type: "button",
     "class": "btn btn-primary p-3",
     onClick: $setup.verifyTeam
-  }, "Verify Crew")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <button type=\"button\" class=\"btn btn-success p-3\" @click=\"clockinout('clockin')\"\n                                v-if=\"isAlreadyVerified && !isAlreadyClockedin\">Clock in</button> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Time Type + Clock in (inline) "), $setup.isAlreadyVerified && !$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_22, [_hoisted_23, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+  }, "Verify Crew")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Time Type + Clock in (inline) "), $setup.isAlreadyVerified && !$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_22, [_hoisted_23, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     "class": "form-select form-select-sm w-auto",
     "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
       return $setup.selectedClockinTypeId = $event;
@@ -25072,39 +25200,53 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     onClick: _cache[4] || (_cache[4] = function ($event) {
       return $setup.clockinout('clockin');
     })
-  }, " CLOCK IN ")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin && !$setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
-    key: 2,
+  }, " CLOCK IN ")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Switch Time Type (mid-shift) "), $setup.canSwitchTypes ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_26, [_hoisted_27, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    "class": "form-select form-select-sm w-auto",
+    "onUpdate:modelValue": _cache[5] || (_cache[5] = function ($event) {
+      return $setup.selectedSwitchTypeId = $event;
+    })
+  }, [_hoisted_28, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.timeTypes, function (t) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
+      key: t.id,
+      value: t.id
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(t.display_name), 9 /* TEXT, PROPS */, _hoisted_29);
+  }), 128 /* KEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedSwitchTypeId]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    type: "button",
+    "class": "btn btn-outline-info p-3",
+    onClick: $setup.switchTimeType
+  }, " APPLY ")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Switch Time Type ends "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <button type=\"button\" class=\"btn btn-danger p-3\" @click=\"clockinout('clockout')\"\n                                v-if=\"isAlreadyClockedin && !isAlreadyClockedout\">Clock out\n                            </button> "), $setup.canClockOut ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+    key: 3,
     type: "button",
     "class": "btn btn-danger p-3",
-    onClick: _cache[5] || (_cache[5] = function ($event) {
+    onClick: _cache[6] || (_cache[6] = function ($event) {
       return $setup.clockinout('clockout');
     })
   }, "Clock out ")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
-    key: 3,
+    key: 4,
     type: "button",
     "class": "btn btn-secondary p-3",
     onClick: $setup.readyForVerification
-  }, "Ready for verification")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_26, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_27, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", _hoisted_28, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_29, [].concat(_hoisted_31))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _hoisted_32, $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_33, [].concat(_hoisted_35))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_36, [].concat(_hoisted_38))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_39, [].concat(_hoisted_41))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_42, [].concat(_hoisted_44))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_45, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
+  }, "Ready for verification")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_30, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_31, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", _hoisted_32, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_33, [].concat(_hoisted_35))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _hoisted_36, $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_37, [].concat(_hoisted_39))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_40, [].concat(_hoisted_42))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_43, [].concat(_hoisted_45))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_46, [].concat(_hoisted_48))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_49, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
     timesheetId: $setup.allPerDiemTimesheetIds,
     perDiem: $setup.allPerDiemStatus,
     onHfPerDiemDone: $setup.hfPerDiemDone
-  }, null, 8 /* PROPS */, ["timesheetId", "perDiem"])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_46, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+  }, null, 8 /* PROPS */, ["timesheetId", "perDiem"])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_50, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "checkbox",
     "class": "form-check-input",
-    "onUpdate:modelValue": _cache[6] || (_cache[6] = function ($event) {
+    "onUpdate:modelValue": _cache[7] || (_cache[7] = function ($event) {
       return $setup.isCheckAll = $event;
     }),
     onClick: $setup.toggleCheckboxes
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.isCheckAll]])])]), _hoisted_47, _hoisted_48])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.allUsers.length > 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_49, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_50, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.isCheckAll]])])]), _hoisted_51, _hoisted_52])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.allUsers.length > 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_53, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_54, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
     modelValue: $setup.createNewCrewForm[0].crew_member_id,
-    "onUpdate:modelValue": _cache[7] || (_cache[7] = function ($event) {
+    "onUpdate:modelValue": _cache[8] || (_cache[8] = function ($event) {
       return $setup.createNewCrewForm[0].crew_member_id = $event;
     }),
     options: $setup.allUsers,
     settings: $setup.select2Settings
-  }, null, 8 /* PROPS */, ["modelValue", "options", "settings"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <input type=\"datetime-local\" class=\"form-controll datetime\"\n                                            v-model=\"createNewCrewForm[0].clockin_time\"> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+  }, null, 8 /* PROPS */, ["modelValue", "options", "settings"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
     modelValue: $setup.createNewCrewForm[0].clockin_time,
-    "onUpdate:modelValue": _cache[8] || (_cache[8] = function ($event) {
+    "onUpdate:modelValue": _cache[9] || (_cache[9] = function ($event) {
       return $setup.createNewCrewForm[0].clockin_time = $event;
     }),
     "enable-time": true,
@@ -25115,17 +25257,17 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     "class": "btn btn-success",
     onClick: $setup.addNewCrew,
     disabled: !$setup.createNewCrewForm[0].crew_member_id || !$setup.createNewCrewForm[0].clockin_time
-  }, "Create", 8 /* PROPS */, _hoisted_51)])], 512 /* NEED_PATCH */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.CrewMembersTobeVerified, function (member, index) {
+  }, "Create", 8 /* PROPS */, _hoisted_55)])], 512 /* NEED_PATCH */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.CrewMembersTobeVerified, function (member, index) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
       key: member.id
-    }, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_52, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    }, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_56, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "checkbox",
       "class": "form-check-input",
       checked: member.isChecked,
       onClick: function onClick($event) {
         return $setup.toggleSingleCheckbox(index);
       }
-    }, null, 8 /* PROPS */, _hoisted_53)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.name) + " (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time_all) + ")", 1 /* TEXT */)]), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_54, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.status), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_55, [!member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_56, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.clockout_time ? member.clockout_time : member.clockin_time), 1 /* TEXT */)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_57, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <input type=\"datetime-local\" class=\"form-controll datetime\"\n                                                @change=\"menualClockinout($event, member.timesheet_id, 'clockin')\"\n                                                :value=\"member.clockin_time\"> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+    }, null, 8 /* PROPS */, _hoisted_57)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.name) + " (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time_all) + ")", 1 /* TEXT */)]), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_58, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.status), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_59, [!member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_60, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.clockout_time ? member.clockout_time : member.clockin_time), 1 /* TEXT */)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_61, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
       modelValue: member.clockin_time_edit,
       "onUpdate:modelValue": [function ($event) {
         return member.clockin_time_edit = $event;
@@ -25136,7 +25278,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       formate: $setup.dateTimeFormat,
       teleport: "body",
       "class": "responsive-datepicker"
-    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])]))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <input type=\"datetime-local\" class=\"form-controll datetime\"\n                                                @change=\"menualClockinout($event, member.timesheet_id, 'clockout')\"\n                                                :value=\"(member.clockout_time) ? member.clockout_time : now\"> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])]))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_62, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
       modelValue: member.clockout_time_edit,
       "onUpdate:modelValue": [function ($event) {
         return member.clockout_time_edit = $event;
@@ -25147,18 +25289,18 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       formate: $setup.dateTimeFormat,
       teleport: "body",
       "class": "responsive-datepicker"
-    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isMenualClockinout && !member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_59)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_60, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_61, [$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_62, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isMenualClockinout && !member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_63)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_64, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_65, [$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_66, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
       "class": "fa fa-pencil cursor-pointer",
       "aria-hidden": "true",
       onClick: function onClick($event) {
         return $setup.enableMenualClock(member.id);
       }
-    }, null, 8 /* PROPS */, _hoisted_63), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("     "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
+    }, null, 8 /* PROPS */, _hoisted_67), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("     "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
       timesheetId: member.timesheet_id,
       perDiem: member.per_diem,
       onHfPerDiemDone: $setup.hfPerDiemDone
     }, null, 8 /* PROPS */, ["timesheetId", "perDiem"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("     ")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]);
-  }), 128 /* KEYED_FRAGMENT */))])])])]), _hoisted_64])])])], 64 /* STABLE_FRAGMENT */);
+  }), 128 /* KEYED_FRAGMENT */))])])])]), _hoisted_68])])])], 64 /* STABLE_FRAGMENT */);
 }
 
 /***/ }),
@@ -25403,6 +25545,18 @@ var _hoisted_7 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
   disabled: ""
 }, "Select time type…", -1 /* HOISTED */);
 var _hoisted_8 = ["value"];
+var _hoisted_9 = {
+  key: 5,
+  "class": "d-flex align-items-center gap-3 flex-column flex-md-row mt-2"
+};
+var _hoisted_10 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  "class": "text-dark me-1"
+}, "Switch time type", -1 /* HOISTED */);
+var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+  value: null,
+  disabled: ""
+}, "Select time type…", -1 /* HOISTED */);
+var _hoisted_12 = ["value"];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_Select2 = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Select2");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <LoadingOverlay /> "), !$setup.isDepart && $setup.travelTime == null || !$setup.isDepart && $setup.travelTime && $setup.travelTime.type == 'depart_for_job' && $setup.travelTime.arrive ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
@@ -25456,7 +25610,24 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     type: "button",
     "class": "btn btn-secondary btn-sm mt-3 ms-1",
     onClick: $setup.depart
-  }, "Arrive")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 512 /* NEED_PATCH */);
+  }, "Arrive")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Switch time type AFTER arriving at office (loop until clock out) "), $setup.canSwitchTypesHere ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_9, [_hoisted_10, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    "onUpdate:modelValue": _cache[4] || (_cache[4] = function ($event) {
+      return $setup.selectedSwitchTypeId = $event;
+    }),
+    style: {
+      "width": "200px"
+    },
+    "class": "bg-white"
+  }, [_hoisted_11, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.props.timeTypes, function (t) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
+      key: t.id,
+      value: t.id
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(t.display_name), 9 /* TEXT, PROPS */, _hoisted_12);
+  }), 128 /* KEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedSwitchTypeId]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    type: "button",
+    "class": "btn btn-outline-info btn-sm mt-3 ms-1",
+    onClick: $setup.switchTimeType
+  }, " Apply ")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 512 /* NEED_PATCH */);
 }
 
 /***/ }),

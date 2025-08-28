@@ -461,6 +461,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('wather-entry', [TimesheetController::class, 'weatherEntry']);
 
 	Route::get('time-types', [TimesheetController::class, 'getTimeTypes']); // to get all time types for crew entry
+	Route::post('switch-time-type', [TimesheetController::class, 'switchTimeType']); // loop through time times dropdown
+
 
 	// depart
 	Route::get('getjobs-for-depart', [DepartController::class, 'getAllJobs']);

@@ -53,7 +53,7 @@
                         </div>
                     </div>
                     <div class="row actions mt-3 mb-3">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime"
                                 :crewTypeId="crewTypeId" :key="departKey" @track-time-done="trackTimeDone"
                                 @is-mobilization="enableCrewTypeId = !enableCrewTypeId"
@@ -65,13 +65,10 @@
                                 v-if="isAlreadyVerified && !isAlreadyClockedin">Weather</button>
 
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-6 d-flex gap-3">
 
                             <button type="button" class="btn btn-primary p-3" @click="verifyTeam"
                                 v-if="!isAlreadyVerified">Verify Crew</button>
-
-                            <!-- <button type="button" class="btn btn-success p-3" @click="clockinout('clockin')"
-                                v-if="isAlreadyVerified && !isAlreadyClockedin">Clock in</button> -->
 
                             <!-- Time Type + Clock in (inline) -->
                             <div class="d-flex align-items-center justify-content-end gap-3 flex-column flex-md-row mt-2"
@@ -91,9 +88,32 @@
                             </div>
 
 
-                            <button type="button" class="btn btn-danger p-3" @click="clockinout('clockout')"
+                            <!-- Switch Time Type (mid-shift) -->
+                            <div class="d-flex align-items-center justify-content-end gap-3 flex-column flex-md-row mt-2"
+                                v-if="canSwitchTypes">
+                                <label class="text-white mb-0 text-nowrap me-2">Switch time type</label>
+
+                                <select class="form-select form-select-sm w-auto" v-model="selectedSwitchTypeId">
+                                    <option :value="null" disabled>Select time type…</option>
+                                    <option v-for="t in timeTypes" :key="t.id" :value="t.id">
+                                        {{ t.display_name }}
+                                    </option>
+                                </select>
+
+                                <button type="button" class="btn btn-outline-info p-3" @click="switchTimeType">
+                                    APPLY
+                                </button>
+                            </div>
+                            <!-- Switch Time Type ends -->
+
+                            <!-- <button type="button" class="btn btn-danger p-3" @click="clockinout('clockout')"
                                 v-if="isAlreadyClockedin && !isAlreadyClockedout">Clock out
+                            </button> -->
+                            <button type="button" class="btn btn-danger p-3" @click="clockinout('clockout')"
+                                v-if="canClockOut">Clock out
                             </button>
+
+
                             <button type="button" class="btn btn-secondary p-3" @click="readyForVerification"
                                 v-if="isAlreadyClockedout">Ready for verification</button>
                         </div>
@@ -145,8 +165,6 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <!-- <input type="datetime-local" class="form-controll datetime"
-                                            v-model="createNewCrewForm[0].clockin_time"> -->
                                         <VueDatePicker v-model="createNewCrewForm[0].clockin_time" :enable-time="true"
                                             :formate="dateTimeFormat" teleport="body" class="responsive-datepicker">
                                         </VueDatePicker>
@@ -175,9 +193,6 @@
                                             {{ member.clockout_time ? member.clockout_time : member.clockin_time }}
                                         </div>
                                         <div v-else>
-                                            <!-- <input type="datetime-local" class="form-controll datetime"
-                                                @change="menualClockinout($event, member.timesheet_id, 'clockin')"
-                                                :value="member.clockin_time"> -->
                                             <VueDatePicker v-model="member.clockin_time_edit" :enable-time="true"
                                                 :formate="dateTimeFormat" teleport="body"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockin')"
@@ -187,9 +202,6 @@
 
                                     <td v-if="member.isMenualClockinout">
                                         <div>
-                                            <!-- <input type="datetime-local" class="form-controll datetime"
-                                                @change="menualClockinout($event, member.timesheet_id, 'clockout')"
-                                                :value="(member.clockout_time) ? member.clockout_time : now"> -->
                                             <VueDatePicker v-model="member.clockout_time_edit" :enable-time="true"
                                                 :formate="dateTimeFormat" teleport="body"
                                                 @update:model-value="menualClockinout($event, member.timesheet_id, 'clockout')"
@@ -230,7 +242,7 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onUnmounted, onBeforeUnmount, computed } from 'vue'
 
 import { useToast } from "vue-toastification"
 
@@ -299,16 +311,26 @@ let isLateEntryTimeVisible = ref(false)
 
 // to show timeTypes dropdown
 const timeTypes = ref([])
-const selectedClockinTypeId = ref(null)
+const selectedClockinTypeId = ref(null) // for CLOCK IN dropdown
+const selectedSwitchTypeId = ref(null)   // for mid-shift SWITCH dropdown
+const shopTypeId = ref(null)   // cache Shop’s id for reuse
 
 const getTimeTypes = () => {
     axios.get('/time-types').then(res => {
         timeTypes.value = res.data
         // optional: default to "Shop Time" if present
         const shop = timeTypes.value.find(t => t.name?.toLowerCase().includes('shop'))
-        if (shop) selectedClockinTypeId.value = shop.id
+        if (shop) {
+            shopTypeId.value = shop.id
+            selectedClockinTypeId.value = shop.id
+            selectedSwitchTypeId.value = shop.id
+        } else {
+            selectedClockinTypeId.value = null
+            selectedSwitchTypeId.value = null
+        }
     })
 }
+
 
 
 // things to manage multi tabs issue
@@ -350,7 +372,6 @@ const setCurrentDateTime = () => {
     const day = String(noww.getDate()).padStart(2, '0');
     const hours = String(noww.getHours()).padStart(2, '0');
     const minutes = String(noww.getMinutes()).padStart(2, '0');
-    //   const seconds = String(noww.getSeconds()).padStart(2, '0');
 
     now.value = `${year}-${month}-${day}T${hours}:${minutes}`;
 }
@@ -359,8 +380,8 @@ const getCrewMembers = () => {
     axios.get('/crew-members')
         .then(res => {
             isAlreadyVerified.value = res.data.isAlreadyVerified
-            isAlreadyClockedin = res.data.isAlreadyClockedin
-            isAlreadyClockedout = res.data.isAlreadyClockedout
+            isAlreadyClockedin.value = res.data.isAlreadyClockedin
+            isAlreadyClockedout.value = res.data.isAlreadyClockedout
             crewId.value = res.data.crewId
             CrewMembersTobeVerified.value = res.data.crewMembers
             timesheet.value = res.data.timesheet
@@ -522,7 +543,6 @@ const menualClockinout = (event, timesheetId, type) => {
         'type': type,
         'isMenual': true,
         'timesheetId': timesheetId,
-        // 'time': event.target.value
         'time': formatedDateTime
     })
         .then(res => setLocalStorageFlag())
@@ -629,6 +649,58 @@ const handleScroll = (() => {
     }
 
 })
+
+
+
+// Show right-side "Switch time type" only BEFORE mobilization starts (shop time)
+// and only while the crew is currently clocked in.
+const canSwitchTypes = computed(() => {
+    if (!isAlreadyClockedin.value || isAlreadyClockedout.value) return false
+    return !travelTime.value   // no travel record yet => still at shop
+})
+
+// Clock out only on indirect time (shop before MOB, or after arrival back at office)
+const canClockOut = computed(() => {
+    if (!isAlreadyClockedin.value || isAlreadyClockedout.value) return false
+    const tt = travelTime.value
+    return !tt || (tt.type === 'depart_for_office' && !!tt.arrive)
+})
+
+
+
+
+const switchTimeType = () => {
+    if (!selectedSwitchTypeId.value) {
+        toast.error('Please select a time type')
+        return
+    }
+
+    // if Late Entry toggle is on, require a value (same rule you use elsewhere)
+    if (isLateEntryTimeVisible.value && !lateEntryTime.value) {
+        toast.error('Please select the late entry time or toggle it off')
+        return
+    }
+
+    if (!confirm('Apply new time type now?')) return
+
+    setLoading(true)
+    axios.post('/switch-time-type', {
+        crewId: crewId.value,
+        timeTypeId: selectedSwitchTypeId.value,
+        // reuse your existing Late Entry toggle; if empty, backend uses "now"
+        lateEntryTime: lateEntryTime.value ? format(lateEntryTime.value, dateTimeFormat) : null,
+    })
+        .then(() => {
+            selectedSwitchTypeId.value = shopTypeId.value ?? null // reset the switch dropdown to Shop
+            setLocalStorageFlag()
+            lastEntryTimeDone() // hide/reset the Late Entry picker
+        })
+        .catch(error => {
+            const msg = error?.response?.data?.message || 'Something went wrong'
+            toast.error(msg)
+        })
+        .finally(() => setLoading(false))
+}
 
 </script>
 
