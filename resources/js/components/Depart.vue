@@ -3,8 +3,12 @@
 
         <!-- <LoadingOverlay /> -->
 
-        <button type="button" class="btn btn-info p-3" @click="getAllJobs" v-if="(!isDepart && travelTime == null) ||
+        <!-- <button type="button" class="btn btn-info p-3" @click="getAllJobs" v-if="(!isDepart && travelTime == null) ||
             (!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive)">
+            MOBILIZATION</button> -->
+
+        <!-- show MOB button all the time even before reaching to job / office -->
+        <button type="button" class="btn btn-info p-3" @click="getAllJobs" v-if="!isDepart">
             MOBILIZATION</button>
 
         <button type="button" class="btn btn-secondary ms-5 p-3"
@@ -20,14 +24,14 @@
             <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart(true)">Depart</button>
         </div>
 
-        <div class="d-flex align-items-center"
-            v-if="travelTime && travelTime.type == 'depart_for_job' && !travelTime.arrive">
+        <div class="d-inline-flex align-items-center ms-3"
+            v-if="travelTime && travelTime.type == 'depart_for_job' && !travelTime.arrive && !isDepart">
             <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Arrive at job
                 location</button>
         </div>
 
-        <div class="d-flex align-items-center gap-3 flex-column flex-md-row mt-2"
-            v-if="travelTime && travelTime.type == 'depart_for_office' && !travelTime.arrive">
+        <div class="d-inline-flex align-items-center gap-3 flex-column flex-md-row mt-2 ms-3"
+            v-if="travelTime && travelTime.type == 'depart_for_office' && !travelTime.arrive && !isDepart">
 
             <!-- Show time types dropdown when Arrive at Office-->
             <label class="text-dark me-1">Time type</label>
@@ -42,7 +46,7 @@
         </div>
 
         <!-- Switch time type AFTER arriving at office (loop until clock out) -->
-        <div class="d-flex align-items-center gap-3 flex-column flex-md-row mt-2" v-if="canSwitchTypesHere">
+        <div class="d-inline-flex align-items-center gap-3 flex-column flex-md-row mt-2 ms-3" v-if="canSwitchTypesHere">
             <label class="text-dark me-1">Switch time type</label>
             <select v-model="selectedSwitchTypeId" style="width:200px;" class="bg-white">
                 <option :value="null" disabled>Select time type…</option>
@@ -61,7 +65,7 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 
 import { useToast } from "vue-toastification"
 // import LoadingOverlay from './shared/LoadingOverlay.vue'
@@ -77,6 +81,8 @@ const props = defineProps({
     timeTypes: Array,
 })
 
+
+
 const emit = defineEmits(['track-time-done', 'is-mobilization', 'last-entry-time-done'])
 
 const toast = useToast()
@@ -91,13 +97,18 @@ let select2Settings = ref({
 })
 
 let travelTime = ref(props.travelTime)
+// Keep local travelTime in sync with prop (defensive) -> To be extra safe if the parent ever stops re-keying
+watch(() => props.travelTime, v => { travelTime.value = v })
+
+
 let isDepart = ref(false)
 let jobs = ref([])
 
 let departForm = ref({
     'crewId': props.crewId,
     'jobId': '',
-    'type': ''
+    'type': '',
+    prevTravelTimeId: null, // NEW, if we are switching jobs mid-leg
 })
 
 const arriveOfficeTypeId = ref(null) // to select time type from dropdown
@@ -107,9 +118,10 @@ const selectedSwitchTypeId = ref(null) // for switch time type dropdown
 const shopTypeId = ref(null)   // cache Shop’s id for reuse
 
 // show the switcher only when we’re back from the job and at office (indirect time)
+// AND the MOB picker is NOT open
 const canSwitchTypesHere = computed(() => {
     const tt = travelTime.value
-    return !!(tt && tt.type === 'depart_for_office' && tt.arrive)
+    return !!(tt && tt.type === 'depart_for_office' && tt.arrive && !isDepart.value)
 })
 
 
@@ -198,20 +210,87 @@ const depart = (eventOrValidation = false) => {
 }
 
 const setType = () => {
+
+    // Always clear this; we only set it when we’re switching jobs mid-leg
+    departForm.value.prevTravelTimeId = null
+
+    // 1) First MOB of the day, from the shop:
+    //    - there is no current travel leg (travelTime == null)
+    //    - the user opened the MOB picker (isDepart == true)
     if (travelTime.value == null && isDepart.value) {
         departForm.value.type = 'depart_for_job'
     }
+
+    // 2) Switching job while a leg is still open:
+    //    - user opened the MOB picker (isDepart)
+    //    - there IS a current travel leg (travelTime)
+    //    - that leg has NOT been closed yet (!arrive)
+    //    - and it could be either “to job” OR “to office”
+    //    What we do:
+    //      - close that open leg at the same timestamp as this new MOB
+    //      - immediately start a new depart_for_job to the newly selected job
+
+    else if (
+        isDepart.value &&
+        travelTime.value &&
+        !travelTime.value.arrive &&
+        (travelTime.value.type === 'depart_for_job' || travelTime.value.type === 'depart_for_office')
+    ) {
+        // switch to another job mid-leg
+        departForm.value.type = 'depart_for_job'
+        // backend will close this open leg first (arrive = MOB timestamp), then create the new one
+        departForm.value.prevTravelTimeId = travelTime.value.id
+    }
+
+    // 3) Normal arrival at the job site:
+    //    - current leg is “depart_for_job” and still open (!arrive)
+    //    - user clicked “Arrive at job location” (not the MOB picker)
+    //    What we do:
+    //      - close this leg (arrive_for_job) by sending its travelTimeId
     else if (travelTime.value && travelTime.value.type == 'depart_for_job' && !travelTime.value.arrive) {
         departForm.value.type = 'arrive_for_job'
         departForm.value.travelTimeId = travelTime.value.id
     }
+
+    // 4) Start another job AFTER you’re already at a job:
+    //    - you’re at a job (type == depart_for_job && arrive == true)
+    //    - user opened the MOB picker to go to a different job (isDepart)
+    //    What we do:
+    //      - start a fresh “depart_for_job” leg to the newly selected job
+    //      - (setting travelTimeId isn’t required for creating the new leg, but harmless)
     else if (isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive) {
         departForm.value.type = 'depart_for_job'
         departForm.value.travelTimeId = travelTime.value.id
     }
+
+    // 4b) Start a new job while already back at office:
+    //     - last leg: depart_for_office AND it's closed (arrive == true)
+    //     - user opened MOB to go to a new job
+    //     -> start a fresh depart_for_job
+    else if (
+        isDepart.value &&
+        travelTime.value &&
+        travelTime.value.type === 'depart_for_office' &&
+        travelTime.value.arrive
+    ) {
+        departForm.value.type = 'depart_for_job'
+        // no prevTravelTimeId needed; that office leg is already closed
+    }
+
+    // 5) End Production (leave job -> head to office):
+    //    - you’re at a job (type == depart_for_job && arrive == true)
+    //    - user clicked “End Production” (NOT the MOB picker)
+    //    What we do:
+    //      - start the return leg: depart_for_office
     else if (!isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive) {
         departForm.value.type = 'depart_for_office'
     }
+
+    // 6) Arrive at office:
+    //    - current leg is “depart_for_office” and still open (!arrive)
+    //    - user clicked “Arrive” (and we’ll also include the selected time type)
+    //    What we do:
+    //      - close the office leg (arrive_for_office) by sending its travelTimeId
     else if (travelTime.value && travelTime.value.type == 'depart_for_office' && !travelTime.value.arrive) {
         departForm.value.type = 'arrive_for_office'
         departForm.value.travelTimeId = travelTime.value.id

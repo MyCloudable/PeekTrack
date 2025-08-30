@@ -21773,12 +21773,19 @@ __webpack_require__.r(__webpack_exports__);
       'dropdownCssClass': ':all'
     });
     var travelTime = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(props.travelTime);
+    // Keep local travelTime in sync with prop (defensive) -> To be extra safe if the parent ever stops re-keying
+    (0,vue__WEBPACK_IMPORTED_MODULE_1__.watch)(function () {
+      return props.travelTime;
+    }, function (v) {
+      travelTime.value = v;
+    });
     var isDepart = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
     var jobs = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)([]);
     var departForm = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)({
       'crewId': props.crewId,
       'jobId': '',
-      'type': ''
+      'type': '',
+      prevTravelTimeId: null // NEW, if we are switching jobs mid-leg
     });
     var arriveOfficeTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // to select time type from dropdown
 
@@ -21786,9 +21793,10 @@ __webpack_require__.r(__webpack_exports__);
     var shopTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // cache Shop’s id for reuse
 
     // show the switcher only when we’re back from the job and at office (indirect time)
+    // AND the MOB picker is NOT open
     var canSwitchTypesHere = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
       var tt = travelTime.value;
-      return !!(tt && tt.type === 'depart_for_office' && tt.arrive);
+      return !!(tt && tt.type === 'depart_for_office' && tt.arrive && !isDepart.value);
     });
     (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)(function () {
       // default to “Shop” if present (switch time type dropdown)
@@ -21861,17 +21869,76 @@ __webpack_require__.r(__webpack_exports__);
       }); // Disable loading
     };
     var setType = function setType() {
+      // Always clear this; we only set it when we’re switching jobs mid-leg
+      departForm.value.prevTravelTimeId = null;
+
+      // 1) First MOB of the day, from the shop:
+      //    - there is no current travel leg (travelTime == null)
+      //    - the user opened the MOB picker (isDepart == true)
       if (travelTime.value == null && isDepart.value) {
         departForm.value.type = 'depart_for_job';
-      } else if (travelTime.value && travelTime.value.type == 'depart_for_job' && !travelTime.value.arrive) {
+      }
+
+      // 2) Switching job while a leg is still open:
+      //    - user opened the MOB picker (isDepart)
+      //    - there IS a current travel leg (travelTime)
+      //    - that leg has NOT been closed yet (!arrive)
+      //    - and it could be either “to job” OR “to office”
+      //    What we do:
+      //      - close that open leg at the same timestamp as this new MOB
+      //      - immediately start a new depart_for_job to the newly selected job
+      else if (isDepart.value && travelTime.value && !travelTime.value.arrive && (travelTime.value.type === 'depart_for_job' || travelTime.value.type === 'depart_for_office')) {
+        // switch to another job mid-leg
+        departForm.value.type = 'depart_for_job';
+        // backend will close this open leg first (arrive = MOB timestamp), then create the new one
+        departForm.value.prevTravelTimeId = travelTime.value.id;
+      }
+
+      // 3) Normal arrival at the job site:
+      //    - current leg is “depart_for_job” and still open (!arrive)
+      //    - user clicked “Arrive at job location” (not the MOB picker)
+      //    What we do:
+      //      - close this leg (arrive_for_job) by sending its travelTimeId
+      else if (travelTime.value && travelTime.value.type == 'depart_for_job' && !travelTime.value.arrive) {
         departForm.value.type = 'arrive_for_job';
         departForm.value.travelTimeId = travelTime.value.id;
-      } else if (isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive) {
+      }
+
+      // 4) Start another job AFTER you’re already at a job:
+      //    - you’re at a job (type == depart_for_job && arrive == true)
+      //    - user opened the MOB picker to go to a different job (isDepart)
+      //    What we do:
+      //      - start a fresh “depart_for_job” leg to the newly selected job
+      //      - (setting travelTimeId isn’t required for creating the new leg, but harmless)
+      else if (isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive) {
         departForm.value.type = 'depart_for_job';
         departForm.value.travelTimeId = travelTime.value.id;
-      } else if (!isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive) {
+      }
+
+      // 4b) Start a new job while already back at office:
+      //     - last leg: depart_for_office AND it's closed (arrive == true)
+      //     - user opened MOB to go to a new job
+      //     -> start a fresh depart_for_job
+      else if (isDepart.value && travelTime.value && travelTime.value.type === 'depart_for_office' && travelTime.value.arrive) {
+        departForm.value.type = 'depart_for_job';
+        // no prevTravelTimeId needed; that office leg is already closed
+      }
+
+      // 5) End Production (leave job -> head to office):
+      //    - you’re at a job (type == depart_for_job && arrive == true)
+      //    - user clicked “End Production” (NOT the MOB picker)
+      //    What we do:
+      //      - start the return leg: depart_for_office
+      else if (!isDepart.value && travelTime.value && travelTime.value.type == 'depart_for_job' && travelTime.value.arrive) {
         departForm.value.type = 'depart_for_office';
-      } else if (travelTime.value && travelTime.value.type == 'depart_for_office' && !travelTime.value.arrive) {
+      }
+
+      // 6) Arrive at office:
+      //    - current leg is “depart_for_office” and still open (!arrive)
+      //    - user clicked “Arrive” (and we’ll also include the selected time type)
+      //    What we do:
+      //      - close the office leg (arrive_for_office) by sending its travelTimeId
+      else if (travelTime.value && travelTime.value.type == 'depart_for_office' && !travelTime.value.arrive) {
         departForm.value.type = 'arrive_for_office';
         departForm.value.travelTimeId = travelTime.value.id;
       }
@@ -21968,6 +22035,7 @@ __webpack_require__.r(__webpack_exports__);
       ref: vue__WEBPACK_IMPORTED_MODULE_1__.ref,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_1__.onMounted,
       computed: vue__WEBPACK_IMPORTED_MODULE_1__.computed,
+      watch: vue__WEBPACK_IMPORTED_MODULE_1__.watch,
       get useToast() {
         return vue_toastification__WEBPACK_IMPORTED_MODULE_2__.useToast;
       },
@@ -25531,11 +25599,11 @@ var _hoisted_3 = {
 };
 var _hoisted_4 = {
   key: 3,
-  "class": "d-flex align-items-center"
+  "class": "d-inline-flex align-items-center ms-3"
 };
 var _hoisted_5 = {
   key: 4,
-  "class": "d-flex align-items-center gap-3 flex-column flex-md-row mt-2"
+  "class": "d-inline-flex align-items-center gap-3 flex-column flex-md-row mt-2 ms-3"
 };
 var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "class": "text-dark me-1"
@@ -25547,7 +25615,7 @@ var _hoisted_7 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
 var _hoisted_8 = ["value"];
 var _hoisted_9 = {
   key: 5,
-  "class": "d-flex align-items-center gap-3 flex-column flex-md-row mt-2"
+  "class": "d-inline-flex align-items-center gap-3 flex-column flex-md-row mt-2 ms-3"
 };
 var _hoisted_10 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "class": "text-dark me-1"
@@ -25559,7 +25627,7 @@ var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElement
 var _hoisted_12 = ["value"];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_Select2 = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Select2");
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <LoadingOverlay /> "), !$setup.isDepart && $setup.travelTime == null || !$setup.isDepart && $setup.travelTime && $setup.travelTime.type == 'depart_for_job' && $setup.travelTime.arrive ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <LoadingOverlay /> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <button type=\"button\" class=\"btn btn-info p-3\" @click=\"getAllJobs\" v-if=\"(!isDepart && travelTime == null) ||\n            (!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive)\">\n            MOBILIZATION</button> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" show MOB button all the time even before reaching to job / office "), !$setup.isDepart ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
     key: 0,
     type: "button",
     "class": "btn btn-info p-3",
@@ -25589,11 +25657,11 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     onClick: _cache[2] || (_cache[2] = function ($event) {
       return $setup.depart(true);
     })
-  }, "Depart")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.travelTime && $setup.travelTime.type == 'depart_for_job' && !$setup.travelTime.arrive ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  }, "Depart")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.travelTime && $setup.travelTime.type == 'depart_for_job' && !$setup.travelTime.arrive && !$setup.isDepart ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     type: "button",
     "class": "btn btn-secondary btn-sm mt-3 ms-1",
     onClick: $setup.depart
-  }, "Arrive at job location")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.travelTime && $setup.travelTime.type == 'depart_for_office' && !$setup.travelTime.arrive ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Show time types dropdown when Arrive at Office"), _hoisted_6, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+  }, "Arrive at job location")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.travelTime && $setup.travelTime.type == 'depart_for_office' && !$setup.travelTime.arrive && !$setup.isDepart ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Show time types dropdown when Arrive at Office"), _hoisted_6, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
       return $setup.arriveOfficeTypeId = $event;
     }),
