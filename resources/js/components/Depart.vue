@@ -8,7 +8,7 @@
             MOBILIZATION</button> -->
 
         <!-- show MOB button all the time even before reaching to job / office -->
-        <button type="button" class="btn btn-info p-3" @click="getAllJobs" v-if="!isDepart">
+        <button type="button" class="btn btn-info p-3" @click="getAllJobs" v-if="canMobilize">
             MOBILIZATION</button>
 
         <button type="button" class="btn btn-secondary ms-5 p-3"
@@ -122,6 +122,11 @@ const shopTypeId = ref(null)   // cache Shop’s id for reuse
 const canSwitchTypesHere = computed(() => {
     const tt = travelTime.value
     return !!(tt && tt.type === 'depart_for_office' && tt.arrive && !isDepart.value)
+})
+
+// show MOB button all the time even before reaching to job / office
+const canMobilize = computed(() => {
+    return (!isDepart.value && (travelTime.value == null || travelTime.value))
 })
 
 

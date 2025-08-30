@@ -102,15 +102,29 @@ class TimesheetService {
         if($isAlreadyVerified)
             $currentNode = 'Verified';
         
-        if($isAlreadyClockedin)
-            $currentNode = 'Clocked In';
+        // if($isAlreadyClockedin)
+        //     $currentNode = 'Clocked In';
+
+        if($isAlreadyClockedin) {
+            // Extend status with time type label if not traveling
+            if (!$travelTime) {
+                $timeType = $this->getOpenTimeTypeLabel($crew, $crewMembersArray);
+                if ($timeType) {
+                    $currentNode = 'Clocked In (' . $timeType . ')';
+                } else {
+                    $currentNode = 'Clocked In';
+                }
+            } else {
+                $currentNode = 'Clocked In';
+            }
+        }
+
 
         if($isAlreadyClockedout)
             $currentNode = 'Clocked Out';
 
         if($travelTime){
             $lastTravelEntry = $travelTime;
-            // dd($lastTravelEntry);
             if($lastTravelEntry->type =='depart_for_job'){
                 if($lastTravelEntry->arrive)
                     $currentNode = 'Arrived at Job # ' . Job::where('id', $lastTravelEntry->job_id)->first()->job_number;
@@ -118,8 +132,20 @@ class TimesheetService {
                 $currentNode = 'Departing to Job # ' . Job::where('id', $lastTravelEntry->job_id)->first()->job_number;
             }
             if($lastTravelEntry->type =='depart_for_office'){
-                if($lastTravelEntry->arrive)
-                    $currentNode = 'Arrive at office';
+
+                // if($lastTravelEntry->arrive)
+                //     $currentNode = 'Arrive at office';
+
+                if ($lastTravelEntry->arrive) {
+                    // After arriving at office, show current indirect time type if available
+                    $timeType = $this->getOpenTimeTypeLabel($crew, $crewMembersArray);
+                    if ($timeType) {
+                        $currentNode = 'Arrive at office (' . $timeType . ')';
+                    } else {
+                        $currentNode = 'Arrive at office';
+                    }
+                }
+
                 else
                 $currentNode = 'Departing to Office';
             }
@@ -523,13 +549,18 @@ class TimesheetService {
         try{
             $crew = Crew::find($data['crewId']);
             $crewMembersArray = $this->getCrewMembersArray($crew->crew_members, $crew->superintendentId);
+
+            $now = Carbon::now();
+
             foreach ($crewMembersArray as $member) {
                 $timesheet = Timesheet::create([
                     'crew_id' => $crew->id,
                     'crew_type_id' => $crew->crew_type_id,
                     'user_id' => $member,
-                    'clockin_time' => Carbon::now()->format('Y-m-d H:i:00'),
-                    'clockout_time' => Carbon::now()->format('Y-m-d H:i:00')->addMinute(),
+                    // 'clockin_time' => Carbon::now()->format('Y-m-d H:i:00'),
+                    // 'clockout_time' => Carbon::now()->format('Y-m-d H:i:00')->addMinute(),
+                    'clockin_time'  => $now,
+                    'clockout_time' => (clone $now)->addMinute(),
                     'job_id' => Job::where('job_number', '9-99-9998')->first()->id,
                     'time_type_id' => TimeType::where('name', 'Weather')->first()->id,
                     'created_by' => auth()->id(),
@@ -820,6 +851,30 @@ class TimesheetService {
 
         return true;
     }
+
+    private function getOpenTimeTypeLabel($crew, $crewMembersArray)
+    {
+        $openEntry = Timesheet::where('crew_id', $crew->id)
+            ->whereIn('user_id', $crewMembersArray)
+            ->where('created_at', '>=', $crew->last_verified_date)
+            ->whereNull('clockout_time')
+            ->latest()
+            ->first();
+
+        if ($openEntry) {
+            $timeType = TimeType::find($openEntry->time_type_id);
+            $labels = [
+                'Mobilization' => 'Mobilization & Prep',
+                'Shop'         => 'Shop Time',
+                'Weather'      => 'Weather Time',
+            ];
+            return $labels[$timeType->name] ?? $timeType->name;
+
+        }
+
+        return null;
+    }
+
 
 
 }

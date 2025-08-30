@@ -21798,6 +21798,11 @@ __webpack_require__.r(__webpack_exports__);
       var tt = travelTime.value;
       return !!(tt && tt.type === 'depart_for_office' && tt.arrive && !isDepart.value);
     });
+
+    // show MOB button all the time even before reaching to job / office
+    var canMobilize = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      return !isDepart.value && (travelTime.value == null || travelTime.value);
+    });
     (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)(function () {
       // default to “Shop” if present (switch time type dropdown)
       var shop = (props.timeTypes || []).find(function (t) {
@@ -22024,6 +22029,7 @@ __webpack_require__.r(__webpack_exports__);
       selectedSwitchTypeId: selectedSwitchTypeId,
       shopTypeId: shopTypeId,
       canSwitchTypesHere: canSwitchTypesHere,
+      canMobilize: canMobilize,
       getAllJobs: getAllJobs,
       depart: depart,
       setType: setType,
@@ -25019,7 +25025,7 @@ var _hoisted_11 = /*#__PURE__*/_withScopeId(function () {
   }, null, -1 /* HOISTED */);
 });
 var _hoisted_12 = {
-  "class": "col-md-6 text-dark"
+  "class": "col-md-6 text-white"
 };
 var _hoisted_13 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
@@ -25627,7 +25633,7 @@ var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElement
 var _hoisted_12 = ["value"];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_Select2 = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Select2");
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <LoadingOverlay /> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <button type=\"button\" class=\"btn btn-info p-3\" @click=\"getAllJobs\" v-if=\"(!isDepart && travelTime == null) ||\n            (!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive)\">\n            MOBILIZATION</button> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" show MOB button all the time even before reaching to job / office "), !$setup.isDepart ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <LoadingOverlay /> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <button type=\"button\" class=\"btn btn-info p-3\" @click=\"getAllJobs\" v-if=\"(!isDepart && travelTime == null) ||\n            (!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive)\">\n            MOBILIZATION</button> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" show MOB button all the time even before reaching to job / office "), $setup.canMobilize ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
     key: 0,
     type: "button",
     "class": "btn btn-info p-3",

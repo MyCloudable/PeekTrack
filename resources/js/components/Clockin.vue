@@ -35,7 +35,8 @@
                         <!-- Late Entry Time Ends -->
 
 
-                        <div class="col-md-6 text-dark"><span class="badge badge-info me-2">Status: </span> {{ status }}
+                        <div class="col-md-6 text-white"><span class="badge badge-info me-2">Status: </span> {{ status
+                            }}
                             <select class="d-inline w-50 ms-2 mt-3" v-if="!isAlreadyVerified || enableCrewTypeId"
                                 v-model="crewTypeId">
                                 <option v-for="(crewType, index) in crewTypes" :value="crewType.id">
