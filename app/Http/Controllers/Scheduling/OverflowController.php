@@ -195,6 +195,7 @@ class OverflowController extends Controller
 	
 	public function approve(Request $request)
     {
+        // dd($request->all());
         $request->validate([
             'overflow_id' => 'required|integer|exists:overflow_items,id',
             'decision' => 'required|in:approved,rejected',
@@ -218,7 +219,15 @@ class OverflowController extends Controller
 
         $overflowItem->save();
 
-    return redirect()->back()->with('success', 'Decision recorded successfully!');
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'ok'       => true,
+                'id'       => $overflowItem->id,
+                'decision' => $request->decision,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Decision recorded successfully!');
 
     }
 

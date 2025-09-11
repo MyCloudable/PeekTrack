@@ -112,6 +112,7 @@ Route::get('jobs/globalreview', [JobsController::class, 'globalreview'])->middle
 Route::get('jobs/estimating', [JobsController::class, 'estimating'])->middleware('auth')->name('jobs.estimating');
 
 Route::get('jobs/overflowapproval', [JobsController::class, 'overflowapproval'])->middleware('auth')->name('jobs.overflowapproval');
+Route::get('jobs/overflowapproval/data', [JobsController::class, 'overflowApprovalData'])->middleware('auth')->name('jobs.overflowapproval.data'); // fetch datatables
 
 Route::get('jobs/history', [JobsController::class, 'history'])->middleware('auth')->name('jobs.history');
 Route::post('jobs/history/update-billing-approval', [JobsController::class, 'billingApproval'])->middleware('auth')->name('jobs.history.billing-approval');

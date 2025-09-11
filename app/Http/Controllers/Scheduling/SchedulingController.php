@@ -50,20 +50,20 @@ class SchedulingController extends Controller
 
         
         // Map users.location to correct branch descriptions
-$branchMapping = [
-    'Columbus' => range(1, 10),
-    'Cartersville' => [11, 16],
-    'Locust_Grove' => array_merge(range(12, 15), [18]),
-    'Remerton' => range(22, 25),
-    'Byron' => range(30, 39),
-    'Cleveland' => range(50, 59),
-    'Columbia' => range(40, 45),
-    'Summerville' => range(60, 65),
-    'Spartanburg' => range(70, 75),
-    'Richmond_Hill' => range(80, 85),
-	'Conway' => range(90, 96),
+        $branchMapping = [
+            'Columbus' => range(1, 10),
+            'Cartersville' => [11, 16],
+            'Locust_Grove' => array_merge(range(12, 15), [18]),
+            'Remerton' => range(22, 25),
+            'Byron' => range(30, 39),
+            'Cleveland' => range(50, 59),
+            'Columbia' => range(40, 45),
+            'Summerville' => range(60, 65),
+            'Spartanburg' => range(70, 75),
+            'Richmond_Hill' => range(80, 85),
+            'Conway' => range(90, 96),
 
-];
+        ];
 
 
         // Find matching branch descriptions based on manager's location
@@ -106,6 +106,8 @@ $branchMapping = [
             )
             ->orderBy('overflow_items.timeout_date', 'ASC') // Ensures dates are in ascending order
             ->get();
+
+        // dd($overflowItems);
 
         // Separate assigned and unassigned tasks
         $assignedTasks = $overflowItems->whereNotNull('superintendent_id')->groupBy('superintendent_id');
