@@ -15,6 +15,8 @@ import SchedulingIndex from "./components/Scheduling/Index.vue";
 import UrgentNotificationPopup from "./components/UrgentNotificationPopup.vue";
 import OverflowApproval from "./components/jobs/OverflowApproval.vue";
 
+import AdminUsersIndex from "./components/Admin/Users/Index.vue";
+
 import Select2 from "vue3-select2-component";
 
 // Use the toast plugin
@@ -41,6 +43,8 @@ app.component("createeditoverflow", CreateEditOverflow);
 app.component("schedulingindex", SchedulingIndex);
 app.component("urgentnotificationpopup", UrgentNotificationPopup);
 app.component("OverflowApproval", OverflowApproval);
+
+app.component("admin-users-index", AdminUsersIndex);
 
 const options = {
     // You can set your default options here

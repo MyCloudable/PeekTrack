@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\RolesController;
 use App\Mail\JobCardRejectionNotification;
@@ -20,12 +21,12 @@ use App\Http\Controllers\Clock\DepartController;
 use App\Http\Controllers\FullCalenderController;
 use App\Http\Controllers\Clock\CrewTypeController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Clock\TimesheetController;
-use App\Http\Controllers\Clock\TimesheetManagementConroller;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UrgentNotificationController;
 use App\Http\Controllers\Scheduling\OverflowController;
 use App\Http\Controllers\Scheduling\SchedulingController;
-use App\Http\Controllers\UrgentNotificationController;
+use App\Http\Controllers\Clock\TimesheetManagementConroller;
 use App\Http\Controllers\Admin\AdminUrgentNotificationController;
 
 
@@ -556,6 +557,19 @@ Route::middleware(['auth'])->prefix('admin/notifications')->group(function () {
     Route::put('/{id}', [AdminUrgentNotificationController::class, 'update'])->name('admin.notifications.update');
     Route::delete('/{id}', [AdminUrgentNotificationController::class, 'destroy'])->name('admin.notifications.destroy');
 });
+
+// --- Admin: manage users ---
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/users', [UserAdminController::class, 'index'])
+        ->name('admin.users.index');
+    Route::get('/users/list', [UserAdminController::class, 'list'])
+        ->name('admin.users.list');
+    Route::get('/users/{user}', [UserAdminController::class, 'show'])
+        ->name('admin.users.show');
+    Route::put('/users/{user}', [UserAdminController::class, 'update'])
+        ->name('admin.users.update');
+});
+
 
 
 
