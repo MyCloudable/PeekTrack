@@ -770,6 +770,8 @@ class TimesheetService {
         ];
 
         return TimeType::where('name', '!=', 'Production')
+            ->where('name', '!=', 'Mobilization') // don't show Mobilization as an option
+            ->where('name', '!=', 'Weather') // don't show Weather as an option
             ->select('id', 'name', 'value')
             ->orderBy('id')
             ->get()
