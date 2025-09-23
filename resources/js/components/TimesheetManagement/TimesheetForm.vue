@@ -2,7 +2,7 @@
 <template>
 
   <div class="col-md-6" v-if="!showForm">
-    <button class="btn btn-info" @click="showForm = true">Create Record</button>
+    <button class="btn btn-info" @click="showForm = true" :disabled="isBusy">Create Record</button>
   </div>
 
   <form @submit.prevent="createTimesheet" v-else>
@@ -49,8 +49,8 @@
 
       <div class="col-md-3" style="margin-top:40px;">
         <label></label>
-        <button class="btn btn-success" type="submit">Submit</button>
-        <button class="btn btn-danger ms-2" @click="back">Back</button>
+        <button class="btn btn-success" type="submit" :disabled="isBusy">Submit</button>
+        <button class="btn btn-danger ms-2" type="button" @click="back" :disabled="isBusy">Back</button>
       </div>
     </div>
 
@@ -60,6 +60,7 @@
 </template>
 
 <script setup>
+import axios from 'axios'
 import { ref, watch, onMounted, nextTick } from 'vue'
 
 import { useToast } from "vue-toastification";
@@ -86,6 +87,9 @@ const toast = useToast()
 
 const { isLoading, setLoading } = useLoading()
 
+const isBusy = isLoading
+
+
 
 let showForm = ref(false)
 
@@ -101,6 +105,8 @@ const formData = ref({
 
 
 const createTimesheet = async () => {
+
+  if (isBusy.value) return
 
   if (!validateTimesheetData()) {
     return; // Exit if validation fails

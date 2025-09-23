@@ -25,9 +25,14 @@
 
     <div class="row mt-5">
         <div class="col-md-12">
-            <button class="btn btn-secondary mb-5" v-if="editingRows.size > 0" @click="updateAllRows(null)">Update
+            <button class="btn btn-secondary mb-5" v-if="editingRows.size > 0" @click="updateAllRows(null)"
+                :disabled="isBusy">Update
                 All</button>
-            <DataTable :options="tableOptions" ref="dataTableRef" class="table custom-hover table-hover" />
+
+            <div :class="{ 'pe-none opacity-50': isBusy }">
+                <DataTable :options="tableOptions" ref="dataTableRef" class="table custom-hover table-hover" />
+            </div>
+
 
             <span id="totalTimeFooter">Total time: {{ totalTimeFooter }}</span>
         </div>
@@ -59,6 +64,7 @@ import { result } from 'lodash';
 const toast = useToast();
 
 const { isLoading, setLoading } = useLoading()
+const isBusy = isLoading
 
 const { recover } = useRecovery()
 
@@ -101,7 +107,7 @@ const tableOptions = ref({
         type: 'GET',
         dataType: 'json',
         beforeSend: function (request) {
-            // Optionally, modify AJAX request headers or add extra parameters
+            setLoading(true)
         },
         error: function (xhr, textStatus, error) {
             console.error('Ajax error:', error);
@@ -140,6 +146,8 @@ const tableOptions = ref({
                 });
 
             });
+
+            setLoading(false)
 
         }
     },
@@ -447,6 +455,8 @@ const handleFilter = (filter) => {
 
 const handleCheckboxChange = async (event) => {
 
+    if (isBusy.value) return
+
     setLoading(true)
 
     const checkbox = event.target
@@ -487,6 +497,8 @@ const handleCheckboxChange = async (event) => {
 const handleSelectAllApproval = async (event) => {
 
     console.log('handleSelectAllApproval')
+
+    if (isBusy.value) return
 
     setLoading(true)
 
@@ -533,6 +545,8 @@ const handleSelectAllApproval = async (event) => {
 
 const handleEditClick = (event) => {
 
+    if (isBusy.value) return
+
     const id = event.target.getAttribute('data-id')
     if (editingRows.has(parseInt(id))) {
         // editingRows.delete(parseInt(id))
@@ -551,6 +565,8 @@ const handleEditClick = (event) => {
 
 
 const saveRow = async (id) => {
+
+    if (isBusy.value) return
 
     setLoading(true)
 
@@ -600,6 +616,8 @@ const saveRow = async (id) => {
 
 
 const updateAllRows = async (singleRowId) => {
+
+    if (isBusy.value) return
 
     setLoading(true)
 
@@ -705,6 +723,9 @@ const updateAllRows = async (singleRowId) => {
 
 
 const handleDeleteClick = async (event) => {
+
+    if (isBusy.value) return
+
     const id = event.target.getAttribute('data-id');
 
     if (confirm('Are you sure you want to delete this timesheet?')) {
