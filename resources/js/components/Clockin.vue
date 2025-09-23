@@ -24,7 +24,8 @@
                         <!-- Late Entry Time -->
                         <div class="row text-dark mb-3 align-items-center">
                             <div class="col-1">
-                                <i class="fa fa-clock-o" aria-hidden="true" @click="toggleLateEntryTime"></i>
+                                <i class="fa fa-clock-o" :class="{ 'pe-none opacity-50': isBusy }" aria-hidden="true"
+                                    @click="toggleLateEntryTime"></i>
                             </div>
                             <div class="col-3">
                                 <VueDatePicker v-model="lateEntryTime" :enable-time="true" :formate="dateTimeFormat"
@@ -63,27 +64,29 @@
                                 @last-entry-time-done="lastEntryTimeDone" :time-types="timeTypes" />
 
                             <button type="button" class="btn btn-secondary p-3" @click="weatherEntry"
-                                v-if="isAlreadyVerified && !isAlreadyClockedin">Weather</button>
+                                v-if="isAlreadyVerified && !isAlreadyClockedin" :disabled="isBusy">Weather</button>
 
                         </div>
                         <div class="col-md-6 d-flex gap-3">
 
                             <button type="button" class="btn btn-primary p-3" @click="verifyTeam"
-                                v-if="!isAlreadyVerified">Verify Crew</button>
+                                v-if="!isAlreadyVerified" :disabled="isBusy">Verify Crew</button>
 
                             <!-- Time Type + Clock in (inline) -->
                             <div class="d-flex align-items-center justify-content-end gap-3 flex-column flex-md-row mt-2"
                                 v-if="isAlreadyVerified && !isAlreadyClockedin">
                                 <label class="text-white mb-0 text-nowrap me-2">Time type</label>
 
-                                <select class="form-select form-select-sm w-auto" v-model="selectedClockinTypeId">
+                                <select class="form-select form-select-sm w-auto" v-model="selectedClockinTypeId"
+                                    :disabled="isBusy">
                                     <option :value="null" disabled>Select time type…</option>
                                     <option v-for="t in timeTypes" :key="t.id" :value="t.id">
                                         {{ t.display_name }}
                                     </option>
                                 </select>
 
-                                <button type="button" class="btn btn-success p-3" @click="clockinout('clockin')">
+                                <button type="button" class="btn btn-success p-3" @click="clockinout('clockin')"
+                                    :disabled="isBusy">
                                     CLOCK IN
                                 </button>
                             </div>
@@ -94,14 +97,16 @@
                                 v-if="canSwitchTypes">
                                 <label class="text-white mb-0 text-nowrap me-2">Switch time type</label>
 
-                                <select class="form-select form-select-sm w-auto" v-model="selectedSwitchTypeId">
+                                <select class="form-select form-select-sm w-auto" v-model="selectedSwitchTypeId"
+                                    :disabled="isBusy">
                                     <option :value="null" disabled>Select time type…</option>
                                     <option v-for="t in timeTypes" :key="t.id" :value="t.id">
                                         {{ t.display_name }}
                                     </option>
                                 </select>
 
-                                <button type="button" class="btn btn-outline-info p-3" @click="switchTimeType">
+                                <button type="button" class="btn btn-outline-info p-3" @click="switchTimeType"
+                                    :disabled="isBusy">
                                     APPLY
                                 </button>
                             </div>
@@ -111,12 +116,12 @@
                                 v-if="isAlreadyClockedin && !isAlreadyClockedout">Clock out
                             </button> -->
                             <button type="button" class="btn btn-danger p-3" @click="clockinout('clockout')"
-                                v-if="canClockOut">Clock out
+                                v-if="canClockOut" :disabled="isBusy">Clock out
                             </button>
 
 
                             <button type="button" class="btn btn-secondary p-3" @click="readyForVerification"
-                                v-if="isAlreadyClockedout">Ready for verification</button>
+                                v-if="isAlreadyClockedout" :disabled="isBusy">Ready for verification</button>
                         </div>
                     </div>
 
@@ -172,7 +177,7 @@
                                     </td>
                                     <td>
                                         <button class="btn btn-success" @click="addNewCrew"
-                                            :disabled="!createNewCrewForm[0].crew_member_id || !createNewCrewForm[0].clockin_time">Create</button>
+                                            :disabled="isBusy || !createNewCrewForm[0].crew_member_id || !createNewCrewForm[0].clockin_time">Create</button>
                                     </td>
                                 </tr>
 
@@ -217,7 +222,8 @@
 
                                     <td class="d-flex">
                                         <div v-if="isAlreadyClockedin">
-                                            <i class="fa fa-pencil cursor-pointer" aria-hidden="true"
+                                            <i class="fa fa-pencil cursor-pointer"
+                                                :class="{ 'pe-none opacity-50': isBusy }" aria-hidden="true"
                                                 @click="enableMenualClock(member.id)"></i>&nbsp&nbsp&nbsp&nbsp
                                             <half-full-per-diem :timesheetId="member.timesheet_id"
                                                 :perDiem="member.per_diem"
@@ -261,6 +267,7 @@ import { useLoading } from '../composables/useLoading'
 const toast = useToast()
 
 const { isLoading, setLoading } = useLoading()
+const isBusy = isLoading   // Global "in progress" flag for all actions
 
 const departWrapper = ref(null)
 let select2Settings = ref({
@@ -378,6 +385,7 @@ const setCurrentDateTime = () => {
 }
 
 const getCrewMembers = () => {
+
     axios.get('/crew-members')
         .then(res => {
             isAlreadyVerified.value = res.data.isAlreadyVerified
@@ -450,6 +458,7 @@ const toggleSingleCheckbox = (index) => {
 
 const verifyTeam = () => {
 
+    if (isBusy.value) return
     if (!confirm('Are you sure you want to verify the crew?')) return
 
     setLoading(true)
@@ -470,6 +479,8 @@ const verifyTeam = () => {
 }
 
 const clockinout = (type) => {
+
+    if (isBusy.value) return
 
     // if late entry time is Visible then late entry time field should be filled
     if (isLateEntryTimeVisible.value && !lateEntryTime.value) {
@@ -535,6 +546,8 @@ const enableMenualClock = (id) => {
 
 const menualClockinout = (event, timesheetId, type) => {
 
+    if (isBusy.value) return
+
     setLoading(true)
 
     const formatedDateTime = format(event, dateTimeFormat) // to adjust formate of date picker
@@ -570,6 +583,8 @@ const GetAllUsers = (users) => {
 
 const addNewCrew = () => {
 
+    if (isBusy.value) return
+
     setLoading(true)
 
     createNewCrewForm.value[0].clockin_time = format(createNewCrewForm.value[0].clockin_time, dateTimeFormat) // adjust for date picker formate
@@ -600,6 +615,7 @@ const trackTimeDone = () => setLocalStorageFlag()
 
 const readyForVerification = () => {
 
+    if (isBusy.value) return
     if (!confirm('Are you sure you are ready for verification?')) return
 
     setLoading(true)
@@ -616,6 +632,7 @@ const readyForVerification = () => {
 
 const weatherEntry = () => {
 
+    if (isBusy.value) return
     if (!confirm('Are you sure you want to add weather time for this crew?')) return
 
     setLoading(true)
@@ -671,6 +688,9 @@ const canClockOut = computed(() => {
 
 
 const switchTimeType = () => {
+
+    if (isBusy.value) return
+
     if (!selectedSwitchTypeId.value) {
         toast.error('Please select a time type')
         return

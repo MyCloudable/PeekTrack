@@ -1,0 +1,21 @@
+services:
+  db:
+    image: mariadb:10.11.14
+    container_name: peektrack-db
+    environment:
+      MARIADB_ROOT_PASSWORD: rootsecret
+      MARIADB_DATABASE: peektrack
+      MARIADB_USER: peek
+      MARIADB_PASSWORD: secret
+    ports:
+      - "3308:3306"       # host:container
+    volumes:
+      - peektrack_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  peektrack_db:

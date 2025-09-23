@@ -8,25 +8,28 @@
             MOBILIZATION</button> -->
 
         <!-- show MOB button all the time even before reaching to job / office -->
-        <button type="button" class="btn btn-info p-3" @click="getAllJobs" v-if="canMobilize">
+        <button type="button" class="btn btn-info p-3" @click="getAllJobs" v-if="canMobilize" :disabled="isBusy">
             MOBILIZATION</button>
 
         <button type="button" class="btn btn-secondary ms-5 p-3"
-            v-if="!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive" @click="depart">
+            v-if="!isDepart && travelTime && travelTime.type == 'depart_for_job' && travelTime.arrive" @click="depart"
+            :disabled="isBusy">
             END PRODUCTION</button>
 
         <div class="d-flex align-items-center" v-if="isDepart">
-            <i class="fas fa-undo text-dark cursor-pointer me-1"
+            <i class="fas fa-undo text-dark cursor-pointer me-1" :class="{ 'pe-none opacity-50': isBusy }"
                 @click="isDepart = false; $emit('is-mobilization')"></i>
-            <div class="text-dark">
+            <div class="text-dark" :class="{ 'pe-none opacity-50': isBusy }">
                 <Select2 v-model="departForm.jobId" :options="jobs" :settings="select2Settings" class="foo-bar" />
             </div>
-            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart(true)">Depart</button>
+            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart(true)"
+                :disabled="isBusy">Depart</button>
         </div>
 
         <div class="d-inline-flex align-items-center ms-3"
             v-if="travelTime && travelTime.type == 'depart_for_job' && !travelTime.arrive && !isDepart">
-            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Arrive at job
+            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart" :disabled="isBusy">Arrive
+                at job
                 location</button>
         </div>
 
@@ -35,26 +38,28 @@
 
             <!-- Show time types dropdown when Arrive at Office-->
             <label class="text-dark me-1">Time type</label>
-            <select v-model="arriveOfficeTypeId" style="width:200px;" class="bg-white">
+            <select v-model="arriveOfficeTypeId" style="width:200px;" class="bg-white" :disabled="isBusy">
                 <option :value="null" disabled>Select time type…</option>
                 <option v-for="t in props.timeTypes" :key="t.id" :value="t.id">
                     {{ t.display_name }}
                 </option>
             </select>
 
-            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart">Arrive</button>
+            <button type="button" class="btn btn-secondary btn-sm mt-3 ms-1" @click="depart"
+                :disabled="isBusy">Arrive</button>
         </div>
 
         <!-- Switch time type AFTER arriving at office (loop until clock out) -->
         <div class="d-inline-flex align-items-center gap-3 flex-column flex-md-row mt-2 ms-3" v-if="canSwitchTypesHere">
             <label class="text-dark me-1">Switch time type</label>
-            <select v-model="selectedSwitchTypeId" style="width:200px;" class="bg-white">
+            <select v-model="selectedSwitchTypeId" style="width:200px;" class="bg-white" :disabled="isBusy">
                 <option :value="null" disabled>Select time type…</option>
                 <option v-for="t in props.timeTypes" :key="t.id" :value="t.id">
                     {{ t.display_name }}
                 </option>
             </select>
-            <button type="button" class="btn btn-outline-info btn-sm mt-3 ms-1" @click="switchTimeType">
+            <button type="button" class="btn btn-outline-info btn-sm mt-3 ms-1" @click="switchTimeType"
+                :disabled="isBusy">
                 Apply
             </button>
         </div>
@@ -88,6 +93,8 @@ const emit = defineEmits(['track-time-done', 'is-mobilization', 'last-entry-time
 const toast = useToast()
 
 const { isLoading, setLoading } = useLoading()
+const isBusy = isLoading
+
 
 const departWrapper = ref(null)
 let select2Settings = ref({
@@ -140,18 +147,24 @@ onMounted(() => {
 })
 
 const getAllJobs = () => {
+    if (isBusy.value) return
+    setLoading(true)
+
     axios.get('/getjobs-for-depart')
         .then(res => {
             jobs.value = res.data;
             isDepart.value = true
             emit('is-mobilization')
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            toast.error(err.response.data.message || 'Something went wrong')
+        })
+        .finally(() => setLoading(false))
 }
 
 const depart = (eventOrValidation = false) => {
 
-
+    if (isBusy.value) return
 
     // Determine if we should validate the job ID
     const shouldValidateJobId = eventOrValidation === true;
@@ -207,7 +220,7 @@ const depart = (eventOrValidation = false) => {
 
         })
         .catch(err => {
-            toast.error(err.response.data.message)
+            toast.error(err.response.data.message || 'Something went wrong')
         })
         .finally(() => setLoading(false)) // Disable loading
 
@@ -318,6 +331,9 @@ const getSelectedJobContent = () => {
 
 // switch time type AFTER arriving at office (loop until clock out)
 const switchTimeType = () => {
+
+    if (isBusy.value) return
+
     if (!selectedSwitchTypeId.value) {
         toast.error('Please select a time type')
         return
