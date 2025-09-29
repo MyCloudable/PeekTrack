@@ -66,6 +66,15 @@
                                 </a>
                             </li>
                         @endif
+						@if (auth()->user()->role_id == 1 || auth()->user()->role_id == 4 )
+						<li class="nav-item"{{ $activeItem == 'users' ? ' active ' : '' }} ">
+							<a class="nav-link text-white {{ $activeItem == 'users' ? ' active' : '' }}  "
+							href="{{ route('admin.users.index') }}">
+							<i class="fas fa-user me-2"></i>
+                                    <span class="sidenav-normal ms-2 ps-1">Users</span>
+							</a>
+                        </li>
+						@endif
                         <form method="POST" action="{{ route('logout') }}" class="d-none" id="logout-form">
                             @csrf
                         </form>
@@ -144,14 +153,7 @@
                         </li>
  @endif
 
-                    @if (auth()->user()->role_id == 1)
-                <li class="nav-item"{{ $activeItem == 'users' ? ' active ' : '' }} ">
-       <a class="nav-link text-white {{ $activeItem == 'users' ? ' active' : '' }}  "
-        href="{{ route('admin.users.index') }}">
-        <span class="sidenav-normal  ms-2  ps-1"> <h5>Users</h5></span>
-       </a>
-                        </li>
- @endif
+                    
 
 
 

@@ -434,7 +434,7 @@ $(document).ready(function () {
 
 
 
-@if ($user->name === $jobentry->name || in_array($user->role_id, [1, 2, 7, 10]))
+
                 <tr>
                     <td>
                         @if ($jobentry->submitted == 1)
@@ -455,7 +455,7 @@ $(document).ready(function () {
                     <td><h4>{{ $jobentry->workdate }}</h4></td>
                     <td><h4>{{ $jobentry->name }}</h4></td>
                 </tr>
-            @endif
+            
         @endforeach
     </tbody>
 </table>
