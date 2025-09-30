@@ -1,6 +1,6 @@
 <template>
 
-    <LoadingOverlay />
+    <!-- <LoadingOverlay /> -->
 
     <div class="row">
         <div class="card card-frame">
@@ -52,7 +52,8 @@ import DataTablesCore from 'datatables.net-bs5';
 
 import { useToast } from "vue-toastification";
 
-import LoadingOverlay from '../shared/LoadingOverlay.vue'
+// import LoadingOverlay from '../shared/LoadingOverlay.vue'
+
 import { useLoading } from '../../composables/useLoading'
 
 import { useRecovery } from "../../composables/useRecovery"
@@ -107,7 +108,7 @@ const tableOptions = ref({
         type: 'GET',
         dataType: 'json',
         beforeSend: function (request) {
-            setLoading(true)
+            // setLoading(true)
         },
         error: function (xhr, textStatus, error) {
             console.error('Ajax error:', error);
@@ -147,7 +148,7 @@ const tableOptions = ref({
 
             });
 
-            setLoading(false)
+            // setLoading(false)
 
         }
     },
@@ -457,7 +458,7 @@ const handleCheckboxChange = async (event) => {
 
     if (isBusy.value) return
 
-    setLoading(true)
+    // setLoading(true)
 
     const checkbox = event.target
     if (checkbox.classList.contains('form-check-input')) {
@@ -488,7 +489,7 @@ const handleCheckboxChange = async (event) => {
 
             toast.error('An error occurred while updating approval status')
         } finally {
-            setLoading(false)
+            // setLoading(false)
         }
     }
 }
@@ -500,7 +501,7 @@ const handleSelectAllApproval = async (event) => {
 
     if (isBusy.value) return
 
-    setLoading(true)
+    // setLoading(true)
 
     const checkbox = event.target
     const checkboxes = document.querySelectorAll(`.${checkbox.dataset.el}`)
@@ -538,7 +539,7 @@ const handleSelectAllApproval = async (event) => {
     } catch (error) {
         toast.error('An error occurred while updating approval status')
     } finally {
-        setLoading(false)
+        // setLoading(false)
     }
 }
 
