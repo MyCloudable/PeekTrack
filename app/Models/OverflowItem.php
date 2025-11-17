@@ -10,7 +10,7 @@ class OverflowItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'job_id', 'crew_type_id', 'branch_id', 'notes', 'traffic_shift', 'timein_date', 'timeout_date',
+        'job_id', 'crew_type_id', 'branch_id', 'notes', 'traffic_shift', 'is_priority', 'timein_date', 'timeout_date',
         'superintendent_id', 'completion_date', 'complete_user_id',
         'created_by','approved'
     ];

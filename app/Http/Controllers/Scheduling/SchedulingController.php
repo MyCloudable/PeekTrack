@@ -103,6 +103,7 @@ class SchedulingController extends Controller
                 'overflow_items.task_order',
                 'overflow_items.job_id',
                 'overflow_items.duplicated_from',
+                'overflow_items.is_priority'
             )
             ->orderBy('overflow_items.timeout_date', 'ASC') // Ensures dates are in ascending order
             ->get();

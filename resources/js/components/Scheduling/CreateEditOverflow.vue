@@ -29,7 +29,7 @@
             <label>Branch</label>
             <select class="form-control custom-white-select mt-3" v-model="formData.branch_id">
               <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.text.substring(b.text.lastIndexOf(' ') + 1)
-                }}</option>
+              }}</option>
             </select>
           </div>
 
@@ -47,9 +47,21 @@
             <input type="date" v-model="formData.timeout_date" class="form-control bg-white" />
           </div>
 
-          <div class="form-check form-switch mt-4">
-            <input class="form-check-input" type="checkbox" v-model="formData.traffic_shift" id="trafficShift">
-            <label class="form-check-label" for="trafficShift">Traffic Shift</label>
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" v-model="formData.is_priority" id="priorityFlag">
+                <label class="form-check-label" for="priorityFlag">
+                  Priority Task
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" v-model="formData.traffic_shift" id="trafficShift">
+                <label class="form-check-label" for="trafficShift">Traffic Shift</label>
+              </div>
+            </div>
           </div>
 
           <div class="col-md-12 mt-4">
@@ -100,7 +112,8 @@ const formData = ref({
   notes: '',
   timein_date: '',
   timeout_date: '',
-  traffic_shift: false
+  traffic_shift: false,
+  is_priority: false,
 });
 
 // Open popup in create or edit mode
@@ -174,6 +187,8 @@ const fetchOverflowItem = async (id) => {
     data.phases = selectedPhase || null; // Fallback to null if not found
 
     data.traffic_shift = !!data.traffic_shift;
+
+    data.is_priority = !!data.is_priority;
 
     formData.value = data;
   } catch (error) {
@@ -255,7 +270,8 @@ const resetForm = () => {
     notes: '',
     timein_date: '',
     timeout_date: '',
-    traffic_shift: false
+    traffic_shift: false,
+    is_priority: false,
   };
 };
 

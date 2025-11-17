@@ -29,7 +29,8 @@ class OverflowController extends Controller
                 'users.name as superintendent',
                 'overflow_items.job_id',
                 'branch.description as branch',
-                'overflow_items.id'
+                'overflow_items.id',
+                'overflow_items.is_priority'
             )
             ->orderBy('overflow_items.timeout_date', 'ASC')
             ->get();
@@ -124,6 +125,7 @@ class OverflowController extends Controller
                 'timein_date' => $request->timein_date,
                 'timeout_date' => $request->timeout_date,
                 'created_by' => $createdBy,
+                'is_priority'   => $request->boolean('is_priority', false),
             ]);
         }
 
@@ -142,7 +144,8 @@ class OverflowController extends Controller
                 'overflow_items.notes',
                 'overflow_items.timein_date',
                 'overflow_items.timeout_date',
-                'overflow_items.traffic_shift'
+                'overflow_items.traffic_shift',
+                'overflow_items.is_priority'
             )
             ->first();
 
@@ -169,6 +172,7 @@ class OverflowController extends Controller
             'timein_date' => 'date',
             'timeout_date' => 'date',
             'traffic_shift' => 'boolean',
+            'is_priority'   => 'boolean',
         ]);
 
         $updatedBy = auth()->id();
@@ -188,6 +192,7 @@ class OverflowController extends Controller
             'timein_date' => $request->timein_date,
             'timeout_date' => $request->timeout_date,
             'updated_by' => $updatedBy, // Track who updated
+            'is_priority'   => $request->boolean('is_priority', false),
         ]);
 
         return response()->json(['message' => 'Overflow item updated successfully!'], 200);
@@ -273,6 +278,7 @@ class OverflowController extends Controller
                 'overflow_items.task_order',
                 'overflow_items.job_id',
                 'overflow_items.duplicated_from',
+                'overflow_items.is_priority'
             )
             ->first();
 

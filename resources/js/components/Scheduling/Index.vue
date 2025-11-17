@@ -42,13 +42,20 @@
 
                                             <!-- Icons -->
                                             <div class="d-flex align-items-center gap-1">
-												<span v-if="element.duplicated_from" class="badge bg-secondary px-1 py-0"
-												:title="`Duplicated from ID #${element.duplicated_from}`">Copy</span>
+                                                <!-- Priority icon -->
+                                                <span v-if="element.is_priority" class="priority-icon text-bright-white"
+                                                    title="Priority Task">
+                                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                                </span>
+
+                                                <span v-if="element.duplicated_from"
+                                                    class="badge bg-secondary px-1 py-0"
+                                                    :title="`Duplicated from ID #${element.duplicated_from}`">Copy</span>
                                                 <span v-if="element.traffic_shift === 1"
                                                     class="traffic-icon text-bright-white" title="Traffic Shift Task">
                                                     <i class="fa-solid fa-light-emergency"></i>
                                                 </span>
-												
+
                                                 <span v-if="element.notes" class="notes-icon text-bright-white"
                                                     :title="element.notes">
                                                     <i class="fa-solid fa-note"></i>
@@ -97,6 +104,10 @@
                 <label for="trafficShiftFilter">Show Only Traffic Shift Tasks</label>
             </div>
             <div class="mb-2">
+                <input type="checkbox" id="priorityFilter" v-model="filterPriorityOnly">
+                <label for="priorityFilter">Show Only Priority Tasks</label>
+            </div>
+            <div class="mb-2">
                 <input type="checkbox" id="startDateFilter" v-model="filterStartDate">
                 <label for="startDateFilter">Sort by Start Date</label>
             </div>
@@ -111,6 +122,11 @@
                                 target="_blank">
                                 {{ element.job_number }}
                             </a> - {{ element.crew_type }}
+
+                            <span v-if="element.is_priority" class="priority-icon me-1" title="Priority Task">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </span>
+
                             <span v-if="element.traffic_shift === 1" :class="getFlashingClass(element)"
                                 class="traffic-icon" title="Traffic Shift Task">
                                 <i class="fa-solid fa-light-emergency"></i>
@@ -194,6 +210,7 @@ const overflowItems = ref([]);
 const searchQuery = ref('');
 const filterTrafficShift = ref(false);
 const filterStartDate = ref(false);
+const filterPriorityOnly = ref(false);
 
 // completion a task
 const showCompletionPopup = ref(false);
@@ -244,22 +261,34 @@ const filteredTasks = computed(() => {
         filtered = filtered.filter(task => task.traffic_shift === 1);
     }
 
+    // Priority filter
+    if (filterPriorityOnly.value) {
+        filtered = filtered.filter(task => task.is_priority);
+    }
+
     // If there's a search query, filter by job number, phase, or contractor
     if (searchQuery.value) {
+        const q = searchQuery.value.toLowerCase();
         filtered = filtered.filter(task =>
-            task.job_number.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            task.crew_type.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            task.contractor.toLowerCase().includes(searchQuery.value.toLowerCase())
+            task.job_number.toLowerCase().includes(q) ||
+            task.crew_type.toLowerCase().includes(q) ||
+            task.contractor.toLowerCase().includes(q)
         );
     }
 
 
+    // Sorting: priority → traffic → date
     return filtered.sort((a, b) => {
-        // Priority sort: traffic_shift first
+
+        // 1) Priority first
+        if (a.is_priority && !b.is_priority) return -1;
+        if (!a.is_priority && b.is_priority) return 1;
+
+        // 2) Traffic shift
         if (a.traffic_shift === 1 && b.traffic_shift !== 1) return -1;
         if (a.traffic_shift !== 1 && b.traffic_shift === 1) return 1;
 
-        // Secondary sort: by selected date field
+        // 3) Date (start or end)
         const dateA = new Date(filterStartDate.value ? a.timein_date : a.timeout_date);
         const dateB = new Date(filterStartDate.value ? b.timein_date : b.timeout_date);
 
@@ -722,5 +751,11 @@ watch(showCompletionPopup, (val) => {
 :deep(.search-bar .form-control) {
     caret-color: #fff !important;
     /* White blinking cursor */
+}
+
+.priority-icon {
+    font-size: 10px;
+    /* color: gold !important; */
+    color: #ffcc00 !important;
 }
 </style>
