@@ -73,10 +73,36 @@ class User extends Authenticatable
     }
 	
 	public function acknowledgedUrgentNotifications()
-{
-    return $this->belongsToMany(UrgentNotification::class, 'urg_notice_ack', 'user_id', 'notification_id')
-                ->withPivot('acknowledged_at')
-                ->withTimestamps();
-}
+    {
+        return $this->belongsToMany(UrgentNotification::class, 'urg_notice_ack', 'user_id', 'notification_id')
+                    ->withPivot('acknowledged_at')
+                    ->withTimestamps();
+    }
+
+
+    // Scope to get only active employees
+    public function scopeActiveEmployees($query)
+    {
+        return $query->where('active', 1)
+            ->where(function ($q) {
+
+                $q->whereNull('termDate')
+                ->orWhereIn('termDate', ['', 'EMPTY'])
+
+                ->orWhere(function ($q2) {
+                    $q2->whereNotNull('termDate')
+                        ->whereNotIn('termDate', ['', 'EMPTY'])
+                        ->whereNotNull('rehireDate')
+                        ->whereNotIn('rehireDate', ['', 'EMPTY'])
+                        ->whereRaw("
+                            STR_TO_DATE(rehireDate, '%c/%e/%Y')
+                            >=
+                            STR_TO_DATE(termDate, '%c/%e/%Y')
+                        ");
+                });
+
+            });
+    }
+
 
 }

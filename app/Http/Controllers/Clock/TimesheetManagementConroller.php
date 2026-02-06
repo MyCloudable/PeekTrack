@@ -22,7 +22,9 @@ class TimesheetManagementConroller extends Controller
 {
     public function index()
     {
-        $users = User::select('id', 'name AS text', 'role_id', 'location')->where('active', 1)->get();
+        // $users = User::select('id', 'name AS text', 'role_id', 'location')->where('active', 1)->get();
+        $users = User::activeEmployees()->select('id', 'name AS text', 'role_id', 'location')->get();
+
         $jobs = Job::where('status', 'In progress')->select('id', DB::raw("CONCAT(job_number,' (',county, ')') as text"))->get();
         $timeTypes = TimeType::select('id', 'name', 'value', DB::raw('name as text'))->get();
         $authuser = Auth::user();

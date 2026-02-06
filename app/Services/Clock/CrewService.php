@@ -67,7 +67,13 @@ class CrewService {
 
     public function getUsers()
     {
-        return User::select('id', 'email', 'name', 'role_id', 'active', 'manager_id', DB::raw("name as text"))->where('active', 1)->get();
+        // return User::select('id', 'email', 'name', 'role_id', 'active', 'manager_id', DB::raw("name as text"))
+        // // ->where('active', 1)
+        // ->get();
+
+        return User::activeEmployees()
+        ->select('id', 'email', 'name', 'role_id', 'active', 'manager_id', DB::raw("name as text"))
+        ->get();
     }
     public function getCrewTypes()
     {

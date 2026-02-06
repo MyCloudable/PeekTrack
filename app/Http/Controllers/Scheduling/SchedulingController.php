@@ -18,7 +18,9 @@ class SchedulingController extends Controller
 
     public function getManagers()
     {
-        $managers = User::where('role_id', 7)->where('active', 1)->select('id', 'name')->get();
+        // $managers = User::where('role_id', 7)->where('active', 1)->select('id', 'name')->get();
+        $managers = User::activeEmployees()->where('role_id', 7)->select('id', 'name')->get();
+
         $loggedInManagerId = auth()->user()->id;
 
         return response()->json([
@@ -31,13 +33,14 @@ class SchedulingController extends Controller
     {
         $managerId = $request->query('manager_id');
 
-        $manager = User::where('id', $managerId)->select('id', 'name', 'location')->first();
+        $manager = User::activeEmployees()->where('id', $managerId)->select('id', 'name', 'location')->first();
         if (!$manager) {
             return response()->json(['error' => 'Manager not found'], 404);
         }
 
         // Superintendents under the selected manager
-        $superintendents = User::where('role_id', 3)
+        $superintendents = User::activeEmployees()
+            ->where('role_id', 3)
             ->where('manager_id', $managerId)
             ->select('id', 'name', 'location')
             ->get();
