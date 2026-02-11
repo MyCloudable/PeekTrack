@@ -592,58 +592,52 @@
 
 
 
-        <!-- Modal -->
-        <div class="modal fade" id="modal-notification" tabindex="-1" role="dialog"
-            aria-labelledby="modal-notification" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">X</span>
-                        </button>
-                    </div>
-                    <div class="modal-body" style="background-color: black;">
-                        <div class="py-3 text-center">
-                            <h4 class="text-gradient text-warning mt-4">Select a crew type:</h4>
-                            <select class="form-control"
-                                style="color: black;border-spacing: 2px;display: table-cell; vertical-align: inherit;background-color: white;width: 100%;margin-bottom: 1rem;vertical-align: top;border-color: #f0f2f5;"
-                                id="selectOption">
-                                <option value="" disabled selected>Click here to select type</option>
-                                @if ($jobitems->contains('phase', '10'))
-                                    <option value="10">Long Line</option>
-                                @endif
-                                @if ($jobitems->contains('phase', '20'))
-                                    <option value="20">Hand Line</option>
-                                @endif
-                                @if ($jobitems->contains('phase', '30'))
-                                    <option value="30">RPMs</option>
-                                @endif
-                                @if ($jobitems->contains('phase', '50'))
-                                    <option value="50">Grinding Removal</option>
-                                @endif
-                                @if ($jobitems->contains('phase', '51'))
-                                    <option value="51">Waterblast Removal</option>
-                                @endif
-                                @if ($jobitems->contains('phase', '55'))
-                                    <option value="51">Signs</option>
-                                @endif
-                                @if ($jobitems->contains('phase', '60'))
-                                    <option value="60">Paint</option>
-                                @endif
-                                @if ($jobitems->contains('phase', '71'))
-                                    <option value="71">Tape</option>
-                                @endif
-                                @if ($jobitems->contains('phase', '75'))
-                                    <option value="71">Epoxy</option>
-                                @endif
-                                @if ($jobitems->contains('phase', '90'))
-                                    <option value="90">Construction Striping</option>
-                                @endif
-                            </select>
-                        </div>
-                    </div>
+	<!-- Modal -->
+<div class="modal fade" id="modal-notification" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">X</span>
+            </button>
+          </div>
+          <div class="modal-body" style="background-color: black;">
+            <div class="py-3 text-center">
+              <h4 class="text-gradient text-warning mt-4">Select a crew type:</h4>
+              <select class="form-control" style="color: black;border-spacing: 2px;display: table-cell; vertical-align: inherit;background-color: white;width: 100%;margin-bottom: 1rem;vertical-align: top;border-color: #f0f2f5;" id="selectOption">
+			  <option value="" disabled selected>Click here to select type</option>
+			  @if ($jobitems->contains('phase', '10'))
+			  <option value="10">Long Line</option>
+		  @endif
+			  @if ($jobitems->contains('phase', '20'))
+			  <option value="20">Hand Line</option>
+		  @endif
+			  @if ($jobitems->contains('phase', '30'))
+			  <option value="30">RPMs</option>
+		  @endif
+			  @if ($jobitems->contains('phase', '50'))
+			  <option value="50">Grinding Removal</option>
+		  @endif
+			  @if ($jobitems->contains('phase', '51'))
+			  <option value="51">Waterblast Removal</option>
+		  @endif
+		  @if ($jobitems->contains('phase', '55'))
+			  <option value="55">Signs</option>
+		  @endif
+			  @if ($jobitems->contains('phase', '60'))
+			  <option value="60">Paint</option>
+		  @endif
+			  @if ($jobitems->contains('phase', '71'))
+			  <option value="71">Tape</option>
+		  @endif
+		  	@if ($jobitems->contains('phase', '75'))
+			  <option value="75">Epoxy</option>
+		  @endif
+			  @if ($jobitems->contains('phase', '90'))
+			  <option value="90">Construction Striping</option>
+			  @endif
+			  </select>
 
-                </div>
             </div>
         </div>
 
