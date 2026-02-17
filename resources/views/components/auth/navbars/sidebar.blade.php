@@ -66,7 +66,7 @@
                                 </a>
                             </li>
                         @endif
-						@if (auth()->user()->role_id == 1 || auth()->user()->role_id == 4 )
+						@if (auth()->user()->role_id == 1 || auth()->user()->role_id == 4 || auth()->user()->role_id == 5 )
 						<li class="nav-item"{{ $activeItem == 'users' ? ' active ' : '' }} ">
 							<a class="nav-link text-white {{ $activeItem == 'users' ? ' active' : '' }}  "
 							href="{{ route('admin.users.index') }}">

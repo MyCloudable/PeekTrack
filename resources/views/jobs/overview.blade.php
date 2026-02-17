@@ -521,7 +521,7 @@ $(document).ready(function () {
 			  <option value="51">Waterblast Removal</option>
 		  @endif
 		  @if ($jobitems->contains('phase', '55'))
-			  <option value="51">Signs</option>
+			  <option value="55">Signs</option>
 		  @endif
 			  @if ($jobitems->contains('phase', '60'))
 			  <option value="60">Paint</option>
@@ -530,7 +530,7 @@ $(document).ready(function () {
 			  <option value="71">Tape</option>
 		  @endif
 		  	@if ($jobitems->contains('phase', '75'))
-			  <option value="71">Epoxy</option>
+			  <option value="75">Epoxy</option>
 		  @endif
 			  @if ($jobitems->contains('phase', '90'))
 			  <option value="90">Construction Striping</option>

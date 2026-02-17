@@ -16,6 +16,7 @@ use App\Models\Material;
 use App\Models\Equipment;
 use App\Models\Production;
 use App\Models\OverflowItem;
+use App\Models\AuditLog;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -1058,31 +1059,52 @@ if (isset($request->mqty[$i])){
 			
     }
 	
-		public function changeJobNum(Request $request)
-    {
+	public function changeJobNum(Request $request)
+	{
+    DB::transaction(function () use ($request) {
 
-		$link = $request->link;
-		$job_number = $request->job_number;
-		$newnumber = $request->jobnumber;
-		
-		Production::where("link", $request->link)->update(["job_number" => $newnumber,]);
-	
-		Material::where("link", $request->link)->update(["job_number" => $newnumber,]);
-		
-		Equipment::where("link", $request->link)->update(["job_number" => $newnumber,]);
-			
-		JobEntry::where("link", $request->link)->update(["job_number" => $newnumber,]);
-		
-		PO::where("link", $request->link)->update(["job_number" => $newnumber,]);
-		
-		File::where("job_number", $job_number)->where("doctype", '1')->update(["job_number" => $newnumber,]);
-		
-            return redirect()
-                ->route("jobs.jobreview", ["id" => $link])
-                ->with("successentry", "Job number changed successfully");
-				
-			
-    }
+        $link = $request->link;
+        $oldNumber = $request->job_number;
+        $newNumber = $request->jobnumber;
+
+        // Only log if it actually changed
+        if ($oldNumber != $newNumber) {
+
+            // Perform Updates
+            Production::where("link", $link)->update(["job_number" => $newNumber]);
+            Material::where("link", $link)->update(["job_number" => $newNumber]);
+            Equipment::where("link", $link)->update(["job_number" => $newNumber]);
+            JobEntry::where("link", $link)->update(["job_number" => $newNumber]);
+            PO::where("link", $link)->update(["job_number" => $newNumber]);
+
+            File::where("job_number", $oldNumber)
+                ->where("doctype", '1')
+                ->update(["job_number" => $newNumber]);
+
+            // Log the change
+            AuditLog::create([
+                'event_type' => 'job_number_changed',
+                'link'       => $link,
+                'old_value'  => $oldNumber,
+                'new_value'  => $newNumber,
+                'user_id'    => Auth::id(),
+                'ip_address' => request()->ip(),
+            ]);
+			JobNotes::create([
+            'link'      => $link,
+            'note_type' => 'JobCardNote',
+            'username'  => Auth::user()->name,
+            'note'      => Auth::user()->name .
+                          " changed the job number from {$oldNumber} to {$newNumber}.",
+            'created_at' => Carbon::now(),
+        ]);
+        }
+    });
+
+    return redirect()
+        ->route("jobs.jobreview", ["id" => $request->link])
+        ->with("successentry", "Job number changed successfully");
+}
 	
 	public function roadList(Request $request){
 		$job = $request->jobnumber;

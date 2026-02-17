@@ -15,11 +15,12 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie','jobs/*'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['https://www.peektrack.com',
+        'https://peektrack.com',],
 
     'allowed_origins_patterns' => [],
 

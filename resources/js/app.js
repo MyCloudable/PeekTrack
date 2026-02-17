@@ -13,7 +13,7 @@ import OverflowItems from "./components/Scheduling/OverflowItems.vue";
 import CreateEditOverflow from "./components/Scheduling/CreateEditOverflow.vue";
 import SchedulingIndex from "./components/Scheduling/Index.vue";
 import UrgentNotificationPopup from "./components/UrgentNotificationPopup.vue";
-import OverflowApproval from "./components/jobs/OverflowApproval.vue";
+import OverflowApproval from "./components/Jobs/OverflowApproval.vue";
 
 import AdminUsersIndex from "./components/Admin/Users/Index.vue";
 

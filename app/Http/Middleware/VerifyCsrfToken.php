@@ -12,7 +12,8 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-	'/jobs/uploadpo'
+	'/jobs/uploadpo',
+	'jobs/shareJobcard'
         //
     ];
 }
