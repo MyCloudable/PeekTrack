@@ -208,6 +208,31 @@ class TimesheetService {
             // get time type selected while Clockin
             $selectedTimeTypeId = isset($data['timeTypeId']) ? $data['timeTypeId'] : TimeType::where('name', 'Shop')->value('id'); // fallback
 
+            // Guard: if any of the crew members are already clocked in, prevent clocking in and show message with names of those crew members
+            $openEntries = Timesheet::whereIn('user_id', $crewMembersArray)
+                ->whereNull('clockout_time')
+                ->with([
+                    'user:id,name',
+                    'crew.superintendent:id,name'
+                ])
+                ->get();
+
+
+            if ($openEntries->isNotEmpty()) {
+
+                $formatted = $openEntries->map(function ($entry) {
+                    return $entry->user->id . ' - ' . $entry->user->name .
+                        ' (Clocked in under: ' . $entry->crew->superintendent->name . ')';
+                })->implode(', ');
+
+                throw ValidationException::withMessages([
+                    'error' => 'Cannot clock in. These crew members are already clocked in: ' . $formatted
+                ]);
+            }
+
+
+
+
             foreach ($crewMembersArray as $member) {
                 $timesheet = Timesheet::create([
                     'crew_id' => $crew->id,
@@ -244,6 +269,7 @@ class TimesheetService {
                 //     'clockout_time' => Carbon::now()->format('Y-m-d H:i:00'),
                 //     'modified_by' => auth()->id(),
                 // ]);
+                ->where('user_id', $member)->latest('id') // ADDING CHECK TO MAKE SURE 'if duplicate open entries exist for this user, close the most recent one'
                 ->first();
 
                 // dd($timesheet);
