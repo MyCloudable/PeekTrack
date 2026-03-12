@@ -40,6 +40,29 @@
                     <button id="generateReport" class="btn btn-warning">Generate Report</button>
                 </div>
             </div>
+			
+			
+			
+			         <div class="card mt-4">
+                <div class="card-header p-3 pb-0">
+        <h4 class="mb-0">Production Report by Job</h4>
+        <p class="text-sm mb-0 text-capitalize font-weight-normal"></p>
+    </div>
+
+    <div class="card-body border-radius-lg p-3">
+
+        <div class="form-group">
+     
+        <a href="{{ url('/reports/production') }}" class="btn btn-warning">
+            Open
+        </a>
+        </div>
+
+  
+
+
+    </div>
+</div>
 
             <!-- Date Range Picker and Submit Button for Payroll Summary -->
             <div class="card mt-4">

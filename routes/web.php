@@ -28,6 +28,7 @@ use App\Http\Controllers\Scheduling\OverflowController;
 use App\Http\Controllers\Scheduling\SchedulingController;
 use App\Http\Controllers\Clock\TimesheetManagementConroller;
 use App\Http\Controllers\Admin\AdminUrgentNotificationController;
+use App\Http\Controllers\ProductionReportController;
 
 
 /*
@@ -55,7 +56,8 @@ Mail::to('qtconsultants@gmail.com')->send(new JobCardRejectionNotification());
 });
 
 
-
+Route::get('/reports/production', [ProductionReportController::class, 'index']);
+Route::post('/reports/production/export', [ProductionReportController::class, 'export']);
 Route::get('crewmember', [TimesheetManagementConroller::class, 'crewindex'])->middleware('auth')->name('crew');
 Route::get('crewsummary', [TimesheetManagementConroller::class, 'summary'])->middleware('auth')->name('crew');
 
