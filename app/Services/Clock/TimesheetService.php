@@ -230,6 +230,9 @@ class TimesheetService {
                 ]);
             }
 
+            // Guard: validate clock in flag from users table and mark users as clocked in for the crew
+            $this->validateAndMarkUsersClockIn($crewMembersArray, $crew->id);
+
 
 
 
@@ -279,6 +282,9 @@ class TimesheetService {
                 }
                 
             }
+
+            // mark users as clocked out in users table by changing clock_in flag to false
+            $this->markUsersClockOut($crewMembersArray);
 
             // uncomment after implementation
             (new DepartService())->calculateIndirectTime([
@@ -331,6 +337,10 @@ class TimesheetService {
                 //check and handle midnight split
                 $this->handleMidnightSplit($timesheet, $data['time']);
                 // $this->handleMidnightSplit($timesheet, '2024-09-11 02:47:00');
+
+                // mark users as clocked out in users table by changing clock_in flag to false
+                $this->markUsersClockOut([$timesheet->user_id]);
+
                 return;
 
 
@@ -355,6 +365,9 @@ class TimesheetService {
     public function addNewCrewMember($data)
     {
         $crew = Crew::where('id', $data['crewId'])->first();
+
+        // Guard: validate clock in flag from users table and mark users as clocked in for the crew
+        $this->validateAndMarkUsersClockIn([$data['createNewCrewForm']['crew_member_id']], $crew->id);
 
         $isAlreadyClockedin = Timesheet::where('crew_id', $data['crewId'])->where('user_id', $data['createNewCrewForm']['crew_member_id'])
         ->where('created_at', '>=', $crew->last_verified_date)->first();
@@ -408,6 +421,7 @@ class TimesheetService {
     
             Timesheet::where('crew_id', $data['crewId'])->where('user_id', $data['crewMemberId'])
             ->where('created_at', '>=', $crew->last_verified_date)->delete();
+
         }
 
         return true;
@@ -901,6 +915,52 @@ class TimesheetService {
         }
 
         return null;
+    }
+
+
+    // Clock in flag direclty in users table for validation
+    public function validateAndMarkUsersClockIn(array $userIds, int $crewId)
+    {
+
+        $alreadyClocked = User::whereIn('users.id', $userIds)
+            ->where('users.is_clocked_in', 1)
+            ->leftJoin('users as cu', 'users.clocked_in_by', '=', 'cu.id')
+            ->get([
+                'users.id',
+                'users.name',
+                'cu.name as clocked_in_by_name'
+            ]);
+
+        
+
+        if ($alreadyClocked->isNotEmpty()) {
+            $formatted = $alreadyClocked->map(function ($u) {
+                return $u->id . ' - ' . $u->name . 
+                ' (Clocked in by: ' . ($u->clocked_in_by_name ?? 'Unknown') . ')';
+            })->implode(', ');
+
+
+            throw ValidationException::withMessages([
+                'error' => 'These users are already clocked in: ' . $formatted
+            ]);
+        }
+
+
+        // mark as clocked in
+        User::whereIn('id', $userIds)->update([
+            'is_clocked_in' => 1,
+            // 'clocked_in_by' => $crewId,
+            'clocked_in_by' => auth()->id(),
+        ]);
+    }
+
+    // mark users as clocked out in users table by changing clock_in flag to false
+    public function markUsersClockOut(array $userIds)
+    {
+        User::whereIn('id', $userIds)->update([
+            'is_clocked_in' => 0,
+            'clocked_in_by' => null,
+        ]);
     }
 
 

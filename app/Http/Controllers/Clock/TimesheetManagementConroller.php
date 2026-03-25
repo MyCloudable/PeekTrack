@@ -480,6 +480,9 @@ public function summary()
     
                 $timesheet = Timesheet::findOrFail($row['id']);
 
+                // Store OLD state BEFORE update
+                $wasClockedOut = !is_null($timesheet->clockout_time);
+
                 // Validate clockin and clockout
                 $error = (new TimesheetService())->validateClockInOut($row['clockin_time'], $row['clockout_time']);
                 if($error){
@@ -523,6 +526,24 @@ public function summary()
 
                 // dd($timesheet);
                 $timesheet->save();
+
+                // NEW state AFTER update
+                $isClockedOutNow = !empty($row['clockout_time']);
+
+                // ONLY HANDLE STATE CHANGE
+
+                // CASE 1: just clocked OUT now
+                if (!$wasClockedOut && $isClockedOutNow) {
+                    (new TimesheetService())->markUsersClockOut([$timesheet->user_id]);
+                }
+
+                // CASE 2: clockout removed (re-open entry)
+                if ($wasClockedOut && !$isClockedOutNow) {
+                    (new TimesheetService())->validateAndMarkUsersClockIn(
+                        [$timesheet->user_id],
+                        $timesheet->crew_id
+                    );
+                }
 
                 TimesheetService::updatePdForAllEntriesOfTheDay($timesheetBeforeUpdate->user_id, $timesheetBeforeUpdate->clockin_time, $row['per_diem']);
     
@@ -571,6 +592,7 @@ public function summary()
 
             $userIds = $data['user_id']; // assuming user_id is an array
 
+
             // validate clockin and clockout
             (new TimesheetService())->validateClockInOut($data['clockin_time'], $data['clockout_time']);
 
@@ -589,6 +611,9 @@ public function summary()
                     ]);
                 }
             }
+
+            // Guard: validate clock in flag from users table and mark users as clocked in for the crew
+            (new TimesheetService())->validateAndMarkUsersClockIn($userIds, $data['crew_id']);
 
             // If validation passes for all user_ids, proceed to save
             foreach ($userIds as $userId) {
