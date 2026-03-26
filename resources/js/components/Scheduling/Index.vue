@@ -42,13 +42,14 @@
 
                                             <!-- Icons -->
                                             <div class="d-flex align-items-center gap-1">
-												<span v-if="element.duplicated_from" class="badge bg-secondary px-1 py-0"
-												:title="`Duplicated from ID #${element.duplicated_from}`">Copy</span>
+                                                <span v-if="element.duplicated_from"
+                                                    class="badge bg-secondary px-1 py-0"
+                                                    :title="`Duplicated from ID #${element.duplicated_from}`">Copy</span>
                                                 <span v-if="element.traffic_shift === 1"
                                                     class="traffic-icon text-bright-white" title="Traffic Shift Task">
                                                     <i class="fa-solid fa-light-emergency"></i>
                                                 </span>
-												
+
                                                 <span v-if="element.notes" class="notes-icon text-bright-white"
                                                     :title="element.notes">
                                                     <i class="fa-solid fa-note"></i>
@@ -151,13 +152,15 @@
 
     <!-- Completion Popup -->
     <div v-if="showCompletionPopup" class="modal-overlay">
-        <div class="bg-[#1e1e2f] text-black rounded-lg shadow-lg w-full max-w-md mx-4 p-6" style="max-height: 90vh;">
+        <div class="bg-[#1e1e2f] text-white rounded-xl shadow-2xl border border-gray-600 w-full max-w-md mx-4 p-6"
+            style="max-height: 90vh;">
             <!-- Modal Body -->
             <div>
                 <h2 class="text-2xl font-bold mb-4">Complete Task</h2>
-                <p class="mb-4">
+                <p class="mb-2">
                     <strong>Job:</strong> {{ selectedTask?.job_number }} - {{ selectedTask?.crew_type }}
                 </p>
+                <p class="mb-2">{{ selectedTask?.notes || 'No notes available' }}</p>
 
                 <label class="block mb-2">Notes (Optional):</label><br>
                 <textarea v-model="completionNote"
@@ -451,8 +454,8 @@ watch(showCompletionPopup, (val) => {
     display: flex !important;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 99999;
     outline: 2px solid white;
 }
 
