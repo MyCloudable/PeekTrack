@@ -50,15 +50,16 @@
                             <span class="badge badge-success" v-if="isAlreadyVerified">Crew Verified</span>
                             <span class="badge badge-danger" v-else>Crew Not Verified</span>
 
-                            <add-crew-member @get-all-users="GetAllUsers" v-if="isAlreadyClockedin" />
+                            <add-crew-member @get-all-users="GetAllUsers"
+                                v-if="isAlreadyClockedin && !isAlreadyClockedout" />
 
                         </div>
                     </div>
                     <div class="row actions mt-3 mb-3">
                         <div class="col-md-6">
-                            <depart v-if="isAlreadyClockedin" :crewId="crewId" :travelTime="travelTime"
-                                :crewTypeId="crewTypeId" :key="departKey" @track-time-done="trackTimeDone"
-                                @is-mobilization="enableCrewTypeId = !enableCrewTypeId"
+                            <depart v-if="isAlreadyClockedin && !isAlreadyClockedout" :crewId="crewId"
+                                :travelTime="travelTime" :crewTypeId="crewTypeId" :key="departKey"
+                                @track-time-done="trackTimeDone" @is-mobilization="enableCrewTypeId = !enableCrewTypeId"
                                 :is-late-entry-time-visible="isLateEntryTimeVisible"
                                 :late-entry-time="lateEntryTime ? format(lateEntryTime, dateTimeFormat) : lateEntryTime"
                                 @last-entry-time-done="lastEntryTimeDone" :time-types="timeTypes" />
@@ -112,9 +113,6 @@
                             </div>
                             <!-- Switch Time Type ends -->
 
-                            <!-- <button type="button" class="btn btn-danger p-3" @click="clockinout('clockout')"
-                                v-if="isAlreadyClockedin && !isAlreadyClockedout">Clock out
-                            </button> -->
                             <button type="button" class="btn btn-danger p-3" @click="clockinout('clockout')"
                                 v-if="canClockOut" :disabled="isBusy">Clock out
                             </button>

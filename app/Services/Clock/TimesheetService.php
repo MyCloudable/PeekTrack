@@ -366,8 +366,6 @@ class TimesheetService {
     {
         $crew = Crew::where('id', $data['crewId'])->first();
 
-        // Guard: validate clock in flag from users table and mark users as clocked in for the crew
-        $this->validateAndMarkUsersClockIn([$data['createNewCrewForm']['crew_member_id']], $crew->id);
 
         $isAlreadyClockedin = Timesheet::where('crew_id', $data['crewId'])->where('user_id', $data['createNewCrewForm']['crew_member_id'])
         ->where('created_at', '>=', $crew->last_verified_date)->first();
@@ -388,6 +386,9 @@ class TimesheetService {
                     $data['createNewCrewForm']['clockin_time'],
                     null,
                 );
+
+            // Guard: validate clock in flag from users table and mark users as clocked in for the crew. After all other validations pass
+            $this->validateAndMarkUsersClockIn([$data['createNewCrewForm']['crew_member_id']], $crew->id);
 
             $crewMembers = $this->getCrewMembersArray($crew->crew_members, $data['createNewCrewForm']['crew_member_id']);;
             $crew->crew_members = $crewMembers;
