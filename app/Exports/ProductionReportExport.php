@@ -31,7 +31,10 @@ class ProductionReportExport implements FromArray, WithEvents
             ->join('jobentries', 'production.link', '=', 'jobentries.link')
             ->leftJoin('job_notes', function ($join) {
                 $join->on('production.link', '=', 'job_notes.link')
-                    ->where('job_notes.note_type', 'JobCardNote');
+                    ->where('job_notes.note_type', 'JobCardNote')
+					->where('job_notes.note','!=', 'Jobcard approved.')
+					->where('job_notes.note','!=', 'Jobcard submitted.')
+					->where('job_notes.note','!=', 'Jobcard reopened.');
             })
             ->select(
                 'production.phase',
