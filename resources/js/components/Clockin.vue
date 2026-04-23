@@ -368,90 +368,88 @@
                                 </div>
                             </div>
 
-                            <<<<<<< HEAD <button type="button" class="btn btn-danger p-3"
-                                @click="clockinout('clockout')" v-if="canClockOut" :disabled="isBusy">Clock out
-                                </button>
-                                =======
-                                <div class="clk-select-all" v-if="!isAlreadyVerified && CrewMembersTobeVerified.length">
-                                    <label class="clk-check">
-                                        <input type="checkbox" v-model="isCheckAll" @click="toggleCheckboxes">
-                                        <span>Select All Crew Members</span>
+                            <button type="button" class="btn btn-danger p-3" @click="clockinout('clockout')"
+                                v-if="canClockOut" :disabled="isBusy">Clock out
+                            </button>
+                            <div class="clk-select-all" v-if="!isAlreadyVerified && CrewMembersTobeVerified.length">
+                                <label class="clk-check">
+                                    <input type="checkbox" v-model="isCheckAll" @click="toggleCheckboxes">
+                                    <span>Select All Crew Members</span>
+                                </label>
+                            </div>
+
+
+                            <div class="clk-empty" v-if="!CrewMembersTobeVerified.length">
+                                <i class="fas fa-user-friends"></i>
+                                <p>No crew members yet.</p>
+                            </div>
+
+                            <div class="clk-crew-list" v-else>
+                                <div v-for="(member, index) in CrewMembersTobeVerified" :key="member.id"
+                                    class="clk-crew-row" :class="{
+                                        'is-checked': member.isChecked,
+                                        'is-out': member.status === 'Out',
+                                        'is-in': member.status === 'In'
+                                    }">
+
+                                    <label class="clk-crew-row__check" v-if="!isAlreadyVerified">
+                                        <input type="checkbox" :checked="member.isChecked"
+                                            @click="toggleSingleCheckbox(index)">
                                     </label>
-                                </div>
-                                >>>>>>> andy-staging-ui-sync
 
-                                <div class="clk-empty" v-if="!CrewMembersTobeVerified.length">
-                                    <i class="fas fa-user-friends"></i>
-                                    <p>No crew members yet.</p>
-                                </div>
-
-                                <div class="clk-crew-list" v-else>
-                                    <div v-for="(member, index) in CrewMembersTobeVerified" :key="member.id"
-                                        class="clk-crew-row" :class="{
-                                            'is-checked': member.isChecked,
-                                            'is-out': member.status === 'Out',
-                                            'is-in': member.status === 'In'
-                                        }">
-
-                                        <label class="clk-crew-row__check" v-if="!isAlreadyVerified">
-                                            <input type="checkbox" :checked="member.isChecked"
-                                                @click="toggleSingleCheckbox(index)">
-                                        </label>
-
-                                        <div class="clk-crew-row__main">
-                                            <div class="clk-crew-row__name">{{ member.name }}</div>
-                                            <div class="clk-crew-row__meta">
-                                                <span v-if="member.total_time_all" class="clk-chip">
-                                                    <i class="fas fa-hourglass-half me-1"></i>{{ member.total_time_all
-                                                    }}
-                                                </span>
-                                                <span v-if="member.status" class="clk-chip"
-                                                    :class="'clk-chip--' + member.status.toLowerCase()">
-                                                    {{ member.status === 'In' ? 'Clocked In' : 'Clocked Out' }}
-                                                </span>
-                                                <span v-if="member.total_time" class="clk-chip clk-chip--muted">
-                                                    {{ member.total_time }}
-                                                </span>
-                                            </div>
-
-                                            <div class="clk-crew-row__times"
-                                                v-if="(isAlreadyClockedin || isAlreadyClockedout)">
-                                                <div v-if="!member.isMenualClockinout" class="clk-time-readout">
-                                                    <i class="far fa-clock me-1"></i>
-                                                    {{ member.clockout_time ? member.clockout_time : member.clockin_time
-                                                    }}
-                                                </div>
-                                                <div v-else class="clk-time-edit">
-                                                    <div class="clk-time-edit__field">
-                                                        <span class="clk-time-edit__label">In</span>
-                                                        <VueDatePicker v-model="member.clockin_time_edit"
-                                                            :enable-time="true" :format="dateTimeFormat" teleport="body"
-                                                            @update:model-value="menualClockinout($event, member.timesheet_id, 'clockin')"
-                                                            class="clk-datepicker"></VueDatePicker>
-                                                    </div>
-                                                    <div class="clk-time-edit__field">
-                                                        <span class="clk-time-edit__label">Out</span>
-                                                        <VueDatePicker v-model="member.clockout_time_edit"
-                                                            :enable-time="true" :format="dateTimeFormat" teleport="body"
-                                                            @update:model-value="menualClockinout($event, member.timesheet_id, 'clockout')"
-                                                            class="clk-datepicker"></VueDatePicker>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div class="clk-crew-row__main">
+                                        <div class="clk-crew-row__name">{{ member.name }}</div>
+                                        <div class="clk-crew-row__meta">
+                                            <span v-if="member.total_time_all" class="clk-chip">
+                                                <i class="fas fa-hourglass-half me-1"></i>{{ member.total_time_all
+                                                }}
+                                            </span>
+                                            <span v-if="member.status" class="clk-chip"
+                                                :class="'clk-chip--' + member.status.toLowerCase()">
+                                                {{ member.status === 'In' ? 'Clocked In' : 'Clocked Out' }}
+                                            </span>
+                                            <span v-if="member.total_time" class="clk-chip clk-chip--muted">
+                                                {{ member.total_time }}
+                                            </span>
                                         </div>
 
-                                        <div class="clk-crew-row__actions" v-if="isAlreadyClockedin">
-                                            <button class="clk-icon-btn"
-                                                :class="{ 'is-active': member.isMenualClockinout }" :disabled="isBusy"
-                                                @click="enableMenualClock(member.id)"
-                                                :aria-label="'Edit times for ' + member.name">
-                                                <i class="fa fa-pencil"></i>
-                                            </button>
-                                            <half-full-per-diem :timesheetId="member.timesheet_id"
-                                                :perDiem="member.per_diem" @hf-per-diem-done="hfPerDiemDone" />
+                                        <div class="clk-crew-row__times"
+                                            v-if="(isAlreadyClockedin || isAlreadyClockedout)">
+                                            <div v-if="!member.isMenualClockinout" class="clk-time-readout">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ member.clockout_time ? member.clockout_time : member.clockin_time
+                                                }}
+                                            </div>
+                                            <div v-else class="clk-time-edit">
+                                                <div class="clk-time-edit__field">
+                                                    <span class="clk-time-edit__label">In</span>
+                                                    <VueDatePicker v-model="member.clockin_time_edit"
+                                                        :enable-time="true" :format="dateTimeFormat" teleport="body"
+                                                        @update:model-value="menualClockinout($event, member.timesheet_id, 'clockin')"
+                                                        class="clk-datepicker"></VueDatePicker>
+                                                </div>
+                                                <div class="clk-time-edit__field">
+                                                    <span class="clk-time-edit__label">Out</span>
+                                                    <VueDatePicker v-model="member.clockout_time_edit"
+                                                        :enable-time="true" :format="dateTimeFormat" teleport="body"
+                                                        @update:model-value="menualClockinout($event, member.timesheet_id, 'clockout')"
+                                                        class="clk-datepicker"></VueDatePicker>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    <div class="clk-crew-row__actions" v-if="isAlreadyClockedin">
+                                        <button class="clk-icon-btn" :class="{ 'is-active': member.isMenualClockinout }"
+                                            :disabled="isBusy" @click="enableMenualClock(member.id)"
+                                            :aria-label="'Edit times for ' + member.name">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                        <half-full-per-diem :timesheetId="member.timesheet_id"
+                                            :perDiem="member.per_diem" @hf-per-diem-done="hfPerDiemDone" />
+                                    </div>
                                 </div>
+                            </div>
                         </section>
 
                         <div class="clk-body__spacer"></div>
