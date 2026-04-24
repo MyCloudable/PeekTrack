@@ -14,3 +14,4 @@ yarn-error.log
 /.idea
 /.vscode
 Comet_Backup-*.deb
+**/.DS_Store
