@@ -5,6 +5,7 @@ namespace Tests\Feature\Ai;
 use App\Models\JobCardAiFeature;
 use App\Services\Ai\FeatureBuilder;
 use App\Services\Ai\UnestimatedItemDetector;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -20,7 +21,8 @@ use Tests\TestCase;
  */
 class FeatureBuilderTest extends TestCase
 {
-    use RefreshDatabase;
+    // use RefreshDatabase;
+    use DatabaseTransactions;
 
     private FeatureBuilder $builder;
 
@@ -33,14 +35,24 @@ class FeatureBuilderTest extends TestCase
         $this->builder = new FeatureBuilder(new UnestimatedItemDetector());
 
         // Seed minimum settings the detector needs
-        DB::table('settings')->insert([
-            'key_name' => 'ai.unestimated_phase_codes',
-            'value'    => json_encode(['98-09000', '98-19999']),
-            'value_type' => 'json',
-            'description' => 'Unestimated phase codes',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // DB::table('settings')->insert([
+        //     'key_name' => 'ai.unestimated_phase_codes',
+        //     'value'    => json_encode(['98-09000', '98-19999']),
+        //     'value_type' => 'json',
+        //     'description' => 'Unestimated phase codes',
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
+
+        DB::table('settings')->updateOrInsert(
+            ['key_name' => 'ai.unestimated_phase_codes'],
+            [
+                'value' => json_encode(['98-09000', '98-19999']),
+                'value_type' => 'json',
+                'notes' => 'Unestimated phase codes',
+                'updated_at' => now(),
+            ]
+        );
     }
 
     public function test_builds_basic_feature_row_for_normal_card(): void
@@ -48,7 +60,7 @@ class FeatureBuilderTest extends TestCase
         $link = $this->createCard([
             'job_number' => 'J24-0001',
             'workdate'   => '2026-04-01',
-            'user_id'    => 1,
+            'userId'    => 1,
         ]);
 
         $this->addProductionLine($link, ['qty' => 100, 'phase' => '01-12345', 'description' => '4 yel sol fdp']);
@@ -184,7 +196,10 @@ class FeatureBuilderTest extends TestCase
 
     public function test_notes_length_captured(): void
     {
-        $link = $this->createCard(['notes' => 'Crew finished early due to rain']);
+        $link = $this->createCard([
+            // 'notes' => 'Crew finished early due to rain'
+            'equipment_only_reason_text' => 'Crew finished early due to rain'
+            ]);
         $this->addProductionLine($link, ['qty' => 100]);
         $this->addEquipmentLine($link, ['hours' => 8]);
 
@@ -219,8 +234,9 @@ class FeatureBuilderTest extends TestCase
             'submitted'    => 1,
             'approved'     => null,
             'review_state' => 'pending_ai',
-            'user_id'      => 1,
-            'crew_type_id' => 1,
+            'userId'      => 1,
+            'name' => 'Test User',
+            // 'crew_type_id' => 1,
             'created_at'   => now(),
             'updated_at'   => now(),
         ], $overrides));
@@ -231,9 +247,12 @@ class FeatureBuilderTest extends TestCase
     {
         DB::table('production')->insert(array_merge([
             'link'        => $link,
+            'job_number' => 'J-TEST',
+            'userId'      => 1,
             'qty'         => 0,
             'phase'       => '01-00001',
             'description' => 'test production',
+            'unit_of_measure' => 'EA',
             'created_at'  => now(),
             'updated_at'  => now(),
         ], $overrides));
@@ -243,9 +262,12 @@ class FeatureBuilderTest extends TestCase
     {
         DB::table('material')->insert(array_merge([
             'link'        => $link,
+            'job_number' => 'J-TEST',
+            'userId'      => 1,
             'qty'         => 0,
             'phase'       => '02-00001',
             'description' => 'test material',
+            'unit_of_measure' => 'EA',
             'supplier'    => 'TestVendor',
             'batch'       => 'TestBatch',
             'created_at'  => now(),
@@ -257,6 +279,10 @@ class FeatureBuilderTest extends TestCase
     {
         DB::table('equipment')->insert(array_merge([
             'link'       => $link,
+            'job_number' => 'J-TEST',
+            'userId'      => 1,
+            'phase' => '01-12345',
+            'description' => 'Test equipment',
             'hours'      => 0,
             'truck'      => 'T-TEST',
             'created_at' => now(),

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Ai;
 
 use App\Services\Ai\UnestimatedItemDetector;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -10,7 +11,8 @@ use Tests\TestCase;
 
 class UnestimatedItemDetectorTest extends TestCase
 {
-    use RefreshDatabase;
+    // use RefreshDatabase;
+    use DatabaseTransactions;
 
     private UnestimatedItemDetector $detector;
 
@@ -19,14 +21,24 @@ class UnestimatedItemDetectorTest extends TestCase
         parent::setUp();
         $this->detector = new UnestimatedItemDetector();
 
-        DB::table('settings')->insert([
-            'key_name'    => 'ai.unestimated_phase_codes',
-            'value'       => json_encode(['98-09000', '98-19999']),
-            'value_type'  => 'json',
-            'description' => 'Unestimated phase codes',
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
+        // DB::table('settings')->insert([
+        //     'key_name'    => 'ai.unestimated_phase_codes',
+        //     'value'       => json_encode(['98-09000', '98-19999']),
+        //     'value_type'  => 'json',
+        //     'description' => 'Unestimated phase codes',
+        //     'created_at'  => now(),
+        //     'updated_at'  => now(),
+        // ]);
+
+        DB::table('settings')->updateOrInsert(
+        ['key_name' => 'ai.unestimated_phase_codes'],
+        [
+            'value' => json_encode(['98-09000', '98-19999']),
+            'value_type' => 'json',
+            'notes' => 'Unestimated phase codes',
+            'updated_at' => now(),
+        ]
+    );
     }
 
     public function test_returns_zero_when_no_lines(): void
@@ -141,9 +153,12 @@ class UnestimatedItemDetectorTest extends TestCase
     {
         DB::table('production')->insert([
             'link' => $link,
+            'job_number' => 'J-TEST',
+            'userId'      => 1,
             'qty' => 1,
             'phase' => $phase,
             'description' => 'test',
+            'unit_of_measure' => 'EA',
             'deleted_at' => $deleted ? now() : null,
             'created_at' => now(),
             'updated_at' => now(),
@@ -154,9 +169,12 @@ class UnestimatedItemDetectorTest extends TestCase
     {
         DB::table('material')->insert([
             'link' => $link,
+            'job_number' => 'J-TEST',
+            'userId'      => 1,
             'qty' => 1,
             'phase' => $phase,
             'description' => 'test',
+            'unit_of_measure' => 'EA',
             'deleted_at' => $deleted ? now() : null,
             'created_at' => now(),
             'updated_at' => now(),

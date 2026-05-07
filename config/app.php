@@ -162,7 +162,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-		Reportico\Reportico\ReporticoServiceProvider::class,
+		// Reportico\Reportico\ReporticoServiceProvider::class, // Commented out to avoid constant collision during php artisan test
 
         /*
          * Package Service Providers...

@@ -13,7 +13,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        if (PHP_SAPI === 'cli' || $this->app->environment('testing') || $this->app->runningUnitTests()) {
+            return;
+        }
+
+        $this->app->register(\Reportico\Reportico\ReporticoServiceProvider::class);
     }
 
     /**

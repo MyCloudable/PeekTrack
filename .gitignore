@@ -15,3 +15,4 @@ yarn-error.log
 /.vscode
 Comet_Backup-*.deb
 **/.DS_Store
+.env.testing

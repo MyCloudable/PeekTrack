@@ -50,6 +50,8 @@ class AiSettingsSeeder extends Seeder
             // ═══════════════ Band cutoffs ═══════════════
             ['ai.band_green_max',                           '24',    'int',    'Scores 0..band_green_max inclusive are Green.'],
             ['ai.band_yellow_max',                          '59',    'int',    'Scores band_green_max+1..band_yellow_max inclusive are Yellow.'],
+            ['ai.band_threshold.red',                        '60',   'int',    'Sprint 3 scoring: score >= this value is Red.'],
+            ['ai.band_threshold.yellow',                     '30',   'int',    'Sprint 3 scoring: score >= this value is Yellow unless Red threshold is reached.'],
 
             // ═══════════════ Reason-code weights ═══════════════
             ['ai.weight_hard_rule',                         '40',    'int',    'Points per hard-rule violation (R1, R2, R3).'],
@@ -66,6 +68,13 @@ class AiSettingsSeeder extends Seeder
             ['ai.weight_user_avg_typo',                     '12',    'int',    'Points when qty is typo_multiplier_threshold above user 30d avg.'],
             ['ai.weight_complexity_override',               '0',     'int',    'Points for COMPLEXITY_OVERRIDE. 0 keeps card Green-score-wise; it still force-flags.'],
             ['ai.weight_equipment_only_no_reason',          '25',    'int',    'Points when equipment-only card has no reason code.'],
+            ['ai.score_weight.R4_HARD_CEILING_EXCEEDED',    '60',    'int',    'Sprint 3 scoring weight for hard quantity ceiling violations.'],
+            ['ai.score_weight.R4_SOFT_CEILING_EXCEEDED',    '25',    'int',    'Sprint 3 scoring weight for soft quantity ceiling violations.'],
+            ['ai.score_weight.R5_REQUIRED_PAIR_MISSING',    '50',    'int',    'Sprint 3 scoring weight for missing required production/material pairings.'],
+            ['ai.score_weight.R5_RECOMMENDED_PAIR_MISSING', '15',    'int',    'Sprint 3 scoring weight for missing recommended production/material pairings.'],
+            ['ai.score_weight.R7_MATERIAL_RATIO_OUT_OF_BAND','30',   'int',    'Sprint 3 scoring weight for material ratio band violations.'],
+            ['ai.score_weight.R7_EQUIPMENT_RATIO_OUT_OF_BAND','30',  'int',    'Sprint 3 scoring weight for equipment ratio band violations.'],
+            ['ai.score_weight.R8_UNESTIMATED_ITEMS',         '20',   'int',    'Sprint 3 scoring weight for unestimated item findings.'],
 
             // ═══════════════ Ratio thresholds (global fallback) ═══════════════
             ['ai.ratio_mat_lower',                          '0.5',   'float',  'Global floor: material_per_production, multiple of median.'],
