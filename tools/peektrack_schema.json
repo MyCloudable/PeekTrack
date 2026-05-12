@@ -1,0 +1,3226 @@
+{
+  "audit_logs": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "event_type",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "link",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "old_value",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "new_value",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "user_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "ip_address",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "branch": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "int(10)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "department",
+        "type": "int(5)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "branch",
+        "type": "varchar(25)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "description",
+        "type": "varchar(50)",
+        "nullable": false,
+        "default": null
+      }
+    ],
+    "indexes": []
+  },
+  "branch_old": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "department",
+        "type": "int(5)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "branch",
+        "type": "varchar(25)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "categories": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "crews": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "crew_type_id",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "superintendentId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "crew_members",
+        "type": "longtext",
+        "nullable": false,
+        "default": "'[]'"
+      },
+      {
+        "name": "last_verified_date",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_by",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "modified_by",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "is_ready_for_verification",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "deleted_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "deleted_by",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "crew_types": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "value",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "crew_type_material_qty_limits": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "crew_type_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "material_type",
+        "type": "varchar(64)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "unit_of_measure",
+        "type": "varchar(32)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "goal",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "soft_max",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "hard_max",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "source",
+        "type": "enum",
+        "nullable": false,
+        "default": "'client_provided'"
+      },
+      {
+        "name": "active",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "1"
+      },
+      {
+        "name": "notes",
+        "type": "varchar(500)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "crew_type_ratio_bands": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "crew_type_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "metric",
+        "type": "enum",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "lower_bound",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "upper_bound",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "source",
+        "type": "enum",
+        "nullable": false,
+        "default": "'client_provided'"
+      },
+      {
+        "name": "active",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "1"
+      },
+      {
+        "name": "notes",
+        "type": "varchar(500)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "doc_type": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_id",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "doc_type",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "userId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "equipment": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "userId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "phase",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "truck",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "hours",
+        "type": "double",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "deleted_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "events": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "title",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "start",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "end",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "failed_jobs": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "uuid",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "connection",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "queue",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "payload",
+        "type": "longtext",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "exception",
+        "type": "longtext",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "failed_at",
+        "type": "timestamp",
+        "nullable": false,
+        "default": "current_timestamp()"
+      }
+    ],
+    "indexes": []
+  },
+  "files": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "type",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "doctype",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "file_path",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "active",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "items": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "picture",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "category_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "status",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "homepage",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "options",
+        "type": "text",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "date",
+        "type": "date",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "item_tag": {
+    "columns": [
+      {
+        "name": "item_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "tag_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      }
+    ],
+    "indexes": []
+  },
+  "jobcard_ai_features": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "workdate",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "submitted_by_user_id",
+        "type": "int(10)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "crew_type_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "production_line_count",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "production_total_qty",
+        "type": "double",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "production_distinct_phases",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "production_distinct_descs",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "material_line_count",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "material_total_qty",
+        "type": "double",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "material_missing_supplier_cnt",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "material_missing_batch_cnt",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "material_distinct_suppliers",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "equipment_line_count",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "equipment_total_hours",
+        "type": "double",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "equipment_distinct_trucks",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "material_per_production",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "equipment_hours_per_production",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "est_total_qty",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "production_vs_estimate_pct",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "has_unestimated_items",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "unestimated_line_count",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "has_complexity_override",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "qty_exceeds_soft_ceiling",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "qty_exceeds_hard_ceiling",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "pair_mismatch_required_count",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "pair_mismatch_recommended_cnt",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "prior_cards_same_job",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "prior_cards_same_user_30d",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "user_prior_rejection_rate",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "user_30d_avg_material_qty",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "user_30d_avg_equipment_hours",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "has_hard_rule_violation",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "equipment_only_reason",
+        "type": "varchar(32)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "equipment_only_reason_text",
+        "type": "varchar(500)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "notes_length",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "computed_at",
+        "type": "timestamp",
+        "nullable": false,
+        "default": "current_timestamp()"
+      },
+      {
+        "name": "feature_version",
+        "type": "varchar(16)",
+        "nullable": false,
+        "default": "'v1'"
+      }
+    ],
+    "indexes": []
+  },
+  "jobentries": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "workdate",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "submitted",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "submitted_on",
+        "type": "date",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "userId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "approved",
+        "type": "int(11)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "review_state",
+        "type": "varchar(32)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "equipment_only_reason",
+        "type": "enum",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "equipment_only_reason_text",
+        "type": "varchar(500)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "approvedBy",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "approved_date",
+        "type": "date",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "billing_approval",
+        "type": "tinyint(1)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "billing_approval_by",
+        "type": "int(11)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "billing_approval_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "kicked_back_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "kickback_count",
+        "type": "tinyint(3)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "super_notified_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "manager_escalated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "jobreviews": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "reviewed_by",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "reviewed_by_user_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "reviewed_by_system",
+        "type": "varchar(64)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "decision",
+        "type": "varchar(32)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "decision_reason",
+        "type": "text",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "date_reviewed",
+        "type": "datetime",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "jobs": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "varchar(250)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "county",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "branch",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "contractor",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "completion_date",
+        "type": "date",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "location",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "status",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "datetime",
+        "nullable": true,
+        "default": "current_timestamp()"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "job_data": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_id",
+        "type": "int(11)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "phase",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "est_qty",
+        "type": "double(16,2)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "unit_of_measure",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "job_documents": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_id",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "userId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "doc_type_id",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "file_path",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "notes",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "inactive",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "job_notes": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "note_type",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "username",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "note",
+        "type": "longtext",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "job_po": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "phase",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "userID",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "po_number",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "signer_name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "signature",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "notes",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "locations": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "int(5)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(50)",
+        "nullable": false,
+        "default": null
+      }
+    ],
+    "indexes": []
+  },
+  "material": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "userId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "phase",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "qty",
+        "type": "double(10,4)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "unit_of_measure",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "supplier",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "batch",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "deleted_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "materials_deprecated_do_not_use": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "userId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "phase",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "qty",
+        "type": "double",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "unit_of_measure",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "supplier",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "batch",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "migrations": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "int(10)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "migration",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "batch",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      }
+    ],
+    "indexes": []
+  },
+  "non_est_items": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_id",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "userId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "phase",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "qty",
+        "type": "double(8,2)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "unit_of_measure",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "date",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "mark_mill",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "road_name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "phase_item_complete",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "surface_type",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "overflow_items": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "duplicated_from",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "job_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "crew_type_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "branch_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "traffic_shift",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "is_priority",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "timein_date",
+        "type": "date",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "timeout_date",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "superintendent_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "task_order",
+        "type": "int(11)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "completion_date",
+        "type": "date",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "complete_user_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_by",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "approved",
+        "type": "int(1)",
+        "nullable": false,
+        "default": "0"
+      }
+    ],
+    "indexes": []
+  },
+  "overflow_notes": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "overflow_item_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "user_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "note",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "password_resets": {
+    "columns": [
+      {
+        "name": "email",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "token",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "personal_access_tokens": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "tokenable_type",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "tokenable_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "token",
+        "type": "varchar(64)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "abilities",
+        "type": "text",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "last_used_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "po": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_id",
+        "type": "varchar(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "userId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "notes",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "non_est_task",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "qty",
+        "type": "double(8,2)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "unit_of_measure",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "mark_mill",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "road_name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "phase_item_complete",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "surface_type",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "po_number",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "mob",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "signature",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "sig_name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "production": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "link",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_number",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "userId",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "phase",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "qty",
+        "type": "double",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "unit_of_measure",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "mark_mill",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "road_name",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "phase_item_complete",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "surface_type",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "deleted_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "production_material_pairs": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "production_pattern",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "match_mode",
+        "type": "enum",
+        "nullable": false,
+        "default": "'contains'"
+      },
+      {
+        "name": "expected_material_code",
+        "type": "varchar(64)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "is_prefix",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "severity",
+        "type": "enum",
+        "nullable": false,
+        "default": "'required'"
+      },
+      {
+        "name": "active",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "1"
+      },
+      {
+        "name": "notes",
+        "type": "varchar(500)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "production_qty_limits": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "production_pattern",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "match_mode",
+        "type": "enum",
+        "nullable": false,
+        "default": "'contains'"
+      },
+      {
+        "name": "unit_of_measure",
+        "type": "varchar(32)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "soft_max",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "hard_max",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "daily_max",
+        "type": "double",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "source",
+        "type": "enum",
+        "nullable": false,
+        "default": "'client_provided'"
+      },
+      {
+        "name": "active",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "1"
+      },
+      {
+        "name": "notes",
+        "type": "varchar(500)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "roles": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "schedule": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "title",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "description",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "start",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "end",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "settings": {
+    "columns": [
+      {
+        "name": "key_name",
+        "type": "varchar(128)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "value",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "value_type",
+        "type": "enum",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "notes",
+        "type": "varchar(512)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_by",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": false,
+        "default": "current_timestamp()"
+      }
+    ],
+    "indexes": []
+  },
+  "signatures": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "model_type",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "model_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "uuid",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "filename",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "document_filename",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "certified",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "from_ips",
+        "type": "longtext",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "tags": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "color",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "telescope_entries": {
+    "columns": [
+      {
+        "name": "sequence",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "uuid",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "batch_id",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "family_hash",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "should_display_on_index",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "1"
+      },
+      {
+        "name": "type",
+        "type": "varchar(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "content",
+        "type": "longtext",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "datetime",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "telescope_entries_tags": {
+    "columns": [
+      {
+        "name": "entry_uuid",
+        "type": "char(36)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "tag",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      }
+    ],
+    "indexes": []
+  },
+  "telescope_monitoring": {
+    "columns": [
+      {
+        "name": "tag",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      }
+    ],
+    "indexes": []
+  },
+  "temp_results": {
+    "columns": [
+      {
+        "name": "user_id",
+        "type": "int(11)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "user_name",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "work_date",
+        "type": "date",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "hours",
+        "type": "decimal(10,2)",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "timesheets": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "crew_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "crew_type_id",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "user_id",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "clockin_time",
+        "type": "timestamp",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "clockout_time",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "job_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "time_type_id",
+        "type": "int(11)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_by",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "modified_by",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "per_diem",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "weekend_out",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "reviewer_approval",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "reviewer_approval_by",
+        "type": "int(11)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "reviewer_approval_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "payroll_approval",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "crew_member_approval",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "deleted_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "deleted_by",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "time_types": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "value",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "travel_times": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "crew_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "job_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "crew_type_id",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "time_type_id",
+        "type": "int(11)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "type",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "depart",
+        "type": "timestamp",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "arrive",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_by",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "modified_by",
+        "type": "int(11)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "truckcost": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "int(10)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "truck",
+        "type": "varchar(10)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "cost",
+        "type": "double(8,2)",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "urg_notice": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "title",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "message",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "is_active",
+        "type": "tinyint(1)",
+        "nullable": false,
+        "default": "1"
+      },
+      {
+        "name": "created_by",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "urg_notice_ack": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "user_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "notification_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "acknowledged_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  },
+  "users": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "name",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "email",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "role_id",
+        "type": "bigint(20)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "email_verified_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "password",
+        "type": "varchar(255)",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "name": "picture",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "location",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "phone",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "remember_token",
+        "type": "varchar(100)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "default": "current_timestamp()"
+      },
+      {
+        "name": "class",
+        "type": "varchar(255)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "pay_rate",
+        "type": "tinyint(1)",
+        "nullable": true,
+        "default": "0"
+      },
+      {
+        "name": "termDate",
+        "type": "varchar(25)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "rehireDate",
+        "type": "varchar(25)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "active",
+        "type": "int(1)",
+        "nullable": false,
+        "default": "1"
+      },
+      {
+        "name": "manager_id",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      },
+      {
+        "name": "is_clocked_in",
+        "type": "tinyint(4)",
+        "nullable": false,
+        "default": "0"
+      },
+      {
+        "name": "clocked_in_by",
+        "type": "bigint(20)",
+        "nullable": true,
+        "default": "NULL"
+      }
+    ],
+    "indexes": []
+  }
+}

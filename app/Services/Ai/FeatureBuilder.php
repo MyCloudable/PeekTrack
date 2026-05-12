@@ -80,14 +80,21 @@ class FeatureBuilder
                     'job_number'            => $card->job_number,
                     'workdate'              => $card->workdate,
                     'submitted_by_user_id'  => $card->userId ?? null,
-                    'crew_type_id'          => $card->crew_type_id ?? null,
+                    // jobentries does NOT have a crew_type_id column. The relationship
+                    // is jobentries.userId (the super) → crews.superintendentId →
+                    // crews.crew_type_id. Resolved via $this->resolveCrewTypeId().
+                    'crew_type_id'          => $this->resolveCrewTypeId($card->userId ?? null),
                     'has_hard_rule_violation' => $hasHardRule ? 1 : 0,
                     'has_unestimated_items'   => $unestimated['has_unestimated'] ? 1 : 0,
                     'unestimated_line_count'  => $unestimated['line_count'],
                     'equipment_only_reason'      => $card->equipment_only_reason ?? null,
                     'equipment_only_reason_text' => $card->equipment_only_reason_text ?? null,
-                    // 'notes_length'          => mb_strlen($card->notes ?? ''),
-                    'notes_length' => mb_strlen((string) ($card->notes ?? $card->equipment_only_reason_text ?? '')),
+                    // jobentries has no `notes` column (confirmed against schema 2026-05-02
+                    // by dev during Sprint 3 deploy). Use equipment_only_reason_text as
+                    // the closest free-text length signal. Sprint 5 may expand this to
+                    // aggregate across multiple sources (kicked_back_reason_codes,
+                    // job_notes) for richer ML signal.
+                    'notes_length'          => mb_strlen($card->equipment_only_reason_text ?? ''),
                     'feature_version'       => 'v1',
                 ],
                 $aggregations,
@@ -168,6 +175,8 @@ class FeatureBuilder
             : null;
 
         // Estimate context: pull est_total_qty from job_data if available.
+        // Real column is `est_qty`, not `qty` — confirmed against PeekTrack
+        // schema 2026-04-30 during single-card backfill test.
         $estTotal = DB::table('job_data')
             ->where('job_number', $card->job_number)
             ->sum('est_qty');
@@ -184,7 +193,9 @@ class FeatureBuilder
             ->where('link', '<>', $link)
             ->count();
 
-        // Prior cards by same user in last 30 days
+        // Prior cards by same user in last 30 days.
+        // jobentries column is `userId` (camelCase) per PeekTrack schema —
+        // confirmed 2026-04-30. NOT user_id with underscore.
         $userId = $card->userId ?? null;
         $priorUser30d = $userId
             ? DB::table('jobentries')
@@ -227,6 +238,30 @@ class FeatureBuilder
             'user_30d_avg_material_qty'      => null,
             'user_30d_avg_equipment_hours'   => null,
         ];
+    }
+
+    /**
+     * Resolve a card's crew_type_id by walking jobentries.userId → crews.superintendentId
+     * → crews.crew_type_id.
+     *
+     * jobentries does NOT have a crew_type_id column — confirmed against schema 2026-05-06.
+     * If the user isn't a superintendent of any crew (or has multiple crews), returns null
+     * and R7 ratio-band checks silently pass. That's intended behavior for v1.
+     *
+     * If a super legitimately runs multiple crew types, this returns the most-recently-active
+     * crew_type. Layer 5 ML can disambiguate via per-card features in a future sprint.
+     */
+    private function resolveCrewTypeId(?int $userId): ?int
+    {
+        if (!$userId) return null;
+
+        $row = DB::table('crews')
+            ->where('superintendentId', $userId)
+            ->whereNull('deleted_at')
+            ->orderByDesc('updated_at')
+            ->value('crew_type_id');
+
+        return $row !== null ? (int) $row : null;
     }
 
     private function detectHardRuleViolation(array $agg): bool
