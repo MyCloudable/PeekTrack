@@ -63,6 +63,44 @@ return [
             ]) : [],
         ],
 
+        'ai_sync_source' => [
+            'driver' => 'mysql',
+            'host' => env('AI_SYNC_SOURCE_DB_HOST', '127.0.0.1'),
+            'port' => env('AI_SYNC_SOURCE_DB_PORT', '3306'),
+            'database' => env('AI_SYNC_SOURCE_DB_DATABASE'),
+            'username' => env('AI_SYNC_SOURCE_DB_USERNAME'),
+            'password' => env('AI_SYNC_SOURCE_DB_PASSWORD'),
+            'unix_socket' => env('AI_SYNC_SOURCE_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'ai_sync_target' => [
+            'driver' => 'mysql',
+            'host' => env('AI_SYNC_TARGET_DB_HOST', '127.0.0.1'),
+            'port' => env('AI_SYNC_TARGET_DB_PORT', '3306'),
+            'database' => env('AI_SYNC_TARGET_DB_DATABASE'),
+            'username' => env('AI_SYNC_TARGET_DB_USERNAME'),
+            'password' => env('AI_SYNC_TARGET_DB_PASSWORD'),
+            'unix_socket' => env('AI_SYNC_TARGET_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'mariadb' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
