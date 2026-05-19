@@ -99,7 +99,7 @@ class AiSettingsSeeder extends Seeder
             ['ai.user_avg_min_samples',                     '3',     'int',    'Min number of prior cards required before user-average typo check runs.'],
 
             // ═══════════════ Manager escalation (3-day trigger, not immediate) ═══════════════
-            ['ai.manager_escalation_enabled',               'true',  'bool',   'Send escalation email to manager when a kicked-back card sits past ai.kickback_auto_escalate_days.'],
+            ['ai.manager_escalation_enabled',               'false',  'bool',   'Send escalation email to manager when a kicked-back card sits past ai.kickback_auto_escalate_days.'],
             ['ai.manager_escalation_in_app',                'true',  'bool',   'Also create an in-app notification for the manager at the same threshold.'],
             ['ai.manager_escalation_email_subject',         'Overdue kickback: {superintendent_name} has {days_overdue}-day card {job_number}', 'string', 'Subject template. Placeholders: {superintendent_name}, {days_overdue}, {job_number}, {risk_score}'],
 

@@ -27,6 +27,12 @@ class Kernel extends ConsoleKernel
         if (env('IS_DEMO')){
             $schedule->command('migrate:fresh --seed')->everyFifteenMinutes();
         }
+
+        $schedule->command('ai:escalate-kickbacks')
+            ->dailyAt('08:00')
+            ->withoutOverlapping()
+            ->onOneServer()  // if you ever run multiple app servers
+            ->appendOutputTo(storage_path('logs/ai-escalate.log'));
     }
 
     /**

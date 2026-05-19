@@ -37,17 +37,20 @@ class AiDecisionMaker
     private ScoringEngine $scoring;
     private BandClassifier $classifier;
     private TemplateExplainer $explainer;
+    private KickbackService $kickback;
 
     public function __construct(
         RulesEngine $rules,
         ScoringEngine $scoring,
         BandClassifier $classifier,
-        TemplateExplainer $explainer
+        TemplateExplainer $explainer,
+        KickbackService $kickback
     ) {
         $this->rules      = $rules;
         $this->scoring    = $scoring;
         $this->classifier = $classifier;
         $this->explainer  = $explainer;
+        $this->kickback   = $kickback;
     }
 
     /**
@@ -103,6 +106,30 @@ class AiDecisionMaker
             summary: $summary,
             shadow: $shadow
         );
+
+        // Live-mode action dispatch (Sprint 4).
+        // Shadow mode skips this entirely — only logs the decision.
+        // Yellow always skips — humans review Yellow regardless of mode.
+        // Green only acts if ai.auto_approve_green is explicitly enabled.
+        if (!$shadow) {
+            try {
+                if ($band === BandClassifier::BAND_RED) {
+                    $this->kickback->kickback($feature->link, $auditId);
+                } elseif ($band === BandClassifier::BAND_GREEN && $this->isAutoApproveGreen()) {
+                    $this->kickback->approve($feature->link, $auditId);
+                }
+            } catch (\Throwable $e) {
+                // An action failure (e.g. card deleted between scoring and update)
+                // should NOT cause the whole decision to fail. The audit row is
+                // already written; we just couldn't apply the state change.
+                Log::warning('[AiDecisionMaker] live action failed', [
+                    'link'     => $feature->link,
+                    'band'     => $band,
+                    'audit_id' => $auditId,
+                    'error'    => $e->getMessage(),
+                ]);
+            }
+        }
 
         Log::info('[AiDecisionMaker] decided', [
             'link'     => $feature->link,
@@ -197,9 +224,28 @@ class AiDecisionMaker
 
     private function isShadowMode(): bool
     {
+        // Defaults to TRUE if setting is missing — safest default during deploy.
+        return $this->boolSetting('ai.shadow_mode', true);
+    }
+
+    private function isAutoApproveGreen(): bool
+    {
+        // Defaults to FALSE if missing — conservative default. Admin must
+        // explicitly opt in to having the AI approve Green cards.
+        return $this->boolSetting('ai.auto_approve_green', false);
+    }
+
+    /**
+     * Read a boolean setting. Accepts 'true', '1', 'yes' as true; everything
+     * else (including missing) returns $default.
+     */
+    private function boolSetting(string $key, bool $default): bool
+    {
         $val = DB::table('settings')
-            ->where('key_name', 'ai.shadow_mode')
+            ->where('key_name', $key)
             ->value('value');
-        return $val === null || $val === 'true' || $val === '1';
+        if ($val === null) return $default;
+        $val = strtolower(trim((string) $val));
+        return in_array($val, ['true', '1', 'yes'], true);
     }
 }
