@@ -67,8 +67,8 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    Run Production Report
+                <button type="submit" class="btn btn-warning">
+                    Download
                 </button>
             </form>
         </div>

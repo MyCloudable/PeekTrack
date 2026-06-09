@@ -27,23 +27,28 @@ class ProductionReportExport implements FromArray, WithEvents
 
     public function array(): array
     {
+		$roadNameExpr = DB::raw('LOWER(production.road_name)');
         $rows = DB::table('production')
             ->join('jobentries', 'production.link', '=', 'jobentries.link')
             ->leftJoin('job_notes', function ($join) {
                 $join->on('production.link', '=', 'job_notes.link')
-                    ->where('job_notes.note_type', 'JobCardNote');
+                    ->where('job_notes.note_type', 'JobCardNote')
+					->where('job_notes.note','!=', 'Jobcard approved.')
+					->where('job_notes.note','!=', 'Jobcard submitted.')
+					->where('job_notes.note','!=', 'Jobcard reopened.');;
             })
             ->select(
                 'production.phase',
                 DB::raw('MAX(jobentries.name) as name'),
                 'production.description',
                 'production.unit_of_measure',
-                'production.road_name',
+                DB::raw('LOWER(production.road_name) as road_name'),
                 'jobentries.workdate',
                 DB::raw('SUM(production.qty) as qty'),
                 DB::raw('GROUP_CONCAT(DISTINCT CONCAT("[", jobentries.name, "] - ", job_notes.note) SEPARATOR " | ") as note')
             )
             ->where('jobentries.job_number', $this->jobNumber)
+			->where('jobentries.approved', 1)
             ->when($this->startDate, function ($query) {
                 $query->whereDate('jobentries.workdate', '>=', $this->startDate);
             })
@@ -54,7 +59,7 @@ class ProductionReportExport implements FromArray, WithEvents
                 'production.phase',
                 'production.description',
                 'production.unit_of_measure',
-                'production.road_name',
+                DB::raw('LOWER(production.road_name)'),
                 'jobentries.workdate'
             )
             ->orderBy('jobentries.workdate')

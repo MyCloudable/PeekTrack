@@ -12,6 +12,7 @@
                     <th>Start Date</th>
                     <th>Timeout Date</th>
                     <th>Notes</th>
+					<th>Schedule Notes</th>
                 </tr>
             </thead>
         </DataTable>
@@ -95,6 +96,13 @@ const options = ref({
         { data: 'timeout_date', name: 'overflow_items.timeout_date', title: 'Timeout Date' },
         {
             data: 'notes_list', name: 'notes_list', title: 'Notes',
+            orderable: false, searchable: false,
+            render: (data) => data && String(data).trim()
+                ? `<i class="fas fa-sticky-note text-success" title="${String(data).replace(/"/g, '&quot;')}"></i>`
+                : `<i class="fas fa-sticky-note text-primary"></i>`
+        },
+		        {
+            data: 'notes', name: 'notes_list', title: 'Schedule Notes',
             orderable: false, searchable: false,
             render: (data) => data && String(data).trim()
                 ? `<i class="fas fa-sticky-note text-success" title="${String(data).replace(/"/g, '&quot;')}"></i>`

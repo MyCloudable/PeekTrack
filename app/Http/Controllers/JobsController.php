@@ -147,6 +147,7 @@ class JobsController extends Controller
                 'overflow_items.timeout_date',
                 'overflow_items.completion_date',
                 'overflow_items.job_id',
+				'overflow_items.notes',
                 'branch.description as branch',
                 'users.name as approved_by',
                 DB::raw("(SELECT GROUP_CONCAT(onotes.note SEPARATOR ', ')
@@ -163,6 +164,7 @@ class JobsController extends Controller
                 'overflow_items.timeout_date',
                 'overflow_items.completion_date',
                 'overflow_items.job_id',
+				'overflow_items.notes',
                 'branch.description',
                 'users.name'
             );

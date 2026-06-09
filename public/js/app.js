@@ -20885,16 +20885,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 /* harmony import */ var vue_toastification__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue-toastification */ "./node_modules/vue-toastification/dist/index.mjs");
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/parse.mjs");
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/format.mjs");
 /* harmony import */ var _AddCrewMember__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AddCrewMember */ "./resources/js/components/AddCrewMember.vue");
-/* harmony import */ var _DeleteCrewMember__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DeleteCrewMember */ "./resources/js/components/DeleteCrewMember.vue");
-/* harmony import */ var _HalfFullPerDiem__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./HalfFullPerDiem */ "./resources/js/components/HalfFullPerDiem.vue");
-/* harmony import */ var _composables_TimeConvert__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../composables/TimeConvert */ "./resources/js/composables/TimeConvert.js");
-/* harmony import */ var _Depart__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Depart */ "./resources/js/components/Depart.vue");
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/parse.mjs");
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/format.mjs");
-/* harmony import */ var _shared_LoadingOverlay_vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./shared/LoadingOverlay.vue */ "./resources/js/components/shared/LoadingOverlay.vue");
-/* harmony import */ var _composables_useLoading__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../composables/useLoading */ "./resources/js/composables/useLoading.js");
-
+/* harmony import */ var _HalfFullPerDiem__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./HalfFullPerDiem */ "./resources/js/components/HalfFullPerDiem.vue");
+/* harmony import */ var _composables_TimeConvert__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../composables/TimeConvert */ "./resources/js/composables/TimeConvert.js");
+/* harmony import */ var _Depart__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Depart */ "./resources/js/components/Depart.vue");
+/* harmony import */ var _shared_LoadingOverlay_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./shared/LoadingOverlay.vue */ "./resources/js/components/shared/LoadingOverlay.vue");
+/* harmony import */ var _composables_useLoading__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../composables/useLoading */ "./resources/js/composables/useLoading.js");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 
 
 
@@ -20906,7 +20910,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss";
-var scrollThreshold = 50; // Adjust the threshold as needed
+var SCROLL_THRESHOLD = 50;
+var PHONE_BREAKPOINT = 480; // iPhone-ish width cutoff
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __name: 'Clockin',
@@ -20914,23 +20919,40 @@ var scrollThreshold = 50; // Adjust the threshold as needed
     var __expose = _ref.expose;
     __expose();
     var toast = (0,vue_toastification__WEBPACK_IMPORTED_MODULE_2__.useToast)();
-    var _useLoading = (0,_composables_useLoading__WEBPACK_IMPORTED_MODULE_9__.useLoading)(),
+    var _useLoading = (0,_composables_useLoading__WEBPACK_IMPORTED_MODULE_8__.useLoading)(),
       isLoading = _useLoading.isLoading,
       setLoading = _useLoading.setLoading;
-    var isBusy = isLoading; // Global "in progress" flag for all actions
-
+    var isBusy = isLoading;
     var departWrapper = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null);
     var select2Settings = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)({
-      'width': '250px',
-      'dropdownParent': departWrapper
+      width: '100%',
+      dropdownParent: departWrapper
     });
     var now = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)('');
     var iconVisible = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(true);
+
+    // ── Phone detection + orientation (reactive) ──────────────────
+    var viewportWidth = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(typeof window !== 'undefined' ? window.innerWidth : 1024);
+    var viewportHeight = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(typeof window !== 'undefined' ? window.innerHeight : 768);
+    // Use the SHORTER dimension to classify phones — this way an iPhone in
+    // landscape (844×390) still registers as a phone (short side = 390 ≤ 480).
+    var shortSide = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      return Math.min(viewportWidth.value, viewportHeight.value);
+    });
+    var isPhone = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      return shortSide.value <= PHONE_BREAKPOINT;
+    });
+    var isPortrait = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      return viewportHeight.value > viewportWidth.value;
+    });
+    // Show the rotation prompt only on phones that are currently in portrait.
+    var needsRotation = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      return isPhone.value && isPortrait.value;
+    });
     var isAlreadyVerified = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
     var crewId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)('');
     var CrewMembersTobeVerified = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)([]);
     var isCheckAll = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
-    var toggleSingleCrewMember = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)('');
     var submitCrewMembersToVerify = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)([]);
     var isAlreadyClockedin = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
     var isAlreadyClockedout = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
@@ -20938,8 +20960,8 @@ var scrollThreshold = 50; // Adjust the threshold as needed
     var travelTime = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)('');
     var allUsers = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)([]);
     var createNewCrewForm = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)([{
-      'crew_member_id': '',
-      'clockin_time': ''
+      crew_member_id: '',
+      clockin_time: ''
     }]);
     var isMenualClockinout = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
     var allPerDiemTimesheetIds = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)([]);
@@ -20951,17 +20973,77 @@ var scrollThreshold = 50; // Adjust the threshold as needed
     var departKey = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(0);
     var lateEntryTime = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)('');
     var isLateEntryTimeVisible = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(false);
-
-    // to show timeTypes dropdown
     var timeTypes = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)([]);
-    var selectedClockinTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // for CLOCK IN dropdown
-    var selectedSwitchTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // for mid-shift SWITCH dropdown
-    var shopTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null); // cache Shop’s id for reuse
-
+    var selectedClockinTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null);
+    var selectedSwitchTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null);
+    var shopTypeId = (0,vue__WEBPACK_IMPORTED_MODULE_1__.ref)(null);
+    var initialLoad = true;
+    var canSwitchTypes = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      if (!isAlreadyClockedin.value || isAlreadyClockedout.value) return false;
+      return !travelTime.value;
+    });
+    var canClockOut = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      if (!isAlreadyClockedin.value || isAlreadyClockedout.value) return false;
+      var tt = travelTime.value;
+      return !tt || tt.type === 'depart_for_office' && !!tt.arrive;
+    });
+    var currentStage = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      if (isAlreadyClockedout.value) return 'done';
+      if (isAlreadyClockedin.value) return 'working';
+      if (isAlreadyVerified.value) return 'verified';
+      return 'unverified';
+    });
+    var stageLabel = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
+      switch (currentStage.value) {
+        case 'done':
+          return 'Clocked Out';
+        case 'working':
+          return 'On the Clock';
+        case 'verified':
+          return 'Crew Verified';
+        default:
+          return 'Awaiting Verification';
+      }
+    });
+    var setCurrentDateTime = function setCurrentDateTime() {
+      var d = new Date();
+      var pad = function pad(n) {
+        return String(n).padStart(2, '0');
+      };
+      now.value = "".concat(d.getFullYear(), "-").concat(pad(d.getMonth() + 1), "-").concat(pad(d.getDate()), "T").concat(pad(d.getHours()), ":").concat(pad(d.getMinutes()));
+    };
+    var handleScroll = function handleScroll() {
+      iconVisible.value = window.scrollY <= SCROLL_THRESHOLD;
+    };
+    var handleResize = function handleResize() {
+      viewportWidth.value = window.innerWidth;
+      viewportHeight.value = window.innerHeight;
+    };
+    var setLocalStorageFlag = function setLocalStorageFlag() {
+      localStorage.setItem('crewMembersUpdated', Date.now());
+      getCrewMembers();
+    };
+    window.addEventListener('storage', function (event) {
+      if (event.key === 'crewMembersUpdated' && !initialLoad) {
+        getCrewMembers();
+      }
+    });
+    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)(function () {
+      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('orientationchange', handleResize);
+      setCurrentDateTime();
+      initialLoad = false;
+      getTimeTypes();
+    });
+    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onBeforeUnmount)(function () {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    });
     var getTimeTypes = function getTimeTypes() {
       axios__WEBPACK_IMPORTED_MODULE_0___default().get('/time-types').then(function (res) {
         timeTypes.value = res.data;
-        // optional: default to "Shop Time" if present
         var shop = timeTypes.value.find(function (t) {
           var _t$name;
           return (_t$name = t.name) === null || _t$name === void 0 ? void 0 : _t$name.toLowerCase().includes('shop');
@@ -20976,42 +21058,6 @@ var scrollThreshold = 50; // Adjust the threshold as needed
         }
       });
     };
-
-    // things to manage multi tabs issue
-    var initialLoad = true; // Flag to handle initial load
-
-    var setLocalStorageFlag = function setLocalStorageFlag() {
-      localStorage.setItem('crewMembersUpdated', Date.now());
-      getCrewMembers();
-    };
-    window.addEventListener('storage', function (event) {
-      if (event.key === 'crewMembersUpdated' && !initialLoad) {
-        // Call getCrewMembers to update UI ( in other tabs if user open ) 
-        getCrewMembers();
-      }
-    });
-    // things to manage multi tabs issue end
-
-    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onMounted)(function () {
-      window.addEventListener('scroll', handleScroll);
-      setCurrentDateTime();
-
-      // Reset initial load flag after mounted hook completes
-      initialLoad = false;
-      getTimeTypes();
-    });
-    (0,vue__WEBPACK_IMPORTED_MODULE_1__.onBeforeUnmount)(function () {
-      window.removeEventListener('scroll', handleScroll);
-    });
-    var setCurrentDateTime = function setCurrentDateTime() {
-      var noww = new Date();
-      var year = noww.getFullYear();
-      var month = String(noww.getMonth() + 1).padStart(2, '0');
-      var day = String(noww.getDate()).padStart(2, '0');
-      var hours = String(noww.getHours()).padStart(2, '0');
-      var minutes = String(noww.getMinutes()).padStart(2, '0');
-      now.value = "".concat(year, "-").concat(month, "-").concat(day, "T").concat(hours, ":").concat(minutes);
-    };
     var getCrewMembers = function getCrewMembers() {
       axios__WEBPACK_IMPORTED_MODULE_0___default().get('/crew-members').then(function (res) {
         isAlreadyVerified.value = res.data.isAlreadyVerified;
@@ -21024,184 +21070,157 @@ var scrollThreshold = 50; // Adjust the threshold as needed
         status.value = res.data.status;
         crewTypes.value = res.data.crewTypes;
         crewTypeId.value = res.data.crewTypeId;
-        var totalTimes = new Map(); // to store total time all per user_id
-
-        timesheet.value.map(function (time) {
-          CrewMembersTobeVerified.value.map(function (member) {
-            if (member.id == time.user_id) {
-              member.clockin_time = time.clockin_time;
-              member.clockout_time = time.clockout_time;
-              member.timesheet_id = time.id;
-              member.per_diem = time.per_diem;
-              member.status = time.clockout_time ? 'Out' : 'In';
-              member.total_time = (0,_composables_TimeConvert__WEBPACK_IMPORTED_MODULE_6__["default"])(time.total_time);
-
-              // add these two extra keys so that can be used while initilization of date picker, and for update as well
-              member.clockin_time_edit = (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.parse)(time.clockin_time, 'yyyy-MM-dd HH:mm', new Date());
-              member.clockout_time_edit = time.clockout_time ? (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.parse)(time.clockout_time, 'yyyy-MM-dd HH:mm', new Date()) : now.value;
-            }
+        allPerDiemTimesheetIds.value = [];
+        var totalTimes = new Map();
+        timesheet.value.forEach(function (time) {
+          var _totalTimes$get;
+          var member = CrewMembersTobeVerified.value.find(function (m) {
+            return m.id === time.user_id;
           });
+          if (member) {
+            member.clockin_time = time.clockin_time;
+            member.clockout_time = time.clockout_time;
+            member.timesheet_id = time.id;
+            member.per_diem = time.per_diem;
+            member.status = time.clockout_time ? 'Out' : 'In';
+            member.total_time = (0,_composables_TimeConvert__WEBPACK_IMPORTED_MODULE_5__["default"])(time.total_time);
+            member.clockin_time_edit = (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.parse)(time.clockin_time, 'yyyy-MM-dd HH:mm', new Date());
+            member.clockout_time_edit = time.clockout_time ? (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.parse)(time.clockout_time, 'yyyy-MM-dd HH:mm', new Date()) : now.value;
+          }
           allPerDiemTimesheetIds.value.push(time.id);
-
-          // Aggregate total time all for each user_id
-          if (!totalTimes.has(time.user_id)) {
-            totalTimes.set(time.user_id, 0);
-          }
-          totalTimes.set(time.user_id, totalTimes.get(time.user_id) + time.total_time);
+          totalTimes.set(time.user_id, ((_totalTimes$get = totalTimes.get(time.user_id)) !== null && _totalTimes$get !== void 0 ? _totalTimes$get : 0) + time.total_time);
         });
-        departKey.value++; //this will causes Vue to recreate the depart component
-
-        // After processing all timesheets, assign the total time all to each member
         CrewMembersTobeVerified.value.forEach(function (member) {
-          if (totalTimes.has(member.id)) {
-            member.total_time_all = (0,_composables_TimeConvert__WEBPACK_IMPORTED_MODULE_6__["default"])(totalTimes.get(member.id));
-          } else {
-            member.total_time_all = '0'; // or any default value if no time is found
-          }
+          member.total_time_all = totalTimes.has(member.id) ? (0,_composables_TimeConvert__WEBPACK_IMPORTED_MODULE_5__["default"])(totalTimes.get(member.id)) : '0';
         });
+        departKey.value++;
       })["catch"](function (err) {
-        return console.log(err);
+        return console.error('[getCrewMembers]', err);
       });
     };
     var toggleCheckboxes = function toggleCheckboxes() {
       isCheckAll.value = !isCheckAll.value;
-      CrewMembersTobeVerified.value.map(function (member) {
-        return member.isChecked = isCheckAll.value;
+      CrewMembersTobeVerified.value.forEach(function (m) {
+        m.isChecked = isCheckAll.value;
       });
     };
     var toggleSingleCheckbox = function toggleSingleCheckbox(index) {
-      !CrewMembersTobeVerified.value[index].hasOwnProperty('isChecked') ? CrewMembersTobeVerified.value[index].isChecked = '' : '';
-      CrewMembersTobeVerified.value[index].isChecked = !CrewMembersTobeVerified.value[index].isChecked;
+      var member = CrewMembersTobeVerified.value[index];
+      member.isChecked = !member.isChecked;
     };
     var verifyTeam = function verifyTeam() {
       if (isBusy.value) return;
       if (!confirm('Are you sure you want to verify the crew?')) return;
       setLoading(true);
-      submitCrewMembersToVerify.value = [];
-      CrewMembersTobeVerified.value.map(function (member) {
-        return member.hasOwnProperty('isChecked') && member.isChecked ? submitCrewMembersToVerify.value.push(member.id) : '';
+      submitCrewMembersToVerify.value = CrewMembersTobeVerified.value.filter(function (m) {
+        return m.isChecked;
+      }).map(function (m) {
+        return m.id;
       });
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/verify-crew-members', {
-        'crewId': crewId.value,
-        'crewMembers': submitCrewMembersToVerify.value,
-        'crewTypeId': crewTypeId.value
-      })
-      // .then(res => getCrewMembers()) call setLocalStorageFlag instead of getCrewMembers everywhere in then block
-      .then(function (res) {
+        crewId: crewId.value,
+        crewMembers: submitCrewMembersToVerify.value,
+        crewTypeId: crewTypeId.value
+      }).then(function () {
         return setLocalStorageFlag();
       })["catch"](function (err) {
-        return console.log(err);
+        return console.error(err);
       })["finally"](function () {
         return setLoading(false);
       });
     };
     var clockinout = function clockinout(type) {
       if (isBusy.value) return;
-
-      // if late entry time is Visible then late entry time field should be filled
       if (isLateEntryTimeVisible.value && !lateEntryTime.value) {
-        toast.error('Please select the late entry time if its visible, otherwise toggle it to disable');
+        toast.error('Please select the late entry time or toggle it off');
         return;
       }
-
-      // timeType should be selected from dropdown if its ClockIn
-      if (type === 'clockin') {
-        if (!selectedClockinTypeId.value) {
-          toast.error('Please select a time type for Clock in');
-          return;
-        }
+      if (type === 'clockin' && !selectedClockinTypeId.value) {
+        toast.error('Please select a time type for Clock In');
+        return;
       }
-      if (!confirm("Are you sure you want to ".concat(type, " ?"))) return;
+      if (!confirm("Are you sure you want to ".concat(type, "?"))) return;
       setLoading(true);
-      var response = axios__WEBPACK_IMPORTED_MODULE_0___default().post('/clockinout-crew-members', {
-        'crewId': crewId.value,
-        'type': type,
-        'isMenual': false,
-        'lateEntryTime': lateEntryTime.value ? (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.format)(lateEntryTime.value, dateTimeFormat) : lateEntryTime.value,
-        timeTypeId: selectedClockinTypeId.value // <— send it
-      }).then(function (res) {
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/clockinout-crew-members', {
+        crewId: crewId.value,
+        type: type,
+        isMenual: false,
+        lateEntryTime: lateEntryTime.value ? (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.format)(lateEntryTime.value, dateTimeFormat) : lateEntryTime.value,
+        timeTypeId: selectedClockinTypeId.value
+      }).then(function () {
         setLocalStorageFlag();
         lastEntryTimeDone();
       })["catch"](function (error) {
-        console.log('bs kr');
-        var errorMessage = error.response.data.message;
-        errorMessage ? toast.error(errorMessage) : 'Something went wrong';
+        var _error$response;
+        var msg = error === null || error === void 0 || (_error$response = error.response) === null || _error$response === void 0 || (_error$response = _error$response.data) === null || _error$response === void 0 ? void 0 : _error$response.message;
+        toast.error(msg || 'Something went wrong');
       })["finally"](function () {
         return setLoading(false);
       });
     };
     var enableMenualClock = function enableMenualClock(id) {
-      var isEnabled = false;
-      CrewMembersTobeVerified.value.map(function (member) {
-        if (member.id == id) {
-          if (!member.hasOwnProperty('isMenualClockinout')) {
-            member.isMenualClockinout = true;
-          } else {
-            member.isMenualClockinout = !member.isMenualClockinout;
-          }
+      var anyEnabled = false;
+      CrewMembersTobeVerified.value.forEach(function (member) {
+        if (member.id === id) {
+          member.isMenualClockinout = !member.isMenualClockinout;
         }
-        if (member.hasOwnProperty('isMenualClockinout') && member.isMenualClockinout) {
-          isEnabled = true;
-        }
-        isMenualClockinout.value = isEnabled;
+        if (member.isMenualClockinout) anyEnabled = true;
       });
+      isMenualClockinout.value = anyEnabled;
     };
     var menualClockinout = function menualClockinout(event, timesheetId, type) {
       if (isBusy.value) return;
       setLoading(true);
-      var formatedDateTime = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.format)(event, dateTimeFormat); // to adjust formate of date picker
-
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/clockinout-crew-members', {
-        'crewId': crewId.value,
-        'type': type,
-        'isMenual': true,
-        'timesheetId': timesheetId,
-        'time': formatedDateTime
-      }).then(function (res) {
+        crewId: crewId.value,
+        type: type,
+        isMenual: true,
+        timesheetId: timesheetId,
+        time: (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.format)(event, dateTimeFormat)
+      }).then(function () {
         return setLocalStorageFlag();
       })["catch"](function (error) {
-        var errorMessage = error.response.data.message;
-        errorMessage ? toast.error(errorMessage) : 'Something went wrong';
+        var _error$response2;
+        var msg = error === null || error === void 0 || (_error$response2 = error.response) === null || _error$response2 === void 0 || (_error$response2 = _error$response2.data) === null || _error$response2 === void 0 ? void 0 : _error$response2.message;
+        toast.error(msg || 'Something went wrong');
       })["finally"](function () {
         return setLoading(false);
       });
     };
-
-    // add new crew member
     var GetAllUsers = function GetAllUsers(users) {
       allUsers.value = users.filter(function (user) {
-        return [6, 3, 7].includes(user.role_id);
-      }) // Include roles 6, 3, and 7
-      .map(function (user) {
+        return [3, 6, 7].includes(user.role_id);
+      }).map(function (user) {
         return {
           id: user.id,
-          text: "".concat(user.id, " - ").concat(user.name) // Format as "ID - Name"
+          text: "".concat(user.id, " - ").concat(user.name)
         };
       });
-
-      // Set default values in the form
       createNewCrewForm.value[0].clockin_time = now.value;
     };
     var addNewCrew = function addNewCrew() {
       if (isBusy.value) return;
       setLoading(true);
-      createNewCrewForm.value[0].clockin_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.format)(createNewCrewForm.value[0].clockin_time, dateTimeFormat); // adjust for date picker formate
-
+      var clockinTime = (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.format)(createNewCrewForm.value[0].clockin_time, dateTimeFormat);
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/add-new-crew-members', {
-        'crewId': crewId.value,
-        'createNewCrewForm': createNewCrewForm.value[0]
-      }).then(function (res) {
+        crewId: crewId.value,
+        createNewCrewForm: _objectSpread(_objectSpread({}, createNewCrewForm.value[0]), {}, {
+          clockin_time: clockinTime
+        })
+      }).then(function () {
         allUsers.value = [];
+        createNewCrewForm.value = [{
+          crew_member_id: '',
+          clockin_time: ''
+        }];
         setLocalStorageFlag();
       })["catch"](function (error) {
-        var errorMessage = error.response.data.message;
-        errorMessage ? toast.error(errorMessage) : 'Something went wrong';
+        var _error$response3;
+        var msg = error === null || error === void 0 || (_error$response3 = error.response) === null || _error$response3 === void 0 || (_error$response3 = _error$response3.data) === null || _error$response3 === void 0 ? void 0 : _error$response3.message;
+        toast.error(msg || 'Something went wrong');
       })["finally"](function () {
         return setLoading(false);
       });
-    };
-    var crewMemberDeleted = function crewMemberDeleted() {
-      return setLocalStorageFlag();
     };
     var hfPerDiemDone = function hfPerDiemDone(status) {
       allPerDiemStatus.value = status;
@@ -21215,11 +21234,11 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       if (!confirm('Are you sure you are ready for verification?')) return;
       setLoading(true);
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/ready-for-verification', {
-        'crewId': crewId.value
-      }).then(function (res) {
-        setLocalStorageFlag();
+        crewId: crewId.value
+      }).then(function () {
+        return setLocalStorageFlag();
       })["catch"](function (err) {
-        return console.log(err);
+        return console.error(err);
       })["finally"](function () {
         return setLoading(false);
       });
@@ -21229,11 +21248,11 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       if (!confirm('Are you sure you want to add weather time for this crew?')) return;
       setLoading(true);
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/wather-entry', {
-        'crewId': crewId.value
-      }).then(function (res) {
-        setLocalStorageFlag();
+        crewId: crewId.value
+      }).then(function () {
+        return setLocalStorageFlag();
       })["catch"](function (err) {
-        return console.log(err);
+        return console.error(err);
       })["finally"](function () {
         return setLoading(false);
       });
@@ -21246,35 +21265,12 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       isLateEntryTimeVisible.value = false;
       lateEntryTime.value = '';
     };
-    var handleScroll = function handleScroll() {
-      if (window.scrollY > scrollThreshold) {
-        iconVisible.value = false;
-      } else {
-        iconVisible.value = true;
-      }
-    };
-
-    // Show right-side "Switch time type" only BEFORE mobilization starts (shop time)
-    // and only while the crew is currently clocked in.
-    var canSwitchTypes = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
-      if (!isAlreadyClockedin.value || isAlreadyClockedout.value) return false;
-      return !travelTime.value; // no travel record yet => still at shop
-    });
-
-    // Clock out only on indirect time (shop before MOB, or after arrival back at office)
-    var canClockOut = (0,vue__WEBPACK_IMPORTED_MODULE_1__.computed)(function () {
-      if (!isAlreadyClockedin.value || isAlreadyClockedout.value) return false;
-      var tt = travelTime.value;
-      return !tt || tt.type === 'depart_for_office' && !!tt.arrive;
-    });
     var switchTimeType = function switchTimeType() {
       if (isBusy.value) return;
       if (!selectedSwitchTypeId.value) {
         toast.error('Please select a time type');
         return;
       }
-
-      // if Late Entry toggle is on, require a value (same rule you use elsewhere)
       if (isLateEntryTimeVisible.value && !lateEntryTime.value) {
         toast.error('Please select the late entry time or toggle it off');
         return;
@@ -21284,192 +21280,78 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/switch-time-type', {
         crewId: crewId.value,
         timeTypeId: selectedSwitchTypeId.value,
-        // reuse your existing Late Entry toggle; if empty, backend uses "now"
-        lateEntryTime: lateEntryTime.value ? (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.format)(lateEntryTime.value, dateTimeFormat) : null
+        lateEntryTime: lateEntryTime.value ? (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.format)(lateEntryTime.value, dateTimeFormat) : null
       }).then(function () {
         var _shopTypeId$value;
-        selectedSwitchTypeId.value = (_shopTypeId$value = shopTypeId.value) !== null && _shopTypeId$value !== void 0 ? _shopTypeId$value : null; // reset the switch dropdown to Shop
+        selectedSwitchTypeId.value = (_shopTypeId$value = shopTypeId.value) !== null && _shopTypeId$value !== void 0 ? _shopTypeId$value : null;
         setLocalStorageFlag();
-        lastEntryTimeDone(); // hide/reset the Late Entry picker
+        lastEntryTimeDone();
       })["catch"](function (error) {
-        var _error$response;
-        var msg = (error === null || error === void 0 || (_error$response = error.response) === null || _error$response === void 0 || (_error$response = _error$response.data) === null || _error$response === void 0 ? void 0 : _error$response.message) || 'Something went wrong';
+        var _error$response4;
+        var msg = (error === null || error === void 0 || (_error$response4 = error.response) === null || _error$response4 === void 0 || (_error$response4 = _error$response4.data) === null || _error$response4 === void 0 ? void 0 : _error$response4.message) || 'Something went wrong';
         toast.error(msg);
       })["finally"](function () {
         return setLoading(false);
       });
     };
     var __returned__ = {
+      dateTimeFormat: dateTimeFormat,
+      SCROLL_THRESHOLD: SCROLL_THRESHOLD,
+      PHONE_BREAKPOINT: PHONE_BREAKPOINT,
       toast: toast,
       isLoading: isLoading,
       setLoading: setLoading,
       isBusy: isBusy,
       departWrapper: departWrapper,
-      get select2Settings() {
-        return select2Settings;
-      },
-      set select2Settings(v) {
-        select2Settings = v;
-      },
-      dateTimeFormat: dateTimeFormat,
-      get now() {
-        return now;
-      },
-      set now(v) {
-        now = v;
-      },
-      get iconVisible() {
-        return iconVisible;
-      },
-      set iconVisible(v) {
-        iconVisible = v;
-      },
-      scrollThreshold: scrollThreshold,
-      get isAlreadyVerified() {
-        return isAlreadyVerified;
-      },
-      set isAlreadyVerified(v) {
-        isAlreadyVerified = v;
-      },
-      get crewId() {
-        return crewId;
-      },
-      set crewId(v) {
-        crewId = v;
-      },
-      get CrewMembersTobeVerified() {
-        return CrewMembersTobeVerified;
-      },
-      set CrewMembersTobeVerified(v) {
-        CrewMembersTobeVerified = v;
-      },
-      get isCheckAll() {
-        return isCheckAll;
-      },
-      set isCheckAll(v) {
-        isCheckAll = v;
-      },
-      get toggleSingleCrewMember() {
-        return toggleSingleCrewMember;
-      },
-      set toggleSingleCrewMember(v) {
-        toggleSingleCrewMember = v;
-      },
-      get submitCrewMembersToVerify() {
-        return submitCrewMembersToVerify;
-      },
-      set submitCrewMembersToVerify(v) {
-        submitCrewMembersToVerify = v;
-      },
-      get isAlreadyClockedin() {
-        return isAlreadyClockedin;
-      },
-      set isAlreadyClockedin(v) {
-        isAlreadyClockedin = v;
-      },
-      get isAlreadyClockedout() {
-        return isAlreadyClockedout;
-      },
-      set isAlreadyClockedout(v) {
-        isAlreadyClockedout = v;
-      },
-      get timesheet() {
-        return timesheet;
-      },
-      set timesheet(v) {
-        timesheet = v;
-      },
-      get travelTime() {
-        return travelTime;
-      },
-      set travelTime(v) {
-        travelTime = v;
-      },
-      get allUsers() {
-        return allUsers;
-      },
-      set allUsers(v) {
-        allUsers = v;
-      },
-      get createNewCrewForm() {
-        return createNewCrewForm;
-      },
-      set createNewCrewForm(v) {
-        createNewCrewForm = v;
-      },
-      get isMenualClockinout() {
-        return isMenualClockinout;
-      },
-      set isMenualClockinout(v) {
-        isMenualClockinout = v;
-      },
-      get allPerDiemTimesheetIds() {
-        return allPerDiemTimesheetIds;
-      },
-      set allPerDiemTimesheetIds(v) {
-        allPerDiemTimesheetIds = v;
-      },
-      get allPerDiemStatus() {
-        return allPerDiemStatus;
-      },
-      set allPerDiemStatus(v) {
-        allPerDiemStatus = v;
-      },
-      get status() {
-        return status;
-      },
-      set status(v) {
-        status = v;
-      },
-      get crewTypes() {
-        return crewTypes;
-      },
-      set crewTypes(v) {
-        crewTypes = v;
-      },
-      get crewTypeId() {
-        return crewTypeId;
-      },
-      set crewTypeId(v) {
-        crewTypeId = v;
-      },
-      get enableCrewTypeId() {
-        return enableCrewTypeId;
-      },
-      set enableCrewTypeId(v) {
-        enableCrewTypeId = v;
-      },
-      get departKey() {
-        return departKey;
-      },
-      set departKey(v) {
-        departKey = v;
-      },
-      get lateEntryTime() {
-        return lateEntryTime;
-      },
-      set lateEntryTime(v) {
-        lateEntryTime = v;
-      },
-      get isLateEntryTimeVisible() {
-        return isLateEntryTimeVisible;
-      },
-      set isLateEntryTimeVisible(v) {
-        isLateEntryTimeVisible = v;
-      },
+      select2Settings: select2Settings,
+      now: now,
+      iconVisible: iconVisible,
+      viewportWidth: viewportWidth,
+      viewportHeight: viewportHeight,
+      shortSide: shortSide,
+      isPhone: isPhone,
+      isPortrait: isPortrait,
+      needsRotation: needsRotation,
+      isAlreadyVerified: isAlreadyVerified,
+      crewId: crewId,
+      CrewMembersTobeVerified: CrewMembersTobeVerified,
+      isCheckAll: isCheckAll,
+      submitCrewMembersToVerify: submitCrewMembersToVerify,
+      isAlreadyClockedin: isAlreadyClockedin,
+      isAlreadyClockedout: isAlreadyClockedout,
+      timesheet: timesheet,
+      travelTime: travelTime,
+      allUsers: allUsers,
+      createNewCrewForm: createNewCrewForm,
+      isMenualClockinout: isMenualClockinout,
+      allPerDiemTimesheetIds: allPerDiemTimesheetIds,
+      allPerDiemStatus: allPerDiemStatus,
+      status: status,
+      crewTypes: crewTypes,
+      crewTypeId: crewTypeId,
+      enableCrewTypeId: enableCrewTypeId,
+      departKey: departKey,
+      lateEntryTime: lateEntryTime,
+      isLateEntryTimeVisible: isLateEntryTimeVisible,
       timeTypes: timeTypes,
       selectedClockinTypeId: selectedClockinTypeId,
       selectedSwitchTypeId: selectedSwitchTypeId,
       shopTypeId: shopTypeId,
-      getTimeTypes: getTimeTypes,
       get initialLoad() {
         return initialLoad;
       },
       set initialLoad(v) {
         initialLoad = v;
       },
-      setLocalStorageFlag: setLocalStorageFlag,
+      canSwitchTypes: canSwitchTypes,
+      canClockOut: canClockOut,
+      currentStage: currentStage,
+      stageLabel: stageLabel,
       setCurrentDateTime: setCurrentDateTime,
+      handleScroll: handleScroll,
+      handleResize: handleResize,
+      setLocalStorageFlag: setLocalStorageFlag,
+      getTimeTypes: getTimeTypes,
       getCrewMembers: getCrewMembers,
       toggleCheckboxes: toggleCheckboxes,
       toggleSingleCheckbox: toggleSingleCheckbox,
@@ -21479,52 +21361,44 @@ var scrollThreshold = 50; // Adjust the threshold as needed
       menualClockinout: menualClockinout,
       GetAllUsers: GetAllUsers,
       addNewCrew: addNewCrew,
-      crewMemberDeleted: crewMemberDeleted,
       hfPerDiemDone: hfPerDiemDone,
       trackTimeDone: trackTimeDone,
       readyForVerification: readyForVerification,
       weatherEntry: weatherEntry,
       toggleLateEntryTime: toggleLateEntryTime,
       lastEntryTimeDone: lastEntryTimeDone,
-      handleScroll: handleScroll,
-      canSwitchTypes: canSwitchTypes,
-      canClockOut: canClockOut,
       switchTimeType: switchTimeType,
       get axios() {
         return (axios__WEBPACK_IMPORTED_MODULE_0___default());
       },
       ref: vue__WEBPACK_IMPORTED_MODULE_1__.ref,
       onMounted: vue__WEBPACK_IMPORTED_MODULE_1__.onMounted,
-      onUnmounted: vue__WEBPACK_IMPORTED_MODULE_1__.onUnmounted,
       onBeforeUnmount: vue__WEBPACK_IMPORTED_MODULE_1__.onBeforeUnmount,
       computed: vue__WEBPACK_IMPORTED_MODULE_1__.computed,
       get useToast() {
         return vue_toastification__WEBPACK_IMPORTED_MODULE_2__.useToast;
       },
+      get format() {
+        return date_fns__WEBPACK_IMPORTED_MODULE_10__.format;
+      },
+      get parse() {
+        return date_fns__WEBPACK_IMPORTED_MODULE_9__.parse;
+      },
       get AddCrewMember() {
         return _AddCrewMember__WEBPACK_IMPORTED_MODULE_3__["default"];
       },
-      get DeleteCrewMember() {
-        return _DeleteCrewMember__WEBPACK_IMPORTED_MODULE_4__["default"];
-      },
       get HalfFullPerDiem() {
-        return _HalfFullPerDiem__WEBPACK_IMPORTED_MODULE_5__["default"];
+        return _HalfFullPerDiem__WEBPACK_IMPORTED_MODULE_4__["default"];
       },
       get TimeConvert() {
-        return _composables_TimeConvert__WEBPACK_IMPORTED_MODULE_6__["default"];
+        return _composables_TimeConvert__WEBPACK_IMPORTED_MODULE_5__["default"];
       },
       get Depart() {
-        return _Depart__WEBPACK_IMPORTED_MODULE_7__["default"];
+        return _Depart__WEBPACK_IMPORTED_MODULE_6__["default"];
       },
-      get format() {
-        return date_fns__WEBPACK_IMPORTED_MODULE_11__.format;
-      },
-      get parse() {
-        return date_fns__WEBPACK_IMPORTED_MODULE_10__.parse;
-      },
-      LoadingOverlay: _shared_LoadingOverlay_vue__WEBPACK_IMPORTED_MODULE_8__["default"],
+      LoadingOverlay: _shared_LoadingOverlay_vue__WEBPACK_IMPORTED_MODULE_7__["default"],
       get useLoading() {
-        return _composables_useLoading__WEBPACK_IMPORTED_MODULE_9__.useLoading;
+        return _composables_useLoading__WEBPACK_IMPORTED_MODULE_8__.useLoading;
       }
     };
     Object.defineProperty(__returned__, '__isScriptSetup', {
@@ -21953,64 +21827,6 @@ __webpack_require__.r(__webpack_exports__);
       get useRecovery() {
         return _composables_useRecovery__WEBPACK_IMPORTED_MODULE_2__.useRecovery;
       }
-    };
-    Object.defineProperty(__returned__, '__isScriptSetup', {
-      enumerable: false,
-      value: true
-    });
-    return __returned__;
-  }
-});
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/DeleteCrewMember.vue?vue&type=script&setup=true&lang=js":
-/*!*********************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/DeleteCrewMember.vue?vue&type=script&setup=true&lang=js ***!
-  \*********************************************************************************************************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
-
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  __name: 'DeleteCrewMember',
-  props: {
-    crewId: Number,
-    crewMemberId: Number
-  },
-  emits: ['crew-member-deleted'],
-  setup: function setup(__props, _ref) {
-    var __expose = _ref.expose,
-      __emit = _ref.emit;
-    __expose();
-    var props = __props;
-    var emit = __emit;
-    var deleteCrewMember = function deleteCrewMember() {
-      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/delete-crew-members', {
-        'crewId': props.crewId,
-        'crewMemberId': props.crewMemberId
-      }).then(function (res) {
-        return emit('crew-member-deleted');
-      })["catch"](function (err) {
-        return console.log(err);
-      });
-    };
-    var __returned__ = {
-      props: props,
-      emit: emit,
-      deleteCrewMember: deleteCrewMember,
-      get axios() {
-        return (axios__WEBPACK_IMPORTED_MODULE_0___default());
-      },
-      ref: vue__WEBPACK_IMPORTED_MODULE_1__.ref
     };
     Object.defineProperty(__returned__, '__isScriptSetup', {
       enumerable: false,
@@ -23014,6 +22830,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         data: 'notes_list',
         name: 'notes_list',
         title: 'Notes',
+        orderable: false,
+        searchable: false,
+        render: function render(data) {
+          return data && String(data).trim() ? "<i class=\"fas fa-sticky-note text-success\" title=\"".concat(String(data).replace(/"/g, '&quot;'), "\"></i>") : "<i class=\"fas fa-sticky-note text-primary\"></i>";
+        }
+      }, {
+        data: 'notes',
+        name: 'notes_list',
+        title: 'Schedule Notes',
         orderable: false,
         searchable: false,
         render: function render(data) {
@@ -25771,382 +25596,691 @@ var _hoisted_3 = {
   id: "clockin",
   tabindex: "-1",
   role: "dialog",
-  "aria-labelledby": "exampleModalLabel",
+  "aria-labelledby": "clockinModalLabel",
   "aria-hidden": "true"
 };
 var _hoisted_4 = {
-  "class": "modal-dialog modal-dialog-centered modal-fullscreen",
+  "class": "modal-dialog modal-fullscreen",
   role: "document"
 };
 var _hoisted_5 = {
-  "class": "modal-content"
+  key: 0,
+  "class": "clk-rotate",
+  role: "alertdialog",
+  "aria-labelledby": "clk-rotate-title",
+  "aria-describedby": "clk-rotate-desc"
 };
-var _hoisted_6 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-    "class": "modal-header"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    type: "button",
-    "class": "btn-close",
-    "data-bs-dismiss": "modal",
-    "aria-label": "Close"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
-    "aria-hidden": "true"
-  }, "×")])], -1 /* HOISTED */);
-});
-var _hoisted_7 = {
-  "class": "modal-body"
-};
-var _hoisted_8 = {
-  "class": "row header"
-};
-var _hoisted_9 = {
-  "class": "row text-dark mb-3 align-items-center"
-};
-var _hoisted_10 = {
-  "class": "col-1"
-};
+var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<button type=\"button\" class=\"clk-rotate__close\" data-bs-dismiss=\"modal\" aria-label=\"Close\" data-v-736f94d0><i class=\"fas fa-times\" data-v-736f94d0></i></button><div class=\"clk-rotate__inner\" data-v-736f94d0><div class=\"clk-rotate__icon\" aria-hidden=\"true\" data-v-736f94d0><svg viewBox=\"0 0 120 120\" width=\"96\" height=\"96\" data-v-736f94d0><!-- rotating phone illustration --><g class=\"clk-rotate__phone\" data-v-736f94d0><rect x=\"44\" y=\"18\" width=\"32\" height=\"60\" rx=\"5\" ry=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" data-v-736f94d0></rect><line x1=\"54\" y1=\"24\" x2=\"66\" y2=\"24\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" data-v-736f94d0></line><circle cx=\"60\" cy=\"72\" r=\"1.5\" fill=\"currentColor\" data-v-736f94d0></circle></g><!-- curved arrow indicating rotation --><path d=\"M 20 95 Q 60 110 100 95\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-dasharray=\"4 4\" data-v-736f94d0></path><polyline points=\"95,88 100,95 93,100\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" data-v-736f94d0></polyline></svg></div><h2 id=\"clk-rotate-title\" class=\"clk-rotate__title\" data-v-736f94d0>Rotate Your Device</h2><p id=\"clk-rotate-desc\" class=\"clk-rotate__desc\" data-v-736f94d0> For the best clock-in experience, please turn your phone sideways to landscape mode. </p></div>", 2);
+var _hoisted_8 = [_hoisted_6];
+var _hoisted_9 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<header class=\"clk-topbar\" data-v-736f94d0><div class=\"clk-topbar__title\" data-v-736f94d0><i class=\"fas fa-business-time\" data-v-736f94d0></i><span data-v-736f94d0>Crew Clock</span></div><button type=\"button\" class=\"clk-topbar__close\" data-bs-dismiss=\"modal\" aria-label=\"Close\" data-v-736f94d0><i class=\"fas fa-times\" data-v-736f94d0></i></button></header>", 1);
+var _hoisted_10 = ["data-state"];
 var _hoisted_11 = {
-  "class": "col-3"
+  "class": "clk-status__pill"
 };
 var _hoisted_12 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-    "class": "col-8"
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "clk-status__dot"
   }, null, -1 /* HOISTED */);
 });
 var _hoisted_13 = {
-  "class": "col-md-6 text-white"
+  "class": "clk-status__label"
 };
-var _hoisted_14 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
-    "class": "badge badge-info me-2"
-  }, "Status: ", -1 /* HOISTED */);
-});
-var _hoisted_15 = ["value"];
-var _hoisted_16 = {
-  "class": "col-md-6 d-flex justify-content-end"
-};
-var _hoisted_17 = {
+var _hoisted_14 = {
   key: 0,
-  "class": "badge badge-success me-2"
+  "class": "clk-status__meta"
 };
-var _hoisted_18 = {
+var _hoisted_15 = {
   key: 1,
-  "class": "badge badge-success"
+  "class": "clk-body clk-body--phone"
+};
+var _hoisted_16 = {
+  "class": "clk-phone-left"
+};
+var _hoisted_17 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fa fa-clock-o"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_18 = {
+  key: 0,
+  "class": "clk-phone-late-entry-body"
 };
 var _hoisted_19 = {
+  key: 1,
+  "class": "clk-phone-field"
+};
+var _hoisted_20 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "class": "clk-label"
+  }, "Crew Type", -1 /* HOISTED */);
+});
+var _hoisted_21 = ["value"];
+var _hoisted_22 = {
   key: 2,
-  "class": "badge badge-danger"
+  "class": "clk-phone-field"
 };
-var _hoisted_20 = {
-  "class": "row actions mt-3 mb-3"
-};
-var _hoisted_21 = {
-  "class": "col-md-6"
-};
-var _hoisted_22 = ["disabled"];
 var _hoisted_23 = {
-  "class": "col-md-6 d-flex gap-3"
+  "class": "clk-phone-addcrew-head"
 };
-var _hoisted_24 = ["disabled"];
+var _hoisted_24 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "clk-label"
+  }, "Add Crew Member", -1 /* HOISTED */);
+});
 var _hoisted_25 = {
-  key: 1,
-  "class": "d-flex align-items-center justify-content-end gap-3 flex-column flex-md-row mt-2"
-};
-var _hoisted_26 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-    "class": "text-white mb-0 text-nowrap me-2"
-  }, "Time type", -1 /* HOISTED */);
-});
-var _hoisted_27 = ["disabled"];
-var _hoisted_28 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
-    value: null,
-    disabled: ""
-  }, "Select time type…", -1 /* HOISTED */);
-});
-var _hoisted_29 = ["value"];
-var _hoisted_30 = ["disabled"];
-var _hoisted_31 = {
-  key: 2,
-  "class": "d-flex align-items-center justify-content-end gap-3 flex-column flex-md-row mt-2"
-};
-var _hoisted_32 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-    "class": "text-white mb-0 text-nowrap me-2"
-  }, "Switch time type", -1 /* HOISTED */);
-});
-var _hoisted_33 = ["disabled"];
-var _hoisted_34 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
-    value: null,
-    disabled: ""
-  }, "Select time type…", -1 /* HOISTED */);
-});
-var _hoisted_35 = ["value"];
-var _hoisted_36 = ["disabled"];
-var _hoisted_37 = ["disabled"];
-var _hoisted_38 = ["disabled"];
-var _hoisted_39 = {
-  "class": "table-responsive"
-};
-var _hoisted_40 = {
-  "class": "table table-flush table-striped verify-crew-members"
-};
-var _hoisted_41 = {
-  "class": ""
-};
-var _hoisted_42 = {
-  key: 0
-};
-var _hoisted_43 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Check", -1 /* HOISTED */);
-});
-var _hoisted_44 = [_hoisted_43];
-var _hoisted_45 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Name")], -1 /* HOISTED */);
-});
-var _hoisted_46 = {
-  key: 1
-};
-var _hoisted_47 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Status", -1 /* HOISTED */);
-});
-var _hoisted_48 = [_hoisted_47];
-var _hoisted_49 = {
-  key: 2
-};
-var _hoisted_50 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Time", -1 /* HOISTED */);
-});
-var _hoisted_51 = [_hoisted_50];
-var _hoisted_52 = {
-  key: 3
-};
-var _hoisted_53 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Time Out", -1 /* HOISTED */);
-});
-var _hoisted_54 = [_hoisted_53];
-var _hoisted_55 = {
-  key: 4
-};
-var _hoisted_56 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, "Total", -1 /* HOISTED */);
-});
-var _hoisted_57 = [_hoisted_56];
-var _hoisted_58 = {
-  key: 5
-};
-var _hoisted_59 = {
-  key: 0
-};
-var _hoisted_60 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, null, -1 /* HOISTED */);
-});
-var _hoisted_61 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, null, -1 /* HOISTED */);
-});
-var _hoisted_62 = {
-  key: 1,
+  key: 0,
+  "class": "clk-phone-addcrew-body",
   ref: "departWrapper"
 };
+var _hoisted_26 = ["disabled"];
+var _hoisted_27 = {
+  key: 3,
+  "class": "clk-phone-field"
+};
+var _hoisted_28 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "class": "clk-label"
+  }, "Travel & Production", -1 /* HOISTED */);
+});
+var _hoisted_29 = {
+  key: 4,
+  "class": "clk-phone-field"
+};
+var _hoisted_30 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "class": "clk-label"
+  }, "Select Time Type", -1 /* HOISTED */);
+});
+var _hoisted_31 = ["disabled"];
+var _hoisted_32 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+    value: null,
+    disabled: ""
+  }, "Select time type…", -1 /* HOISTED */);
+});
+var _hoisted_33 = ["value"];
+var _hoisted_34 = {
+  key: 5,
+  "class": "clk-phone-field"
+};
+var _hoisted_35 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "class": "clk-label"
+  }, "Switch Time Type", -1 /* HOISTED */);
+});
+var _hoisted_36 = ["disabled"];
+var _hoisted_37 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+    value: null,
+    disabled: ""
+  }, "Select time type…", -1 /* HOISTED */);
+});
+var _hoisted_38 = ["value"];
+var _hoisted_39 = ["disabled"];
+var _hoisted_40 = {
+  "class": "clk-phone-crew-section"
+};
+var _hoisted_41 = {
+  "class": "clk-phone-crew-head"
+};
+var _hoisted_42 = {
+  "class": "clk-phone-crew-title"
+};
+var _hoisted_43 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-users me-2"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_44 = {
+  "class": "clk-badge clk-badge--count"
+};
+var _hoisted_45 = {
+  key: 0,
+  "class": "clk-phone-crew-head-right"
+};
+var _hoisted_46 = {
+  key: 0,
+  "class": "clk-select-all"
+};
+var _hoisted_47 = {
+  "class": "clk-check"
+};
+var _hoisted_48 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Select All", -1 /* HOISTED */);
+});
+var _hoisted_49 = {
+  key: 1,
+  "class": "clk-empty"
+};
+var _hoisted_50 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-user-friends"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_51 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, "No crew members yet.", -1 /* HOISTED */);
+});
+var _hoisted_52 = [_hoisted_50, _hoisted_51];
+var _hoisted_53 = {
+  key: 2,
+  "class": "clk-phone-crew-list"
+};
+var _hoisted_54 = {
+  "class": "clk-phone-crew-card__top"
+};
+var _hoisted_55 = {
+  key: 0,
+  "class": "clk-phone-crew-card__check"
+};
+var _hoisted_56 = ["checked", "onClick"];
+var _hoisted_57 = {
+  "class": "clk-phone-crew-card__name"
+};
+var _hoisted_58 = {
+  key: 1,
+  "class": "clk-phone-crew-card__actions"
+};
+var _hoisted_59 = ["disabled", "onClick", "aria-label"];
+var _hoisted_60 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fa fa-pencil"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_61 = [_hoisted_60];
+var _hoisted_62 = {
+  key: 0,
+  "class": "clk-phone-crew-card__meta"
+};
 var _hoisted_63 = {
-  "class": "input-group input-group-outline"
+  key: 0,
+  "class": "clk-chip"
 };
-var _hoisted_64 = ["disabled"];
+var _hoisted_64 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-hourglass-half me-1"
+  }, null, -1 /* HOISTED */);
+});
 var _hoisted_65 = {
-  key: 0
+  key: 2,
+  "class": "clk-chip clk-chip--muted"
 };
-var _hoisted_66 = ["checked", "onClick"];
-var _hoisted_67 = {
-  key: 1
+var _hoisted_66 = {
+  key: 1,
+  "class": "clk-phone-crew-card__times"
 };
+var _hoisted_67 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "far fa-clock me-1"
+  }, null, -1 /* HOISTED */);
+});
 var _hoisted_68 = {
-  key: 2
+  key: 2,
+  "class": "clk-phone-crew-card__edit"
 };
 var _hoisted_69 = {
-  key: 0
+  "class": "clk-time-edit__field"
 };
-var _hoisted_70 = {
-  key: 1
-};
+var _hoisted_70 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "clk-time-edit__label"
+  }, "In", -1 /* HOISTED */);
+});
 var _hoisted_71 = {
-  key: 3
+  "class": "clk-time-edit__field"
 };
-var _hoisted_72 = {
-  key: 4
-};
-var _hoisted_73 = {
-  key: 5
-};
+var _hoisted_72 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "clk-time-edit__label"
+  }, "Out", -1 /* HOISTED */);
+});
+var _hoisted_73 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": "clk-body__spacer"
+  }, null, -1 /* HOISTED */);
+});
 var _hoisted_74 = {
-  "class": "d-flex"
+  "class": "clk-body"
 };
 var _hoisted_75 = {
-  key: 0
+  "class": "clk-card clk-card--compact"
 };
-var _hoisted_76 = ["onClick"];
+var _hoisted_76 = ["aria-expanded"];
 var _hoisted_77 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
-    "class": "modal-footer"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    type: "button",
-    "class": "btn bg-gradient-secondary",
-    "data-bs-dismiss": "modal"
-  }, "Close")], -1 /* HOISTED */);
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "clk-collapse-toggle__left"
+  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fa fa-clock-o"
+  }), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Late Entry Time")], -1 /* HOISTED */);
 });
+var _hoisted_78 = {
+  key: 0,
+  "class": "clk-collapse-body"
+};
+var _hoisted_79 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
+    "class": "clk-hint"
+  }, "Set a backdated timestamp for your next action.", -1 /* HOISTED */);
+});
+var _hoisted_80 = {
+  key: 0,
+  "class": "clk-card"
+};
+var _hoisted_81 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "class": "clk-label"
+  }, "Crew Type", -1 /* HOISTED */);
+});
+var _hoisted_82 = ["value"];
+var _hoisted_83 = {
+  key: 1,
+  "class": "clk-card"
+};
+var _hoisted_84 = {
+  "class": "clk-section-head"
+};
+var _hoisted_85 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "clk-section-head__title"
+  }, "Add Crew Member", -1 /* HOISTED */);
+});
+var _hoisted_86 = {
+  key: 0,
+  "class": "clk-add-crew",
+  ref: "departWrapper"
+};
+var _hoisted_87 = ["disabled"];
+var _hoisted_88 = {
+  key: 2,
+  "class": "clk-card"
+};
+var _hoisted_89 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "class": "clk-label"
+  }, "Travel & Production", -1 /* HOISTED */);
+});
+var _hoisted_90 = {
+  key: 3,
+  "class": "clk-card"
+};
+var _hoisted_91 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "class": "clk-label"
+  }, "Select Time Type", -1 /* HOISTED */);
+});
+var _hoisted_92 = ["disabled"];
+var _hoisted_93 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+    value: null,
+    disabled: ""
+  }, "Select time type…", -1 /* HOISTED */);
+});
+var _hoisted_94 = ["value"];
+var _hoisted_95 = {
+  key: 4,
+  "class": "clk-card"
+};
+var _hoisted_96 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "class": "clk-label"
+  }, "Switch Time Type", -1 /* HOISTED */);
+});
+var _hoisted_97 = {
+  "class": "clk-inline-pair"
+};
+var _hoisted_98 = ["disabled"];
+var _hoisted_99 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+    value: null,
+    disabled: ""
+  }, "Select time type…", -1 /* HOISTED */);
+});
+var _hoisted_100 = ["value"];
+var _hoisted_101 = ["disabled"];
+var _hoisted_102 = {
+  "class": "clk-card clk-card--flush"
+};
+var _hoisted_103 = {
+  "class": "clk-section-head"
+};
+var _hoisted_104 = {
+  "class": "clk-section-head__title"
+};
+var _hoisted_105 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-users me-2"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_106 = {
+  "class": "clk-badge clk-badge--count"
+};
+var _hoisted_107 = {
+  key: 0,
+  "class": "clk-section-head__right"
+};
+var _hoisted_108 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "clk-hint me-2"
+  }, "All Per Diem:", -1 /* HOISTED */);
+});
+var _hoisted_109 = ["disabled"];
+var _hoisted_110 = {
+  key: 1,
+  "class": "clk-select-all"
+};
+var _hoisted_111 = {
+  "class": "clk-check"
+};
+var _hoisted_112 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Select All Crew Members", -1 /* HOISTED */);
+});
+var _hoisted_113 = {
+  key: 2,
+  "class": "clk-empty"
+};
+var _hoisted_114 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-user-friends"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_115 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", null, "No crew members yet.", -1 /* HOISTED */);
+});
+var _hoisted_116 = [_hoisted_114, _hoisted_115];
+var _hoisted_117 = {
+  key: 3,
+  "class": "clk-crew-list"
+};
+var _hoisted_118 = {
+  key: 0,
+  "class": "clk-crew-row__check"
+};
+var _hoisted_119 = ["checked", "onClick"];
+var _hoisted_120 = {
+  "class": "clk-crew-row__main"
+};
+var _hoisted_121 = {
+  "class": "clk-crew-row__name"
+};
+var _hoisted_122 = {
+  "class": "clk-crew-row__meta"
+};
+var _hoisted_123 = {
+  key: 0,
+  "class": "clk-chip"
+};
+var _hoisted_124 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-hourglass-half me-1"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_125 = {
+  key: 2,
+  "class": "clk-chip clk-chip--muted"
+};
+var _hoisted_126 = {
+  key: 0,
+  "class": "clk-crew-row__times"
+};
+var _hoisted_127 = {
+  key: 0,
+  "class": "clk-time-readout"
+};
+var _hoisted_128 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "far fa-clock me-1"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_129 = {
+  key: 1,
+  "class": "clk-time-edit"
+};
+var _hoisted_130 = {
+  "class": "clk-time-edit__field"
+};
+var _hoisted_131 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "clk-time-edit__label"
+  }, "In", -1 /* HOISTED */);
+});
+var _hoisted_132 = {
+  "class": "clk-time-edit__field"
+};
+var _hoisted_133 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "clk-time-edit__label"
+  }, "Out", -1 /* HOISTED */);
+});
+var _hoisted_134 = {
+  key: 1,
+  "class": "clk-crew-row__actions"
+};
+var _hoisted_135 = ["disabled", "onClick", "aria-label"];
+var _hoisted_136 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fa fa-pencil"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_137 = [_hoisted_136];
+var _hoisted_138 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": "clk-body__spacer"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_139 = {
+  "class": "clk-actionbar"
+};
+var _hoisted_140 = ["disabled"];
+var _hoisted_141 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-user-check"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_142 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Verify Crew", -1 /* HOISTED */);
+});
+var _hoisted_143 = [_hoisted_141, _hoisted_142];
+var _hoisted_144 = ["disabled"];
+var _hoisted_145 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-cloud-sun"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_146 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Weather", -1 /* HOISTED */);
+});
+var _hoisted_147 = [_hoisted_145, _hoisted_146];
+var _hoisted_148 = ["disabled"];
+var _hoisted_149 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-play"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_150 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Clock In", -1 /* HOISTED */);
+});
+var _hoisted_151 = [_hoisted_149, _hoisted_150];
+var _hoisted_152 = ["disabled"];
+var _hoisted_153 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-stop"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_154 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Clock Out", -1 /* HOISTED */);
+});
+var _hoisted_155 = [_hoisted_153, _hoisted_154];
+var _hoisted_156 = {
+  key: 1,
+  "class": "clk-actionbar__status"
+};
+var _hoisted_157 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-road me-2"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_158 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Use travel controls above to end production", -1 /* HOISTED */);
+});
+var _hoisted_159 = [_hoisted_157, _hoisted_158];
+var _hoisted_160 = ["disabled"];
+var _hoisted_161 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-clipboard-check"
+  }, null, -1 /* HOISTED */);
+});
+var _hoisted_162 = /*#__PURE__*/_withScopeId(function () {
+  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "Ready for Verification", -1 /* HOISTED */);
+});
+var _hoisted_163 = [_hoisted_161, _hoisted_162];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_VueDatePicker = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("VueDatePicker");
   var _component_Select2 = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Select2");
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["LoadingOverlay"]), $setup.iconVisible ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("a", {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["LoadingOverlay"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Trigger icon in sidenav "), $setup.iconVisible ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("a", {
     key: 0,
     href: "javascript:;",
     "class": "nav-link text-body p-0",
     "data-bs-toggle": "modal",
     "data-bs-target": "#clockin",
     onClick: $setup.getCrewMembers
-  }, [].concat(_hoisted_2))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [_hoisted_6, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Late Entry Time "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_10, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
-    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["fa fa-clock-o", {
-      'pe-none opacity-50': $setup.isBusy
+  }, [].concat(_hoisted_2))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ═══════════════════════════════════════════════════════════════════\n         CLOCK IN MODAL\n         ═══════════════════════════════════════════════════════════════════ "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["modal-content clk-shell", {
+      'clk-shell--phone': $setup.isPhone,
+      'clk-shell--locked': $setup.needsRotation
+    }])
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ══════════════════════════════════════════════════════\n                     ROTATION PROMPT (phones in portrait mode)\n                     Covers the entire modal until the user rotates.\n                     ══════════════════════════════════════════════════════ "), $setup.needsRotation ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_5, [].concat(_hoisted_8))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ── TOP BAR ───────────────────────────────────────── "), _hoisted_9, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ── STATUS STRIP ──────────────────────────────────── "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": "clk-status",
+    "data-state": $setup.currentStage
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, [_hoisted_12, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_13, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.stageLabel), 1 /* TEXT */)]), $setup.status ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_14, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.status), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 8 /* PROPS */, _hoisted_10), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ══════════════════════════════════════════════════════\n                     PHONE LAYOUT (≤ 480px OR iOS Safari detection)\n                     Compact, single-column, big tap targets, minimal chrome\n                     ══════════════════════════════════════════════════════ "), $setup.isPhone ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_15, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" LEFT COLUMN (in landscape): controls and settings.\n                             In portrait this behaves identically to a normal stack. "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_16, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Late Entry (phone: compact pill button) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["clk-phone-late-entry", {
+      'is-open': $setup.isLateEntryTimeVisible,
+      'is-disabled': $setup.isBusy
     }]),
-    "aria-hidden": "true",
-    onClick: $setup.toggleLateEntryTime
-  }, null, 2 /* CLASS */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, [$setup.isLateEntryTimeVisible ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)(_component_VueDatePicker, {
-    key: 0,
+    onClick: $setup.toggleLateEntryTime,
+    type: "button"
+  }, [_hoisted_17, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.isLateEntryTimeVisible ? 'Hide Late Entry' : 'Late Entry Time'), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["fa ms-auto", $setup.isLateEntryTimeVisible ? 'fa-chevron-up' : 'fa-chevron-down'])
+  }, null, 2 /* CLASS */)], 2 /* CLASS */), $setup.isLateEntryTimeVisible ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_18, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
     modelValue: $setup.lateEntryTime,
     "onUpdate:modelValue": _cache[0] || (_cache[0] = function ($event) {
       return $setup.lateEntryTime = $event;
     }),
     "enable-time": true,
-    formate: $setup.dateTimeFormat,
-    "class": "responsive-datepicker"
-  }, null, 8 /* PROPS */, ["modelValue"])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), _hoisted_12]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Late Entry Time Ends "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_13, [_hoisted_14, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.status) + " ", 1 /* TEXT */), !$setup.isAlreadyVerified || $setup.enableCrewTypeId ? (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)(((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("select", {
-    key: 0,
-    "class": "d-inline w-50 ms-2 mt-3",
+    format: $setup.dateTimeFormat,
+    teleport: "body",
+    "class": "clk-datepicker"
+  }, null, 8 /* PROPS */, ["modelValue"])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Crew Type (phone) "), !$setup.isAlreadyVerified || $setup.enableCrewTypeId ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_19, [_hoisted_20, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    "class": "clk-select",
     "onUpdate:modelValue": _cache[1] || (_cache[1] = function ($event) {
       return $setup.crewTypeId = $event;
     })
-  }, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.crewTypes, function (crewType, index) {
+  }, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.crewTypes, function (crewType) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
+      key: crewType.id,
       value: crewType.id
-    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(crewType.name), 9 /* TEXT, PROPS */, _hoisted_15);
-  }), 256 /* UNKEYED_FRAGMENT */))], 512 /* NEED_PATCH */)), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.crewTypeId]]) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_16, [$setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_17, "Crew Clocked Out")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_18, "Crew Verified")) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_19, "Crew Not Verified")), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["AddCrewMember"], {
-    key: 3,
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(crewType.name), 9 /* TEXT, PROPS */, _hoisted_21);
+  }), 128 /* KEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.crewTypeId]])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Add Crew (phone) "), $setup.isAlreadyClockedin && !$setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_22, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_23, [_hoisted_24, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["AddCrewMember"], {
     onGetAllUsers: $setup.GetAllUsers
-  })) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_20, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_21, [$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["Depart"], {
+  })]), $setup.allUsers.length > 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_25, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
+    modelValue: $setup.createNewCrewForm[0].crew_member_id,
+    "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {
+      return $setup.createNewCrewForm[0].crew_member_id = $event;
+    }),
+    options: $setup.allUsers,
+    settings: $setup.select2Settings,
+    "class": "clk-select2"
+  }, null, 8 /* PROPS */, ["modelValue", "options", "settings"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+    modelValue: $setup.createNewCrewForm[0].clockin_time,
+    "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
+      return $setup.createNewCrewForm[0].clockin_time = $event;
+    }),
+    "enable-time": true,
+    format: $setup.dateTimeFormat,
+    teleport: "body",
+    "class": "clk-datepicker"
+  }, null, 8 /* PROPS */, ["modelValue"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": "clk-btn clk-btn--success",
+    onClick: $setup.addNewCrew,
+    disabled: $setup.isBusy || !$setup.createNewCrewForm[0].crew_member_id || !$setup.createNewCrewForm[0].clockin_time
+  }, " Add to Crew ", 8 /* PROPS */, _hoisted_26)], 512 /* NEED_PATCH */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Depart / Travel (phone) "), $setup.isAlreadyClockedin && !$setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_27, [_hoisted_28, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["Depart"], {
     crewId: $setup.crewId,
     travelTime: $setup.travelTime,
     crewTypeId: $setup.crewTypeId,
     key: $setup.departKey,
     onTrackTimeDone: $setup.trackTimeDone,
-    onIsMobilization: _cache[2] || (_cache[2] = function ($event) {
+    onIsMobilization: _cache[4] || (_cache[4] = function ($event) {
       return $setup.enableCrewTypeId = !$setup.enableCrewTypeId;
     }),
     "is-late-entry-time-visible": $setup.isLateEntryTimeVisible,
     "late-entry-time": $setup.lateEntryTime ? $setup.format($setup.lateEntryTime, $setup.dateTimeFormat) : $setup.lateEntryTime,
     onLastEntryTimeDone: $setup.lastEntryTimeDone,
     "time-types": $setup.timeTypes
-  }, null, 8 /* PROPS */, ["crewId", "travelTime", "crewTypeId", "is-late-entry-time-visible", "late-entry-time", "time-types"])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyVerified && !$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
-    key: 1,
-    type: "button",
-    "class": "btn btn-secondary p-3",
-    onClick: $setup.weatherEntry,
-    disabled: $setup.isBusy
-  }, "Weather", 8 /* PROPS */, _hoisted_22)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_23, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
-    key: 0,
-    type: "button",
-    "class": "btn btn-primary p-3",
-    onClick: $setup.verifyTeam,
-    disabled: $setup.isBusy
-  }, "Verify Crew", 8 /* PROPS */, _hoisted_24)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Time Type + Clock in (inline) "), $setup.isAlreadyVerified && !$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_25, [_hoisted_26, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
-    "class": "form-select form-select-sm w-auto",
-    "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
+  }, null, 8 /* PROPS */, ["crewId", "travelTime", "crewTypeId", "is-late-entry-time-visible", "late-entry-time", "time-types"]))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Time Type selector (phone, before clock in) "), $setup.isAlreadyVerified && !$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_29, [_hoisted_30, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    "class": "clk-select",
+    "onUpdate:modelValue": _cache[5] || (_cache[5] = function ($event) {
       return $setup.selectedClockinTypeId = $event;
     }),
     disabled: $setup.isBusy
-  }, [_hoisted_28, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.timeTypes, function (t) {
+  }, [_hoisted_32, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.timeTypes, function (t) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
       key: t.id,
       value: t.id
-    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(t.display_name), 9 /* TEXT, PROPS */, _hoisted_29);
-  }), 128 /* KEYED_FRAGMENT */))], 8 /* PROPS */, _hoisted_27), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedClockinTypeId]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    type: "button",
-    "class": "btn btn-success p-3",
-    onClick: _cache[4] || (_cache[4] = function ($event) {
-      return $setup.clockinout('clockin');
-    }),
-    disabled: $setup.isBusy
-  }, " CLOCK IN ", 8 /* PROPS */, _hoisted_30)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Switch Time Type (mid-shift) "), $setup.canSwitchTypes ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_31, [_hoisted_32, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
-    "class": "form-select form-select-sm w-auto",
-    "onUpdate:modelValue": _cache[5] || (_cache[5] = function ($event) {
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(t.display_name), 9 /* TEXT, PROPS */, _hoisted_33);
+  }), 128 /* KEYED_FRAGMENT */))], 8 /* PROPS */, _hoisted_31), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedClockinTypeId]])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Switch Time Type (phone) "), $setup.canSwitchTypes ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_34, [_hoisted_35, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    "class": "clk-select",
+    "onUpdate:modelValue": _cache[6] || (_cache[6] = function ($event) {
       return $setup.selectedSwitchTypeId = $event;
     }),
     disabled: $setup.isBusy
-  }, [_hoisted_34, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.timeTypes, function (t) {
+  }, [_hoisted_37, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.timeTypes, function (t) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
       key: t.id,
       value: t.id
-    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(t.display_name), 9 /* TEXT, PROPS */, _hoisted_35);
-  }), 128 /* KEYED_FRAGMENT */))], 8 /* PROPS */, _hoisted_33), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedSwitchTypeId]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    type: "button",
-    "class": "btn btn-outline-info p-3",
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(t.display_name), 9 /* TEXT, PROPS */, _hoisted_38);
+  }), 128 /* KEYED_FRAGMENT */))], 8 /* PROPS */, _hoisted_36), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedSwitchTypeId]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": "clk-btn clk-btn--outline mt-2",
     onClick: $setup.switchTimeType,
     disabled: $setup.isBusy
-  }, " APPLY ", 8 /* PROPS */, _hoisted_36)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Switch Time Type ends "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <button type=\"button\" class=\"btn btn-danger p-3\" @click=\"clockinout('clockout')\"\n                                v-if=\"isAlreadyClockedin && !isAlreadyClockedout\">Clock out\n                            </button> "), $setup.canClockOut ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
-    key: 3,
-    type: "button",
-    "class": "btn btn-danger p-3",
-    onClick: _cache[6] || (_cache[6] = function ($event) {
-      return $setup.clockinout('clockout');
-    }),
-    disabled: $setup.isBusy
-  }, "Clock out ", 8 /* PROPS */, _hoisted_37)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
-    key: 4,
-    type: "button",
-    "class": "btn btn-secondary p-3",
-    onClick: $setup.readyForVerification,
-    disabled: $setup.isBusy
-  }, "Ready for verification", 8 /* PROPS */, _hoisted_38)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_39, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_40, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", _hoisted_41, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_42, [].concat(_hoisted_44))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _hoisted_45, $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_46, [].concat(_hoisted_48))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_49, [].concat(_hoisted_51))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_52, [].concat(_hoisted_54))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_55, [].concat(_hoisted_57))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("th", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
+  }, " Apply ", 8 /* PROPS */, _hoisted_39)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" /clk-phone-left "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" CREW list (phone) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_40, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_41, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_42, [_hoisted_43, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Crew "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_44, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.CrewMembersTobeVerified.length), 1 /* TEXT */)]), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_45, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
     timesheetId: $setup.allPerDiemTimesheetIds,
     perDiem: $setup.allPerDiemStatus,
     onHfPerDiemDone: $setup.hfPerDiemDone
-  }, null, 8 /* PROPS */, ["timesheetId", "perDiem"])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_59, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+  }, null, 8 /* PROPS */, ["timesheetId", "perDiem"])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), !$setup.isAlreadyVerified && $setup.CrewMembersTobeVerified.length ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_46, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", _hoisted_47, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "checkbox",
-    "class": "form-check-input",
     "onUpdate:modelValue": _cache[7] || (_cache[7] = function ($event) {
       return $setup.isCheckAll = $event;
     }),
     onClick: $setup.toggleCheckboxes
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.isCheckAll]])])]), _hoisted_60, _hoisted_61])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.allUsers.length > 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_62, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_63, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
-    modelValue: $setup.createNewCrewForm[0].crew_member_id,
-    "onUpdate:modelValue": _cache[8] || (_cache[8] = function ($event) {
-      return $setup.createNewCrewForm[0].crew_member_id = $event;
-    }),
-    options: $setup.allUsers,
-    settings: $setup.select2Settings
-  }, null, 8 /* PROPS */, ["modelValue", "options", "settings"])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
-    modelValue: $setup.createNewCrewForm[0].clockin_time,
-    "onUpdate:modelValue": _cache[9] || (_cache[9] = function ($event) {
-      return $setup.createNewCrewForm[0].clockin_time = $event;
-    }),
-    "enable-time": true,
-    formate: $setup.dateTimeFormat,
-    teleport: "body",
-    "class": "responsive-datepicker"
-  }, null, 8 /* PROPS */, ["modelValue"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    "class": "btn btn-success",
-    onClick: $setup.addNewCrew,
-    disabled: $setup.isBusy || !$setup.createNewCrewForm[0].crew_member_id || !$setup.createNewCrewForm[0].clockin_time
-  }, "Create", 8 /* PROPS */, _hoisted_64)])], 512 /* NEED_PATCH */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.CrewMembersTobeVerified, function (member, index) {
-    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
-      key: member.id
-    }, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_65, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.isCheckAll]]), _hoisted_48])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), !$setup.CrewMembersTobeVerified.length ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_49, [].concat(_hoisted_52))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_53, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.CrewMembersTobeVerified, function (member, index) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+      key: member.id,
+      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["clk-phone-crew-card", {
+        'is-checked': member.isChecked,
+        'is-out': member.status === 'Out',
+        'is-in': member.status === 'In'
+      }])
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Top row: checkbox + name + actions "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_54, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("label", _hoisted_55, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "checkbox",
-      "class": "form-check-input",
       checked: member.isChecked,
       onClick: function onClick($event) {
         return $setup.toggleSingleCheckbox(index);
       }
-    }, null, 8 /* PROPS */, _hoisted_66)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.name) + " (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time_all) + ")", 1 /* TEXT */)]), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_67, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.status), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_68, [!member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_69, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.clockout_time ? member.clockout_time : member.clockin_time), 1 /* TEXT */)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_70, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+    }, null, 8 /* PROPS */, _hoisted_56)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_57, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.name), 1 /* TEXT */), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["clk-icon-btn", {
+        'is-active': member.isMenualClockinout
+      }]),
+      disabled: $setup.isBusy,
+      onClick: function onClick($event) {
+        return $setup.enableMenualClock(member.id);
+      },
+      "aria-label": 'Edit times for ' + member.name
+    }, [].concat(_hoisted_61), 10 /* CLASS, PROPS */, _hoisted_59), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
+      timesheetId: member.timesheet_id,
+      perDiem: member.per_diem,
+      onHfPerDiemDone: $setup.hfPerDiemDone
+    }, null, 8 /* PROPS */, ["timesheetId", "perDiem"])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Bottom row: chips "), member.total_time_all || member.status || member.total_time ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_62, [member.total_time_all ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_63, [_hoisted_64, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)((0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time_all), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), member.status ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
+      key: 1,
+      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["clk-chip", 'clk-chip--' + member.status.toLowerCase()])
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.status === 'In' ? 'Clocked In' : 'Clocked Out'), 3 /* TEXT, CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), member.total_time ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_65, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Times: read-only "), ($setup.isAlreadyClockedin || $setup.isAlreadyClockedout) && !member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_66, [_hoisted_67, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.clockout_time ? member.clockout_time : member.clockin_time), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Times: editable "), member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_68, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_69, [_hoisted_70, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
       modelValue: member.clockin_time_edit,
       "onUpdate:modelValue": [function ($event) {
         return member.clockin_time_edit = $event;
@@ -26154,10 +26288,10 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         return $setup.menualClockinout($event, member.timesheet_id, 'clockin');
       }],
       "enable-time": true,
-      formate: $setup.dateTimeFormat,
+      format: $setup.dateTimeFormat,
       teleport: "body",
-      "class": "responsive-datepicker"
-    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])]))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_71, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+      "class": "clk-datepicker"
+    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_71, [_hoisted_72, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
       modelValue: member.clockout_time_edit,
       "onUpdate:modelValue": [function ($event) {
         return member.clockout_time_edit = $event;
@@ -26165,23 +26299,206 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         return $setup.menualClockinout($event, member.timesheet_id, 'clockout');
       }],
       "enable-time": true,
-      formate: $setup.dateTimeFormat,
+      format: $setup.dateTimeFormat,
       teleport: "body",
-      "class": "responsive-datepicker"
-    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isMenualClockinout && !member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_72)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_73, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_74, [$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_75, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
-      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["fa fa-pencil cursor-pointer", {
-        'pe-none opacity-50': $setup.isBusy
+      "class": "clk-datepicker"
+    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 2 /* CLASS */);
+  }), 128 /* KEYED_FRAGMENT */))]))]), _hoisted_73])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    key: 2
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ══════════════════════════════════════════════════════\n                     DESKTOP / TABLET LAYOUT\n                     ══════════════════════════════════════════════════════ "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_74, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" LATE ENTRY (desktop: card) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("section", _hoisted_75, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["clk-collapse-toggle", {
+      'is-open': $setup.isLateEntryTimeVisible,
+      'is-disabled': $setup.isBusy
+    }]),
+    onClick: $setup.toggleLateEntryTime,
+    type: "button",
+    "aria-expanded": $setup.isLateEntryTimeVisible
+  }, [_hoisted_77, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["fa", $setup.isLateEntryTimeVisible ? 'fa-chevron-up' : 'fa-chevron-down'])
+  }, null, 2 /* CLASS */)], 10 /* CLASS, PROPS */, _hoisted_76), $setup.isLateEntryTimeVisible ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_78, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+    modelValue: $setup.lateEntryTime,
+    "onUpdate:modelValue": _cache[8] || (_cache[8] = function ($event) {
+      return $setup.lateEntryTime = $event;
+    }),
+    "enable-time": true,
+    format: $setup.dateTimeFormat,
+    teleport: "body",
+    "class": "clk-datepicker"
+  }, null, 8 /* PROPS */, ["modelValue"]), _hoisted_79])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" CREW TYPE "), !$setup.isAlreadyVerified || $setup.enableCrewTypeId ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_80, [_hoisted_81, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    "class": "clk-select",
+    "onUpdate:modelValue": _cache[9] || (_cache[9] = function ($event) {
+      return $setup.crewTypeId = $event;
+    })
+  }, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.crewTypes, function (crewType) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
+      key: crewType.id,
+      value: crewType.id
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(crewType.name), 9 /* TEXT, PROPS */, _hoisted_82);
+  }), 128 /* KEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.crewTypeId]])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ADD CREW MEMBER "), $setup.isAlreadyClockedin && !$setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_83, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_84, [_hoisted_85, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["AddCrewMember"], {
+    onGetAllUsers: $setup.GetAllUsers
+  })]), $setup.allUsers.length > 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_86, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
+    modelValue: $setup.createNewCrewForm[0].crew_member_id,
+    "onUpdate:modelValue": _cache[10] || (_cache[10] = function ($event) {
+      return $setup.createNewCrewForm[0].crew_member_id = $event;
+    }),
+    options: $setup.allUsers,
+    settings: $setup.select2Settings,
+    "class": "clk-select2"
+  }, null, 8 /* PROPS */, ["modelValue", "options", "settings"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+    modelValue: $setup.createNewCrewForm[0].clockin_time,
+    "onUpdate:modelValue": _cache[11] || (_cache[11] = function ($event) {
+      return $setup.createNewCrewForm[0].clockin_time = $event;
+    }),
+    "enable-time": true,
+    format: $setup.dateTimeFormat,
+    teleport: "body",
+    "class": "clk-datepicker"
+  }, null, 8 /* PROPS */, ["modelValue"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": "clk-btn clk-btn--success clk-btn--sm",
+    onClick: $setup.addNewCrew,
+    disabled: $setup.isBusy || !$setup.createNewCrewForm[0].crew_member_id || !$setup.createNewCrewForm[0].clockin_time
+  }, " Add to Crew ", 8 /* PROPS */, _hoisted_87)], 512 /* NEED_PATCH */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" DEPART / TRAVEL "), $setup.isAlreadyClockedin && !$setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_88, [_hoisted_89, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)($setup["Depart"], {
+    crewId: $setup.crewId,
+    travelTime: $setup.travelTime,
+    crewTypeId: $setup.crewTypeId,
+    key: $setup.departKey,
+    onTrackTimeDone: $setup.trackTimeDone,
+    onIsMobilization: _cache[12] || (_cache[12] = function ($event) {
+      return $setup.enableCrewTypeId = !$setup.enableCrewTypeId;
+    }),
+    "is-late-entry-time-visible": $setup.isLateEntryTimeVisible,
+    "late-entry-time": $setup.lateEntryTime ? $setup.format($setup.lateEntryTime, $setup.dateTimeFormat) : $setup.lateEntryTime,
+    onLastEntryTimeDone: $setup.lastEntryTimeDone,
+    "time-types": $setup.timeTypes
+  }, null, 8 /* PROPS */, ["crewId", "travelTime", "crewTypeId", "is-late-entry-time-visible", "late-entry-time", "time-types"]))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" TIME TYPE selector for clock-in "), $setup.isAlreadyVerified && !$setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_90, [_hoisted_91, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    "class": "clk-select",
+    "onUpdate:modelValue": _cache[13] || (_cache[13] = function ($event) {
+      return $setup.selectedClockinTypeId = $event;
+    }),
+    disabled: $setup.isBusy
+  }, [_hoisted_93, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.timeTypes, function (t) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
+      key: t.id,
+      value: t.id
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(t.display_name), 9 /* TEXT, PROPS */, _hoisted_94);
+  }), 128 /* KEYED_FRAGMENT */))], 8 /* PROPS */, _hoisted_92), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedClockinTypeId]])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" SWITCH TIME TYPE (mid-shift, at shop) "), $setup.canSwitchTypes ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("section", _hoisted_95, [_hoisted_96, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_97, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    "class": "clk-select",
+    "onUpdate:modelValue": _cache[14] || (_cache[14] = function ($event) {
+      return $setup.selectedSwitchTypeId = $event;
+    }),
+    disabled: $setup.isBusy
+  }, [_hoisted_99, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.timeTypes, function (t) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
+      key: t.id,
+      value: t.id
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(t.display_name), 9 /* TEXT, PROPS */, _hoisted_100);
+  }), 128 /* KEYED_FRAGMENT */))], 8 /* PROPS */, _hoisted_98), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedSwitchTypeId]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": "clk-btn clk-btn--outline",
+    onClick: $setup.switchTimeType,
+    disabled: $setup.isBusy
+  }, " Apply ", 8 /* PROPS */, _hoisted_101)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" CREW LIST "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("section", _hoisted_102, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_103, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_104, [_hoisted_105, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Crew "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_106, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.CrewMembersTobeVerified.length), 1 /* TEXT */)]), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_107, [_hoisted_108, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
+    timesheetId: $setup.allPerDiemTimesheetIds,
+    perDiem: $setup.allPerDiemStatus,
+    onHfPerDiemDone: $setup.hfPerDiemDone
+  }, null, 8 /* PROPS */, ["timesheetId", "perDiem"])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), $setup.canClockOut ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+    key: 0,
+    type: "button",
+    "class": "btn btn-danger p-3",
+    onClick: _cache[15] || (_cache[15] = function ($event) {
+      return $setup.clockinout('clockout');
+    }),
+    disabled: $setup.isBusy
+  }, "Clock out ", 8 /* PROPS */, _hoisted_109)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), !$setup.isAlreadyVerified && $setup.CrewMembersTobeVerified.length ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_110, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", _hoisted_111, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    type: "checkbox",
+    "onUpdate:modelValue": _cache[16] || (_cache[16] = function ($event) {
+      return $setup.isCheckAll = $event;
+    }),
+    onClick: $setup.toggleCheckboxes
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.isCheckAll]]), _hoisted_112])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), !$setup.CrewMembersTobeVerified.length ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_113, [].concat(_hoisted_116))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_117, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.CrewMembersTobeVerified, function (member, index) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+      key: member.id,
+      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["clk-crew-row", {
+        'is-checked': member.isChecked,
+        'is-out': member.status === 'Out',
+        'is-in': member.status === 'In'
+      }])
+    }, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("label", _hoisted_118, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      type: "checkbox",
+      checked: member.isChecked,
+      onClick: function onClick($event) {
+        return $setup.toggleSingleCheckbox(index);
+      }
+    }, null, 8 /* PROPS */, _hoisted_119)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_120, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_121, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_122, [member.total_time_all ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_123, [_hoisted_124, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)((0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time_all), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), member.status ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", {
+      key: 1,
+      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["clk-chip", 'clk-chip--' + member.status.toLowerCase()])
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.status === 'In' ? 'Clocked In' : 'Clocked Out'), 3 /* TEXT, CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), member.total_time ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_125, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.total_time), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), $setup.isAlreadyClockedin || $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_126, [!member.isMenualClockinout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_127, [_hoisted_128, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(member.clockout_time ? member.clockout_time : member.clockin_time), 1 /* TEXT */)])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_129, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_130, [_hoisted_131, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+      modelValue: member.clockin_time_edit,
+      "onUpdate:modelValue": [function ($event) {
+        return member.clockin_time_edit = $event;
+      }, function ($event) {
+        return $setup.menualClockinout($event, member.timesheet_id, 'clockin');
+      }],
+      "enable-time": true,
+      format: $setup.dateTimeFormat,
+      teleport: "body",
+      "class": "clk-datepicker"
+    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_132, [_hoisted_133, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_VueDatePicker, {
+      modelValue: member.clockout_time_edit,
+      "onUpdate:modelValue": [function ($event) {
+        return member.clockout_time_edit = $event;
+      }, function ($event) {
+        return $setup.menualClockinout($event, member.timesheet_id, 'clockout');
+      }],
+      "enable-time": true,
+      format: $setup.dateTimeFormat,
+      teleport: "body",
+      "class": "clk-datepicker"
+    }, null, 8 /* PROPS */, ["modelValue", "onUpdate:modelValue"])])]))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), $setup.isAlreadyClockedin ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_134, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["clk-icon-btn", {
+        'is-active': member.isMenualClockinout
       }]),
-      "aria-hidden": "true",
+      disabled: $setup.isBusy,
       onClick: function onClick($event) {
         return $setup.enableMenualClock(member.id);
-      }
-    }, null, 10 /* CLASS, PROPS */, _hoisted_76), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("     "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
+      },
+      "aria-label": 'Edit times for ' + member.name
+    }, [].concat(_hoisted_137), 10 /* CLASS, PROPS */, _hoisted_135), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)($setup["HalfFullPerDiem"], {
       timesheetId: member.timesheet_id,
       perDiem: member.per_diem,
       onHfPerDiemDone: $setup.hfPerDiemDone
-    }, null, 8 /* PROPS */, ["timesheetId", "perDiem"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("     ")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]);
-  }), 128 /* KEYED_FRAGMENT */))])])])]), _hoisted_77])])])], 64 /* STABLE_FRAGMENT */);
+    }, null, 8 /* PROPS */, ["timesheetId", "perDiem"])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 2 /* CLASS */);
+  }), 128 /* KEYED_FRAGMENT */))]))]), _hoisted_138])], 64 /* STABLE_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" ── STICKY ACTION BAR ─────────────────────────────── "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("footer", _hoisted_139, [!$setup.isAlreadyVerified ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+    key: 0,
+    "class": "clk-btn clk-btn--primary clk-btn--hero",
+    onClick: $setup.verifyTeam,
+    disabled: $setup.isBusy
+  }, [].concat(_hoisted_143), 8 /* PROPS */, _hoisted_140)) : $setup.isAlreadyVerified && !$setup.isAlreadyClockedin && !$setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    key: 1
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": "clk-btn clk-btn--ghost",
+    onClick: $setup.weatherEntry,
+    disabled: $setup.isBusy
+  }, [].concat(_hoisted_147), 8 /* PROPS */, _hoisted_144), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    "class": "clk-btn clk-btn--success clk-btn--hero",
+    onClick: _cache[17] || (_cache[17] = function ($event) {
+      return $setup.clockinout('clockin');
+    }),
+    disabled: $setup.isBusy
+  }, [].concat(_hoisted_151), 8 /* PROPS */, _hoisted_148)], 64 /* STABLE_FRAGMENT */)) : $setup.isAlreadyClockedin && !$setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    key: 2
+  }, [$setup.canClockOut ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+    key: 0,
+    "class": "clk-btn clk-btn--danger clk-btn--hero",
+    onClick: _cache[18] || (_cache[18] = function ($event) {
+      return $setup.clockinout('clockout');
+    }),
+    disabled: $setup.isBusy
+  }, [].concat(_hoisted_155), 8 /* PROPS */, _hoisted_152)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_156, [].concat(_hoisted_159)))], 64 /* STABLE_FRAGMENT */)) : $setup.isAlreadyClockedout ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+    key: 3,
+    "class": "clk-btn clk-btn--primary clk-btn--hero",
+    onClick: $setup.readyForVerification,
+    disabled: $setup.isBusy
+  }, [].concat(_hoisted_163), 8 /* PROPS */, _hoisted_160)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])], 2 /* CLASS */)])])], 64 /* STABLE_FRAGMENT */);
 }
 
 /***/ }),
@@ -26360,29 +26677,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return $setup.handleRecoverDelete();
     })
   });
-}
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/DeleteCrewMember.vue?vue&type=template&id=0469dad1":
-/*!**************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/DeleteCrewMember.vue?vue&type=template&id=0469dad1 ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   render: () => (/* binding */ render)
-/* harmony export */ });
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
-
-function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
-    "class": "fa fa-trash cursor-pointer ms-3",
-    "aria-hidden": "true",
-    onClick: $setup.deleteCrewMember
-  })]);
 }
 
 /***/ }),
@@ -26693,7 +26987,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
-var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Action"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Submitted On"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Job #"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Branch"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Approved By"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Phase"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Start Date"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Timeout Date"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Notes")])], -1 /* HOISTED */);
+var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Action"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Submitted On"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Job #"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Branch"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Approved By"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Phase"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Start Date"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Timeout Date"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Notes"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Schedule Notes")])], -1 /* HOISTED */);
 var _hoisted_2 = {
   "class": "modal fade",
   id: "oaModal",
@@ -28172,7 +28466,31 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n/* only apply 50vw when it’s NOT fullscreen */\n#clockin .modal-dialog:not(.modal-fullscreen) .modal-content[data-v-736f94d0] {\n    width: 50vw !important;\n}\n\n/* override for when you *do* use modal-fullscreen */\n#clockin .modal-dialog.modal-fullscreen .modal-content[data-v-736f94d0] {\n    width: 100vw !important;\n    margin: 0;\n    /* ensure it hugs the edges */\n    height: 100vh !important;\n    /* if you want full-height, too */\n}\n#clockin .modal-dialog[data-v-736f94d0] {\n    width: 100vw;\n    max-width: none;\n    height: 100vh;\n    margin: 0;\n}\n#clockin .modal-content[data-v-736f94d0] {\n    height: 100%;\n    border-radius: 0;\n}\n#clockin .modal-body[data-v-736f94d0] {\n    overflow-y: auto;\n}\n#clockin input[data-v-736f94d0],\n#clockin select[data-v-736f94d0],\n#clockin .responsive-datepicker[data-v-736f94d0],\n#clockin .select2-search__field[data-v-736f94d0] {\n    font-size: 16px !important;\n}\n.verify-crew-members[data-v-736f94d0] {\n    font-size: 14px;\n    background: #1A2035 !important;\n    min-height: 400px;\n    /* to fit date picker in all screens */\n}\n.verify-crew-members thead[data-v-736f94d0] {\n    height: 100px;\n    /* to fit date picker in all screens */\n}\n.table td[data-v-736f94d0],\n.table th[data-v-736f94d0] {\n    text-align: center;\n}\n.clr-light[data-v-736f94d0] {\n    color: rgba(255, 255, 255, 0.6) !important;\n}\n.dark-version .table tbody tr td[data-v-736f94d0] {\n    color: #fff !important;\n}\n.dark-version .table thead tr th[data-v-736f94d0] {\n    font-size: large !important;\n}\n\n/* to manage date picker  */\n.dp__pointer.dp__input_readonly[data-v-736f94d0] {\n    min-width: 210px !important;\n}\n\n\n\n/* to manage date picker ends  */\n\n\n/* to fit datepicker on mobile devices */\n@media (max-width: 767px) {\n.modal-dialog[data-v-736f94d0] {\n        max-width: 100%;\n        margin: 0;\n}\n.modal-content[data-v-736f94d0] {\n        border-radius: 0;\n}\n.responsive-datepicker[data-v-736f94d0] {\n        width: 100%;\n}\n.dp__outer_menu_wrap.dp--menu-wrapper[data-v-736f94d0] {\n        left: 10% !important;\n        /* top: 30% !important; */\n}\n.dp--menu-wrapper[data-v-736f94d0] {\n        z-index: 9999999999 !important;\n}\n.dp__menu_inner[data-v-736f94d0] {\n        position: relative;\n        z-index: 1200;\n}\n}\n\n/* to fit datepicker on mobile devices ends */\n@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {\n.modal-lg[data-v-736f94d0] {\n        max-width: 100% !important;\n}\n}\n\n/* remove cross icon from date picker */\n.dp--clear-btn[data-v-736f94d0] {\n    display: none !important;\n}\n.form-control[data-v-736f94d0],\nselect[data-v-736f94d0],\ntextarea[data-v-736f94d0] {\n    background-color: #fff;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n/* ═══════════════════════════════════════════════════════════════════════\n   CLOCK-IN MODAL — FIELD-OPS REDESIGN\n   Desktop/tablet layout + dedicated iPhone-sized layout\n   ═══════════════════════════════════════════════════════════════════════ */\n\n/* Design tokens */\n.clk-shell[data-v-736f94d0] {\n    --clk-bg: #0f1626;\n    --clk-surface: #1a2138;\n    --clk-surface-2: #222c47;\n    --clk-border: #2e3a5c;\n    --clk-text: #ffffff;\n    --clk-muted: #8895b3;\n    --clk-primary: #3b82f6;\n    --clk-success: #22c55e;\n    --clk-danger: #ef4444;\n    --clk-warn: #f59e0b;\n    --clk-accent: #ec4899;\n    --clk-radius: 14px;\n    --clk-radius-sm: 8px;\n    --clk-gap: 12px;\n\n    background: var(--clk-bg);\n    color: var(--clk-text);\n    height: 100%;\n    border-radius: 0;\n    display: flex;\n    flex-direction: column;\n    overflow: hidden;\n    position: relative;\n    /* anchor for the rotation overlay */\n}\n\n/* Modal sizing rules are in a non-scoped <style> block below —\n   scoped selectors can't match Bootstrap's `.modal-dialog`. */\n\n/* ── TOP BAR ───────────────────────────────────────────── */\n.clk-topbar[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    padding: 14px 18px;\n    background: var(--clk-surface);\n    border-bottom: 1px solid var(--clk-border);\n    flex-shrink: 0;\n    padding-top: max(14px, env(safe-area-inset-top));\n}\n.clk-topbar__title[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    gap: 10px;\n    font-size: 1rem;\n    font-weight: 800;\n    /* bold */\n    letter-spacing: 0.5px;\n    text-transform: uppercase;\n    color: #ffffff;\n    /* bright white */\n}\n.clk-topbar__title i[data-v-736f94d0] {\n    font-size: 1.2rem;\n    color: var(--clk-primary);\n}\n.clk-topbar__close[data-v-736f94d0] {\n    width: 40px;\n    height: 40px;\n    border-radius: 50%;\n    border: none;\n    background: var(--clk-surface-2);\n    color: var(--clk-text);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    cursor: pointer;\n    transition: background 0.15s;\n}\n.clk-topbar__close[data-v-736f94d0]:hover,\n.clk-topbar__close[data-v-736f94d0]:focus-visible {\n    background: var(--clk-border);\n    outline: none;\n}\n\n/* ── STATUS STRIP ─────────────────────────────────────── */\n.clk-status[data-v-736f94d0] {\n    padding: 14px 18px;\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 12px;\n    flex-shrink: 0;\n    background:\n        linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, transparent 60%),\n        var(--clk-bg);\n    border-bottom: 1px solid var(--clk-border);\n}\n.clk-status__pill[data-v-736f94d0] {\n    display: inline-flex;\n    align-items: center;\n    gap: 10px;\n    padding: 9px 16px;\n    background: var(--clk-surface);\n    border: 1px solid var(--clk-border);\n    border-radius: 999px;\n    font-weight: 800;\n    /* bold */\n    font-size: 0.95rem;\n    color: #ffffff;\n    /* bright white */\n    letter-spacing: 0.3px;\n}\n.clk-status__dot[data-v-736f94d0] {\n    width: 10px;\n    height: 10px;\n    border-radius: 50%;\n    background: var(--clk-muted);\n    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);\n}\n.clk-status[data-state=\"unverified\"] .clk-status__dot[data-v-736f94d0] {\n    background: var(--clk-warn);\n    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);\n}\n.clk-status[data-state=\"verified\"] .clk-status__dot[data-v-736f94d0] {\n    background: var(--clk-primary);\n    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);\n}\n.clk-status[data-state=\"working\"] .clk-status__dot[data-v-736f94d0] {\n    background: var(--clk-success);\n    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);\n    animation: clk-pulse-736f94d0 1.6s ease-in-out infinite;\n}\n.clk-status[data-state=\"done\"] .clk-status__dot[data-v-736f94d0] {\n    background: var(--clk-muted);\n}\n@keyframes clk-pulse-736f94d0 {\n0%,\n    100% {\n        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);\n}\n50% {\n        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);\n}\n}\n.clk-status__meta[data-v-736f94d0] {\n    font-size: 0.85rem;\n    color: var(--clk-muted);\n    text-align: right;\n    font-weight: 500;\n}\n\n/* ── BODY ─────────────────────────────────────────────── */\n.clk-body[data-v-736f94d0] {\n    flex: 1;\n    min-height: 0;\n    /* allow the flex child to shrink so overflow-y actually kicks in */\n    overflow-y: auto;\n    -webkit-overflow-scrolling: touch;\n    padding: 16px 14px;\n    display: flex;\n    flex-direction: column;\n    gap: var(--clk-gap);\n}\n.clk-body--phone[data-v-736f94d0] {\n    padding: 12px 12px;\n    gap: 10px;\n}\n\n/* In portrait (default phone orientation), the left-column wrapper is\n   transparent to layout — its children stack inside the body directly.\n   In landscape, a media query below reassigns it to a real flex column. */\n.clk-phone-left[data-v-736f94d0] {\n    display: contents;\n}\n.clk-body__spacer[data-v-736f94d0] {\n    height: 12px;\n}\n\n/* ── CARD ─────────────────────────────────────────────── */\n.clk-card[data-v-736f94d0] {\n    background: var(--clk-surface);\n    border: 1px solid var(--clk-border);\n    border-radius: var(--clk-radius);\n    padding: 14px;\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n}\n.clk-card--compact[data-v-736f94d0] {\n    padding: 0;\n    overflow: hidden;\n}\n.clk-card--flush[data-v-736f94d0] {\n    padding: 14px 0;\n}\n.clk-card--flush>.clk-section-head[data-v-736f94d0],\n.clk-card--flush>.clk-select-all[data-v-736f94d0],\n.clk-card--flush>.clk-empty[data-v-736f94d0] {\n    padding-left: 14px;\n    padding-right: 14px;\n}\n.clk-label[data-v-736f94d0] {\n    font-size: 0.75rem;\n    font-weight: 700;\n    letter-spacing: 0.8px;\n    text-transform: uppercase;\n    color: var(--clk-muted);\n    margin: 0;\n}\n.clk-hint[data-v-736f94d0] {\n    font-size: 0.8rem;\n    color: var(--clk-muted);\n    margin: 0;\n}\n.clk-section-head[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 10px;\n}\n.clk-section-head__title[data-v-736f94d0] {\n    font-weight: 800;\n    /* bold */\n    font-size: 1rem;\n    color: #ffffff;\n    /* bright white */\n    display: inline-flex;\n    align-items: center;\n}\n.clk-section-head__right[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    color: var(--clk-muted);\n    font-size: 0.85rem;\n}\n.clk-badge--count[data-v-736f94d0] {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    min-width: 22px;\n    height: 22px;\n    padding: 0 6px;\n    margin-left: 8px;\n    background: var(--clk-surface-2);\n    border: 1px solid var(--clk-border);\n    border-radius: 999px;\n    font-size: 0.75rem;\n    font-weight: 700;\n    color: #ffffff;\n}\n\n/* ── COLLAPSE (Late Entry) ────────────────────────────── */\n.clk-collapse-toggle[data-v-736f94d0] {\n    width: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    padding: 14px 16px;\n    background: transparent;\n    border: none;\n    color: var(--clk-text);\n    font-size: 0.95rem;\n    font-weight: 700;\n    cursor: pointer;\n    min-height: 52px;\n    transition: background 0.15s;\n}\n.clk-collapse-toggle[data-v-736f94d0]:hover {\n    background: rgba(255, 255, 255, 0.02);\n}\n.clk-collapse-toggle.is-open[data-v-736f94d0] {\n    background: rgba(59, 130, 246, 0.08);\n}\n.clk-collapse-toggle.is-disabled[data-v-736f94d0] {\n    opacity: 0.5;\n    pointer-events: none;\n}\n.clk-collapse-toggle__left[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    gap: 10px;\n}\n.clk-collapse-toggle__left i[data-v-736f94d0] {\n    color: var(--clk-primary);\n}\n.clk-collapse-body[data-v-736f94d0] {\n    padding: 14px 16px 16px;\n    display: flex;\n    flex-direction: column;\n    gap: 8px;\n    border-top: 1px solid var(--clk-border);\n}\n\n/* ── FORM CONTROLS ────────────────────────────────────── */\n.clk-select[data-v-736f94d0],\n.clk-shell select[data-v-736f94d0] {\n    width: 100%;\n    min-height: 48px;\n    padding: 10px 14px;\n    padding-right: 36px;\n    /* Accessibility: brighter background + visible border so dropdowns\n       are legible on tablets in bright sun. (Reported during supe training.) */\n    background: #2d3a5e;\n    border: 2px solid #4a5a85;\n    border-radius: var(--clk-radius-sm);\n    color: var(--clk-text);\n    font-size: 16px !important;\n    font-weight: 500;\n    -moz-appearance: none;\n         appearance: none;\n    -webkit-appearance: none;\n    /* Brighter chevron (was #8895b3, now #cbd5e1) */\n    background-image: url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3e%3cpath fill='none' stroke='%23cbd5e1' stroke-width='2' d='M1 1l5 5 5-5'/%3e%3c/svg%3e\");\n    background-repeat: no-repeat;\n    background-position: right 14px center;\n    background-size: 12px;\n    cursor: pointer;\n    transition: border-color 0.15s, box-shadow 0.15s;\n}\n.clk-select[data-v-736f94d0]:focus,\n.clk-shell select[data-v-736f94d0]:focus {\n    outline: none;\n    border-color: var(--clk-primary);\n    /* Stronger focus ring to maintain contrast we added to base state */\n    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);\n}\n.clk-select[data-v-736f94d0]:disabled {\n    opacity: 0.5;\n    cursor: not-allowed;\n}\n.clk-inline-pair[data-v-736f94d0] {\n    display: flex;\n    gap: 8px;\n    align-items: stretch;\n}\n.clk-inline-pair .clk-select[data-v-736f94d0] {\n    flex: 1;\n}\n\n/* Datepicker */\n.clk-datepicker[data-v-736f94d0] {\n    width: 100%;\n}\n.clk-datepicker[data-v-736f94d0] .dp__input {\n    min-height: 48px;\n    /* Accessibility: match contrast of dropdowns */\n    background: #2d3a5e;\n    border: 2px solid #4a5a85;\n    border-radius: var(--clk-radius-sm);\n    color: var(--clk-text);\n    font-size: 16px;\n}쀀䁲恸䖺ɼ\u0016εŤ\n\n.clk-datepicker[data-v-736f94d0] .dp__input:hover,\n.clk-datepicker[data-v-736f94d0] .dp__input:focus {\n    border-color: var(--clk-primary);\n}\n.clk-datepicker[data-v-736f94d0] .dp__input_icon,\n.clk-datepicker[data-v-736f94d0] .dp__icon {\n    color: var(--clk-muted);\n}\n.dp--menu-wrapper {\n    z-index: 1080 !important;\n}\n.dp--clear-btn {\n    display: none !important;\n}\n\n/* ── BUTTONS ──────────────────────────────────────────── */\n.clk-btn[data-v-736f94d0] {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    gap: 8px;\n    padding: 12px 20px;\n    min-height: 52px;\n    border-radius: var(--clk-radius-sm);\n    border: 1px solid transparent;\n    font-size: 0.95rem;\n    font-weight: 700;\n    letter-spacing: 0.3px;\n    cursor: pointer;\n    transition: transform 0.08s, background 0.15s, border-color 0.15s, box-shadow 0.15s;\n    text-decoration: none;\n    white-space: nowrap;\n}\n.clk-btn[data-v-736f94d0]:active:not(:disabled) {\n    transform: scale(0.97);\n}\n.clk-btn[data-v-736f94d0]:disabled {\n    opacity: 0.55;\n    cursor: not-allowed;\n}\n.clk-btn[data-v-736f94d0]:focus-visible {\n    outline: none;\n    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);\n}\n.clk-btn--sm[data-v-736f94d0] {\n    min-height: 44px;\n    padding: 8px 14px;\n    font-size: 0.85rem;\n}\n.clk-btn--hero[data-v-736f94d0] {\n    flex: 1;\n    min-height: 60px;\n    font-size: 1.05rem;\n    letter-spacing: 0.5px;\n    text-transform: uppercase;\n    padding: 14px 22px;\n    font-weight: 800;\n}\n.clk-btn--primary[data-v-736f94d0] {\n    background: var(--clk-primary);\n    color: #fff;\n}\n.clk-btn--primary[data-v-736f94d0]:hover:not(:disabled) {\n    background: #2563eb;\n}\n.clk-btn--success[data-v-736f94d0] {\n    background: var(--clk-success);\n    color: #fff;\n}\n.clk-btn--success[data-v-736f94d0]:hover:not(:disabled) {\n    background: #16a34a;\n}\n.clk-btn--danger[data-v-736f94d0] {\n    background: var(--clk-danger);\n    color: #fff;\n}\n.clk-btn--danger[data-v-736f94d0]:hover:not(:disabled) {\n    background: #dc2626;\n}\n.clk-btn--ghost[data-v-736f94d0] {\n    background: var(--clk-surface-2);\n    border-color: var(--clk-border);\n    color: var(--clk-text);\n}\n.clk-btn--ghost[data-v-736f94d0]:hover:not(:disabled) {\n    background: var(--clk-border);\n}\n.clk-btn--outline[data-v-736f94d0] {\n    background: transparent;\n    border-color: var(--clk-border);\n    color: var(--clk-text);\n}\n.clk-btn--outline[data-v-736f94d0]:hover:not(:disabled) {\n    background: var(--clk-surface-2);\n    border-color: var(--clk-primary);\n}\n\n/* ── ADD CREW (desktop/tablet) ────────────────────────── */\n.clk-add-crew[data-v-736f94d0] {\n    display: grid;\n    grid-template-columns: 1fr;\n    gap: 8px;\n}\n.clk-add-crew[data-v-736f94d0] .select2-container {\n    width: 100% !important;\n}\n.clk-add-crew[data-v-736f94d0] .select2-selection {\n    min-height: 48px !important;\n    background: var(--clk-surface-2) !important;\n    border: 1px solid var(--clk-border) !important;\n    border-radius: var(--clk-radius-sm) !important;\n    padding: 6px 10px !important;\n    color: var(--clk-text) !important;\n}\n.clk-add-crew[data-v-736f94d0] .select2-selection__rendered {\n    color: var(--clk-text) !important;\n    line-height: 36px !important;\n}\n.clk-add-crew[data-v-736f94d0] .select2-selection__arrow {\n    height: 46px !important;\n}\n\n/* ── SELECT ALL ROW ───────────────────────────────────── */\n.clk-select-all[data-v-736f94d0] {\n    padding: 12px 14px;\n    border-top: 1px solid var(--clk-border);\n    border-bottom: 1px solid var(--clk-border);\n    background: var(--clk-surface-2);\n}\n.clk-check[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    gap: 12px;\n    cursor: pointer;\n    font-weight: 700;\n    font-size: 0.95rem;\n    margin: 0;\n    color: #ffffff;\n}\n.clk-check input[type=\"checkbox\"][data-v-736f94d0] {\n    width: 22px;\n    height: 22px;\n    accent-color: var(--clk-primary);\n    cursor: pointer;\n}\n\n/* ── EMPTY ────────────────────────────────────────────── */\n.clk-empty[data-v-736f94d0] {\n    padding: 32px 14px;\n    text-align: center;\n    color: var(--clk-muted);\n}\n.clk-empty i[data-v-736f94d0] {\n    font-size: 2rem;\n    margin-bottom: 8px;\n    opacity: 0.5;\n}\n.clk-empty p[data-v-736f94d0] {\n    margin: 0;\n    font-size: 0.9rem;\n}\n\n/* ── CREW ROW (desktop/tablet) ────────────────────────── */\n.clk-crew-list[data-v-736f94d0] {\n    display: flex;\n    flex-direction: column;\n}\n.clk-crew-row[data-v-736f94d0] {\n    display: flex;\n    align-items: flex-start;\n    gap: 12px;\n    padding: 14px;\n    border-top: 1px solid var(--clk-border);\n    transition: background 0.15s;\n}\n.clk-crew-row[data-v-736f94d0]:first-child {\n    border-top: none;\n}\n.clk-crew-row.is-checked[data-v-736f94d0] {\n    background: rgba(59, 130, 246, 0.06);\n}\n.clk-crew-row.is-out[data-v-736f94d0] {\n    opacity: 0.7;\n}\n.clk-crew-row__check[data-v-736f94d0] {\n    padding-top: 2px;\n    margin: 0;\n}\n.clk-crew-row__check input[type=\"checkbox\"][data-v-736f94d0] {\n    width: 22px;\n    height: 22px;\n    accent-color: var(--clk-primary);\n    cursor: pointer;\n}\n.clk-crew-row__main[data-v-736f94d0] {\n    flex: 1;\n    min-width: 0;\n    display: flex;\n    flex-direction: column;\n    gap: 6px;\n}\n.clk-crew-row__name[data-v-736f94d0] {\n    font-weight: 800;\n    font-size: 1rem;\n    color: #ffffff;\n    word-break: break-word;\n}\n.clk-crew-row__meta[data-v-736f94d0] {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 6px;\n}\n.clk-crew-row__times[data-v-736f94d0] {\n    margin-top: 4px;\n}\n.clk-time-readout[data-v-736f94d0] {\n    font-family: ui-monospace, 'SF Mono', Menlo, monospace;\n    font-size: 0.85rem;\n    color: var(--clk-muted);\n}\n.clk-time-edit[data-v-736f94d0] {\n    display: grid;\n    grid-template-columns: 1fr;\n    gap: 8px;\n    margin-top: 6px;\n}\n.clk-time-edit__field[data-v-736f94d0] {\n    display: flex;\n    flex-direction: column;\n    gap: 4px;\n}\n.clk-time-edit__label[data-v-736f94d0] {\n    font-size: 0.7rem;\n    letter-spacing: 0.8px;\n    text-transform: uppercase;\n    color: var(--clk-muted);\n    font-weight: 700;\n}\n.clk-crew-row__actions[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    gap: 8px;\n    padding-top: 2px;\n}\n.clk-icon-btn[data-v-736f94d0] {\n    width: 40px;\n    height: 40px;\n    border-radius: var(--clk-radius-sm);\n    border: 1px solid var(--clk-border);\n    background: var(--clk-surface-2);\n    color: var(--clk-muted);\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.15s;\n    flex-shrink: 0;\n}\n.clk-icon-btn[data-v-736f94d0]:hover:not(:disabled) {\n    color: var(--clk-text);\n    border-color: var(--clk-primary);\n}\n.clk-icon-btn.is-active[data-v-736f94d0] {\n    background: var(--clk-primary);\n    border-color: var(--clk-primary);\n    color: #fff;\n}\n.clk-icon-btn[data-v-736f94d0]:disabled {\n    opacity: 0.4;\n    cursor: not-allowed;\n}\n\n/* Per-diem stars */\n.clk-crew-row__actions[data-v-736f94d0] .fa-star,\n.clk-crew-row__actions[data-v-736f94d0] .fa-star-half,\n.clk-crew-row__actions[data-v-736f94d0] .fa-star-o,\n.clk-phone-crew-card__actions[data-v-736f94d0] .fa-star,\n.clk-phone-crew-card__actions[data-v-736f94d0] .fa-star-half,\n.clk-phone-crew-card__actions[data-v-736f94d0] .fa-star-o {\n    font-size: 1.25rem;\n    color: var(--clk-warn);\n    padding: 8px;\n    margin: 0 !important;\n    cursor: pointer;\n}\n\n/* ── CHIPS ────────────────────────────────────────────── */\n.clk-chip[data-v-736f94d0] {\n    display: inline-flex;\n    align-items: center;\n    padding: 3px 10px;\n    border-radius: 999px;\n    font-size: 0.75rem;\n    font-weight: 700;\n    background: var(--clk-surface-2);\n    border: 1px solid var(--clk-border);\n    color: #ffffff;\n}\n.clk-chip--muted[data-v-736f94d0] {\n    color: var(--clk-muted);\n}\n.clk-chip--in[data-v-736f94d0] {\n    background: rgba(34, 197, 94, 0.15);\n    border-color: rgba(34, 197, 94, 0.35);\n    color: #86efac;\n}\n.clk-chip--out[data-v-736f94d0] {\n    background: rgba(239, 68, 68, 0.12);\n    border-color: rgba(239, 68, 68, 0.3);\n    color: #fca5a5;\n}\n\n/* ── ACTION BAR (sticky bottom) ───────────────────────── */\n.clk-actionbar[data-v-736f94d0] {\n    flex-shrink: 0;\n    padding: 12px 14px;\n    padding-bottom: max(12px, env(safe-area-inset-bottom));\n    background: var(--clk-surface);\n    border-top: 1px solid var(--clk-border);\n    display: flex;\n    gap: 10px;\n    align-items: stretch;\n    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.25);\n}\n.clk-actionbar__status[data-v-736f94d0] {\n    flex: 1;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    padding: 16px;\n    background: var(--clk-surface-2);\n    border: 1px dashed var(--clk-border);\n    border-radius: var(--clk-radius-sm);\n    color: var(--clk-muted);\n    font-size: 0.85rem;\n    text-align: center;\n}\n\n/* ── TABLET/DESKTOP (≥ 768px) ─────────────────────────── */\n@media (min-width: 768px) {\n.clk-body[data-v-736f94d0]:not(.clk-body--phone) {\n        padding: 20px;\n}\n.clk-add-crew[data-v-736f94d0] {\n        grid-template-columns: 1.5fr 1.3fr auto;\n        align-items: center;\n}\n.clk-time-edit[data-v-736f94d0] {\n        grid-template-columns: 1fr 1fr;\n}\n}\n\n/* Child component (Depart.vue) overrides */\n.clk-card[data-v-736f94d0] .btn,\n.clk-phone-field[data-v-736f94d0] .btn {\n    border-radius: var(--clk-radius-sm);\n    min-height: 48px;\n    font-weight: 700;\n}\n.clk-card[data-v-736f94d0] select,\n.clk-phone-field[data-v-736f94d0] select {\n    min-height: 48px;\n    /* Accessibility: matches the contrast bump we applied to .clk-select.\n       This catches selects inside Depart.vue and other child components. */\n    background-color: #2d3a5e !important;\n    color: var(--clk-text);\n    border: 2px solid #4a5a85 !important;\n    font-size: 16px !important;\n}\n\n/* ═══════════════════════════════════════════════════════════════════════\n   PHONE-SPECIFIC LAYOUT (≤ 480px)\n   Tighter spacing, flat sections (no card borders), compact crew cards\n   ═══════════════════════════════════════════════════════════════════════ */\n.clk-shell--phone .clk-topbar[data-v-736f94d0] {\n    padding: 12px 14px;\n    padding-top: max(12px, env(safe-area-inset-top));\n}\n.clk-shell--phone .clk-topbar__title[data-v-736f94d0] {\n    font-size: 0.9rem;\n    gap: 8px;\n}\n.clk-shell--phone .clk-topbar__title i[data-v-736f94d0] {\n    font-size: 1.05rem;\n}\n.clk-shell--phone .clk-topbar__close[data-v-736f94d0] {\n    width: 36px;\n    height: 36px;\n}\n.clk-shell--phone .clk-status[data-v-736f94d0] {\n    padding: 12px 14px;\n    flex-wrap: wrap;\n}\n.clk-shell--phone .clk-status__pill[data-v-736f94d0] {\n    padding: 8px 14px;\n    font-size: 0.9rem;\n}\n.clk-shell--phone .clk-status__meta[data-v-736f94d0] {\n    flex-basis: 100%;\n    text-align: left;\n    margin-top: 4px;\n}\n\n/* Phone: late-entry pill toggle */\n.clk-phone-late-entry[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    gap: 10px;\n    width: 100%;\n    padding: 12px 14px;\n    min-height: 48px;\n    background: var(--clk-surface);\n    border: 1px solid var(--clk-border);\n    border-radius: var(--clk-radius);\n    color: #ffffff;\n    font-size: 0.9rem;\n    font-weight: 700;\n    cursor: pointer;\n    transition: background 0.15s;\n}\n.clk-phone-late-entry i[data-v-736f94d0]:first-child {\n    color: var(--clk-primary);\n}\n.clk-phone-late-entry.is-open[data-v-736f94d0] {\n    background: rgba(59, 130, 246, 0.12);\n    border-color: var(--clk-primary);\n}\n.clk-phone-late-entry.is-disabled[data-v-736f94d0] {\n    opacity: 0.5;\n    pointer-events: none;\n}\n.clk-phone-late-entry-body[data-v-736f94d0] {\n    background: var(--clk-surface);\n    border: 1px solid var(--clk-border);\n    border-radius: var(--clk-radius);\n    padding: 12px;\n}\n\n/* Phone: field containers (no heavy card, just label + control) */\n.clk-phone-field[data-v-736f94d0] {\n    background: var(--clk-surface);\n    border: 1px solid var(--clk-border);\n    border-radius: var(--clk-radius);\n    padding: 12px;\n    display: flex;\n    flex-direction: column;\n    gap: 8px;\n}\n.clk-phone-addcrew-head[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 8px;\n}\n.clk-phone-addcrew-body[data-v-736f94d0] {\n    display: flex;\n    flex-direction: column;\n    gap: 8px;\n}\n.clk-phone-addcrew-body[data-v-736f94d0] .select2-container {\n    width: 100% !important;\n}\n.clk-phone-addcrew-body[data-v-736f94d0] .select2-selection {\n    min-height: 48px !important;\n    background: var(--clk-surface-2) !important;\n    border: 1px solid var(--clk-border) !important;\n    border-radius: var(--clk-radius-sm) !important;\n    padding: 6px 10px !important;\n    color: var(--clk-text) !important;\n}\n.clk-phone-addcrew-body[data-v-736f94d0] .select2-selection__rendered {\n    color: var(--clk-text) !important;\n    line-height: 36px !important;\n}\n\n/* Phone: crew section */\n.clk-phone-crew-section[data-v-736f94d0] {\n    background: var(--clk-surface);\n    border: 1px solid var(--clk-border);\n    border-radius: var(--clk-radius);\n    overflow: hidden;\n    min-height: 120px;\n    /* always reserve space for at least one crew card + head */\n    flex-shrink: 0;\n    /* never collapse below min-content */\n}\n.clk-phone-crew-head[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    padding: 12px 14px;\n    border-bottom: 1px solid var(--clk-border);\n}\n.clk-phone-crew-title[data-v-736f94d0] {\n    font-size: 1rem;\n    font-weight: 800;\n    color: #ffffff;\n    display: inline-flex;\n    align-items: center;\n}\n.clk-phone-crew-head-right[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n}\n.clk-phone-crew-list[data-v-736f94d0] {\n    display: flex;\n    flex-direction: column;\n}\n.clk-phone-crew-card[data-v-736f94d0] {\n    padding: 10px 12px;\n    border-bottom: 1px solid var(--clk-border);\n    display: flex;\n    flex-direction: column;\n    gap: 6px;\n    transition: background 0.15s;\n}\n.clk-phone-crew-card[data-v-736f94d0]:last-child {\n    border-bottom: none;\n}\n.clk-phone-crew-card.is-checked[data-v-736f94d0] {\n    background: rgba(59, 130, 246, 0.08);\n}\n.clk-phone-crew-card.is-out[data-v-736f94d0] {\n    opacity: 0.75;\n}\n.clk-phone-crew-card__top[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    gap: 10px;\n}\n.clk-phone-crew-card__check[data-v-736f94d0] {\n    margin: 0;\n    flex-shrink: 0;\n}\n.clk-phone-crew-card__check input[type=\"checkbox\"][data-v-736f94d0] {\n    width: 22px;\n    height: 22px;\n    accent-color: var(--clk-primary);\n    cursor: pointer;\n}\n.clk-phone-crew-card__name[data-v-736f94d0] {\n    flex: 1;\n    min-width: 0;\n    font-weight: 800;\n    font-size: 0.95rem;\n    color: #ffffff;\n    word-break: break-word;\n    line-height: 1.25;\n}\n.clk-phone-crew-card__actions[data-v-736f94d0] {\n    display: flex;\n    align-items: center;\n    gap: 4px;\n    flex-shrink: 0;\n}\n.clk-phone-crew-card__meta[data-v-736f94d0] {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 4px;\n    padding-left: 32px;\n    /* align with name, past checkbox */\n}\n.clk-phone-crew-card.is-in .clk-phone-crew-card__meta[data-v-736f94d0],\n.clk-phone-crew-card.is-out .clk-phone-crew-card__meta[data-v-736f94d0],\n.clk-phone-crew-card:not(.is-checked) .clk-phone-crew-card__meta[data-v-736f94d0] {\n    padding-left: 0;\n}\n.clk-phone-crew-card__times[data-v-736f94d0] {\n    font-family: ui-monospace, 'SF Mono', Menlo, monospace;\n    font-size: 0.8rem;\n    color: var(--clk-muted);\n}\n.clk-phone-crew-card__edit[data-v-736f94d0] {\n    display: grid;\n    grid-template-columns: 1fr 1fr;\n    gap: 6px;\n    margin-top: 4px;\n}\n\n/* Phone: action bar tweaks */\n.clk-shell--phone .clk-actionbar[data-v-736f94d0] {\n    padding: 10px 12px;\n    padding-bottom: max(10px, env(safe-area-inset-bottom));\n    gap: 8px;\n}\n.clk-shell--phone .clk-btn--hero[data-v-736f94d0] {\n    min-height: 56px;\n    font-size: 1rem;\n    padding: 12px 16px;\n}\n.clk-shell--phone .clk-btn--ghost[data-v-736f94d0]:not(.clk-btn--hero) {\n    min-height: 56px;\n    flex: 0 0 auto;\n    padding: 10px 14px;\n}\n\n/* Phone: very small (iPhone SE, 320-360px) */\n@media (max-width: 360px) {\n.clk-shell--phone .clk-topbar__title[data-v-736f94d0] {\n        font-size: 0.85rem;\n}\n.clk-shell--phone .clk-status__pill[data-v-736f94d0] {\n        font-size: 0.85rem;\n        padding: 7px 12px;\n}\n.clk-shell--phone .clk-btn--hero[data-v-736f94d0] {\n        font-size: 0.9rem;\n        min-height: 52px;\n}\n.clk-shell--phone .clk-phone-crew-card__name[data-v-736f94d0] {\n        font-size: 0.9rem;\n}\n.clk-shell--phone .clk-phone-crew-card__edit[data-v-736f94d0] {\n        grid-template-columns: 1fr;\n}\n.clk-shell--phone .clk-body--phone[data-v-736f94d0] {\n        padding: 10px 10px;\n        gap: 8px;\n}\n}\n\n/* Phone landscape: let the action bar show alongside content better */\n/* ═══════════════════════════════════════════════════════════════════════\n   PHONE LANDSCAPE (short viewport height)\n   Two-column layout: controls on the left, crew list on the right.\n   The wider-than-tall viewport is ideal for a side-by-side arrangement.\n   ═══════════════════════════════════════════════════════════════════════ */\n@media (orientation: landscape) and (max-height: 500px) {\n\n    /* ── Chrome compression ─────────────────────────────────── */\n\n    /* Topbar: minimal height */\n.clk-shell--phone .clk-topbar[data-v-736f94d0] {\n        padding: 5px 12px;\n        padding-top: max(5px, env(safe-area-inset-top));\n}\n.clk-shell--phone .clk-topbar__title[data-v-736f94d0] {\n        font-size: 0.8rem;\n}\n.clk-shell--phone .clk-topbar__title i[data-v-736f94d0] {\n        font-size: 0.95rem;\n}\n.clk-shell--phone .clk-topbar__close[data-v-736f94d0] {\n        width: 30px;\n        height: 30px;\n        font-size: 0.85rem;\n}\n\n    /* Status: single line, compact */\n.clk-shell--phone .clk-status[data-v-736f94d0] {\n        padding: 5px 12px;\n        flex-wrap: nowrap;\n}\n.clk-shell--phone .clk-status__pill[data-v-736f94d0] {\n        padding: 4px 10px;\n        font-size: 0.78rem;\n}\n.clk-shell--phone .clk-status__meta[data-v-736f94d0] {\n        flex-basis: auto;\n        text-align: right;\n        margin-top: 0;\n        font-size: 0.72rem;\n        white-space: nowrap;\n        overflow: hidden;\n        text-overflow: ellipsis;\n        min-width: 0;\n}\n\n    /* ── TWO-COLUMN BODY ────────────────────────────────────── */\n    /* Left column holds all controls (stacks and scrolls inside),\n       right column is the crew section (fills full height, scrolls inside). */\n.clk-shell--phone .clk-body--phone[data-v-736f94d0] {\n        display: flex;\n        flex-direction: row;\n        gap: 8px;\n        padding: 8px 10px;\n        overflow: hidden;\n}\n\n    /* Left column wrapper: controls stack inside, scrolls if needed */\n.clk-shell--phone .clk-body--phone>.clk-phone-left[data-v-736f94d0] {\n        flex: 0 0 42%;\n        max-width: 42%;\n        min-width: 0;\n        display: flex;\n        flex-direction: column;\n        gap: 6px;\n        overflow-y: auto;\n        -webkit-overflow-scrolling: touch;\n        padding-right: 2px;\n        /* breathing room for scrollbar */\n}\n\n    /* Crew section: right column, fills remaining width, scrolls internally */\n.clk-shell--phone .clk-body--phone>.clk-phone-crew-section[data-v-736f94d0] {\n        flex: 1 1 auto;\n        min-width: 0;\n        min-height: 0;\n        display: flex;\n        flex-direction: column;\n        overflow: hidden;\n}\n.clk-shell--phone .clk-body--phone>.clk-phone-crew-section>.clk-phone-crew-head[data-v-736f94d0] {\n        flex-shrink: 0;\n}\n.clk-shell--phone .clk-body--phone>.clk-phone-crew-section>.clk-phone-crew-list[data-v-736f94d0],\n    .clk-shell--phone .clk-body--phone>.clk-phone-crew-section>.clk-empty[data-v-736f94d0] {\n        overflow-y: auto;\n        -webkit-overflow-scrolling: touch;\n        flex: 1;\n        min-height: 0;\n}\n\n    /* Hide body spacer in landscape */\n.clk-shell--phone .clk-body--phone>.clk-body__spacer[data-v-736f94d0] {\n        display: none;\n}\n\n    /* ── Card sizing compression ────────────────────────────── */\n.clk-shell--phone .clk-phone-field[data-v-736f94d0] {\n        padding: 8px 10px;\n        gap: 6px;\n}\n.clk-shell--phone .clk-phone-late-entry[data-v-736f94d0] {\n        padding: 6px 12px;\n        min-height: 38px;\n        font-size: 0.85rem;\n}\n.clk-shell--phone .clk-phone-late-entry-body[data-v-736f94d0] {\n        padding: 8px;\n}\n.clk-shell--phone .clk-select[data-v-736f94d0],\n    .clk-shell--phone .clk-phone-field[data-v-736f94d0] select {\n        min-height: 38px;\n        padding: 5px 12px;\n}\n.clk-shell--phone .clk-datepicker[data-v-736f94d0] .dp__input {\n        min-height: 38px;\n}\n\n    /* Crew list visuals */\n.clk-shell--phone .clk-phone-crew-head[data-v-736f94d0] {\n        padding: 7px 12px;\n}\n.clk-shell--phone .clk-phone-crew-title[data-v-736f94d0] {\n        font-size: 0.9rem;\n}\n.clk-shell--phone .clk-phone-crew-card[data-v-736f94d0] {\n        padding: 7px 10px;\n        gap: 3px;\n}\n.clk-shell--phone .clk-phone-crew-card__name[data-v-736f94d0] {\n        font-size: 0.88rem;\n}\n.clk-shell--phone .clk-phone-crew-card__meta[data-v-736f94d0] {\n        padding-left: 0;\n}\n\n    /* Action bar: short, nowrap */\n.clk-shell--phone .clk-actionbar[data-v-736f94d0] {\n        padding: 5px 10px;\n        padding-bottom: max(5px, env(safe-area-inset-bottom));\n        gap: 6px;\n        flex-wrap: nowrap;\n}\n.clk-shell--phone .clk-btn--hero[data-v-736f94d0] {\n        min-height: 40px;\n        font-size: 0.82rem;\n        padding: 6px 14px;\n        letter-spacing: 0.3px;\n}\n.clk-shell--phone .clk-btn--ghost[data-v-736f94d0]:not(.clk-btn--hero) {\n        min-height: 40px;\n        padding: 6px 12px;\n        font-size: 0.78rem;\n}\n}\n\n/* ═══════════════════════════════════════════════════════════════════════\n   ROTATION PROMPT OVERLAY\n   Shown on phone-sized devices when in portrait orientation.\n   Covers the entire modal so the user can't interact with stale UI.\n   ═══════════════════════════════════════════════════════════════════════ */\n\n/* When the lock is active, hide the normal UI behind the overlay */\n.clk-shell--locked>.clk-topbar[data-v-736f94d0],\n.clk-shell--locked>.clk-status[data-v-736f94d0],\n.clk-shell--locked>.clk-body[data-v-736f94d0],\n.clk-shell--locked>.clk-actionbar[data-v-736f94d0] {\n    visibility: hidden;\n    pointer-events: none;\n}\n.clk-rotate[data-v-736f94d0] {\n    position: absolute;\n    inset: 0;\n    z-index: 10;\n    background: linear-gradient(180deg,\n            var(--clk-bg) 0%,\n            var(--clk-surface) 100%);\n    color: #ffffff;\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    justify-content: center;\n    padding: 24px;\n    padding-top: max(24px, env(safe-area-inset-top));\n    padding-bottom: max(24px, env(safe-area-inset-bottom));\n    text-align: center;\n    -webkit-tap-highlight-color: transparent;\n}\n.clk-rotate__close[data-v-736f94d0] {\n    position: absolute;\n    top: max(14px, env(safe-area-inset-top));\n    right: 14px;\n    width: 40px;\n    height: 40px;\n    border-radius: 50%;\n    border: none;\n    background: var(--clk-surface-2);\n    color: #ffffff;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    cursor: pointer;\n    transition: background 0.15s;\n    font-size: 1rem;\n}\n.clk-rotate__close[data-v-736f94d0]:hover,\n.clk-rotate__close[data-v-736f94d0]:focus-visible {\n    background: var(--clk-border);\n    outline: none;\n}\n.clk-rotate__inner[data-v-736f94d0] {\n    max-width: 320px;\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    gap: 18px;\n}\n.clk-rotate__icon[data-v-736f94d0] {\n    width: 112px;\n    height: 112px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    color: var(--clk-primary);\n    background: rgba(59, 130, 246, 0.1);\n    border: 1px solid rgba(59, 130, 246, 0.25);\n    border-radius: 50%;\n}\n.clk-rotate__phone[data-v-736f94d0] {\n    transform-origin: 60px 50px;\n    animation: clk-rotate-spin-736f94d0 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;\n}\n@keyframes clk-rotate-spin-736f94d0 {\n0% {\n        transform: rotate(0deg);\n}\n20% {\n        transform: rotate(0deg);\n}\n55% {\n        transform: rotate(-90deg);\n}\n75% {\n        transform: rotate(-90deg);\n}\n100% {\n        transform: rotate(0deg);\n}\n}\n.clk-rotate__title[data-v-736f94d0] {\n    font-size: 1.35rem;\n    font-weight: 800;\n    letter-spacing: 0.3px;\n    color: #ffffff;\n    margin: 0;\n}\n.clk-rotate__desc[data-v-736f94d0] {\n    font-size: 0.95rem;\n    line-height: 1.5;\n    color: var(--clk-muted);\n    margin: 0;\n    font-weight: 500;\n}\n\n/* Extra-small screens (iPhone SE in portrait = 375×667, after safe-area trim) */\n@media (max-height: 600px) {\n.clk-rotate__icon[data-v-736f94d0] {\n        width: 88px;\n        height: 88px;\n}\n.clk-rotate__icon svg[data-v-736f94d0] {\n        width: 72px;\n        height: 72px;\n}\n.clk-rotate__title[data-v-736f94d0] {\n        font-size: 1.15rem;\n}\n.clk-rotate__desc[data-v-736f94d0] {\n        font-size: 0.85rem;\n}\n.clk-rotate__inner[data-v-736f94d0] {\n        gap: 14px;\n}\n}\n", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, "\n/* Kill ALL Bootstrap modal sizing for this specific modal. */\n#clockin.modal {\n    padding: 0 !important;\n}\n#clockin .modal-dialog {\n    width: 100vw !important;\n    max-width: 100vw !important;\n    height: 100vh !important;\n    height: 100dvh !important;\n    /* modern mobile-safe viewport unit */\n    margin: 0 !important;\n    display: flex !important;\n    align-items: stretch !important;\n    justify-content: stretch !important;\n}\n#clockin .modal-content {\n    width: 100% !important;\n    height: 100% !important;\n    max-height: 100% !important;\n    border-radius: 0 !important;\n    border: 0 !important;\n}\n\n/* Desktop: on wide screens, dock the modal to the right at 560px\n   so users can still see their dashboard behind it.\n   Phones in landscape (short side ≤ 500px) keep the full-width lock. */\n@media (min-width: 992px) and (min-height: 501px) {\n#clockin .modal-dialog {\n        width: min(560px, 100vw) !important;\n        max-width: 560px !important;\n        margin-left: auto !important;\n        margin-right: 0 !important;\n}\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -67295,6 +67613,36 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css":
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_1_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!../../../node_modules/vue-loader/dist/stylePostLoader.js!../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css */ "./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_1_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_1__["default"], options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_1_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_1__["default"].locals || {});
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/CrewsManagement/Create.vue?vue&type=style&index=0&id=76d99881&lang=css":
 /*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/CrewsManagement/Create.vue?vue&type=style&index=0&id=76d99881&lang=css ***!
@@ -67989,7 +68337,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Clockin_vue_vue_type_template_id_736f94d0_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Clockin.vue?vue&type=template&id=736f94d0&scoped=true */ "./resources/js/components/Clockin.vue?vue&type=template&id=736f94d0&scoped=true");
 /* harmony import */ var _Clockin_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Clockin.vue?vue&type=script&setup=true&lang=js */ "./resources/js/components/Clockin.vue?vue&type=script&setup=true&lang=js");
 /* harmony import */ var _Clockin_vue_vue_type_style_index_0_id_736f94d0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css */ "./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css");
-/* harmony import */ var _var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var _Clockin_vue_vue_type_style_index_1_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css */ "./resources/js/components/Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css");
+/* harmony import */ var _var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -67997,7 +68346,8 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,_var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_Clockin_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Clockin_vue_vue_type_template_id_736f94d0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-736f94d0"],['__file',"resources/js/components/Clockin.vue"]])
+
+const __exports__ = /*#__PURE__*/(0,_var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Clockin_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Clockin_vue_vue_type_template_id_736f94d0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-736f94d0"],['__file',"resources/js/components/Clockin.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -68085,34 +68435,6 @@ __webpack_require__.r(__webpack_exports__);
 
 ;
 const __exports__ = /*#__PURE__*/(0,_var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__["default"])(_Index_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Index_vue_vue_type_template_id_6de86ddd__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/CrewsManagement/Index.vue"]])
-/* hot reload */
-if (false) {}
-
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (__exports__);
-
-/***/ }),
-
-/***/ "./resources/js/components/DeleteCrewMember.vue":
-/*!******************************************************!*\
-  !*** ./resources/js/components/DeleteCrewMember.vue ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _DeleteCrewMember_vue_vue_type_template_id_0469dad1__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DeleteCrewMember.vue?vue&type=template&id=0469dad1 */ "./resources/js/components/DeleteCrewMember.vue?vue&type=template&id=0469dad1");
-/* harmony import */ var _DeleteCrewMember_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DeleteCrewMember.vue?vue&type=script&setup=true&lang=js */ "./resources/js/components/DeleteCrewMember.vue?vue&type=script&setup=true&lang=js");
-/* harmony import */ var _var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
-
-
-
-
-;
-const __exports__ = /*#__PURE__*/(0,_var_www_html_peektrackv2_PeekTrack_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__["default"])(_DeleteCrewMember_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DeleteCrewMember_vue_vue_type_template_id_0469dad1__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/DeleteCrewMember.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -68596,22 +68918,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/DeleteCrewMember.vue?vue&type=script&setup=true&lang=js":
-/*!*****************************************************************************************!*\
-  !*** ./resources/js/components/DeleteCrewMember.vue?vue&type=script&setup=true&lang=js ***!
-  \*****************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_DeleteCrewMember_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"])
-/* harmony export */ });
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_DeleteCrewMember_vue_vue_type_script_setup_true_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./DeleteCrewMember.vue?vue&type=script&setup=true&lang=js */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/DeleteCrewMember.vue?vue&type=script&setup=true&lang=js");
- 
-
-/***/ }),
-
 /***/ "./resources/js/components/Depart.vue?vue&type=script&setup=true&lang=js":
 /*!*******************************************************************************!*\
   !*** ./resources/js/components/Depart.vue?vue&type=script&setup=true&lang=js ***!
@@ -68916,22 +69222,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/DeleteCrewMember.vue?vue&type=template&id=0469dad1":
-/*!************************************************************************************!*\
-  !*** ./resources/js/components/DeleteCrewMember.vue?vue&type=template&id=0469dad1 ***!
-  \************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   render: () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_DeleteCrewMember_vue_vue_type_template_id_0469dad1__WEBPACK_IMPORTED_MODULE_0__.render)
-/* harmony export */ });
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_DeleteCrewMember_vue_vue_type_template_id_0469dad1__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./DeleteCrewMember.vue?vue&type=template&id=0469dad1 */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/DeleteCrewMember.vue?vue&type=template&id=0469dad1");
-
-
-/***/ }),
-
 /***/ "./resources/js/components/Depart.vue?vue&type=template&id=a5fa47c2":
 /*!**************************************************************************!*\
   !*** ./resources/js/components/Depart.vue?vue&type=template&id=a5fa47c2 ***!
@@ -69149,6 +69439,19 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_0_id_736f94d0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader/dist/cjs.js!../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!../../../node_modules/vue-loader/dist/stylePostLoader.js!../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=0&id=736f94d0&scoped=true&lang=css");
+
+
+/***/ }),
+
+/***/ "./resources/js/components/Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css":
+/*!*****************************************************************************************!*\
+  !*** ./resources/js/components/Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css ***!
+  \*****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_css_loader_dist_cjs_js_clonedRuleSet_9_use_1_node_modules_vue_loader_dist_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_9_use_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_Clockin_vue_vue_type_style_index_1_id_736f94d0_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader/dist/cjs.js!../../../node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!../../../node_modules/vue-loader/dist/stylePostLoader.js!../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css */ "./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js??clonedRuleSet-9.use[1]!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-9.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Clockin.vue?vue&type=style&index=1&id=736f94d0&lang=css");
 
 
 /***/ }),

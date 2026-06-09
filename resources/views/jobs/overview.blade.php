@@ -161,13 +161,7 @@
         background-color: #FFA500;
         border-radius: 4px;
     }
-	.modal,
-	.modal-content,
-	.modal-body {
-		overflow: visible !important;
-		position: relative !important;
-		z-index:99999 !important;
-	}
+
 </style>
 <script>
 $(document).ready(function () {
@@ -544,7 +538,7 @@ $(document).ready(function () {
     </div>
 	
 	<div class="modal fade" id="modal-inactivefiles" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+      <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
@@ -553,7 +547,7 @@ $(document).ready(function () {
           </div>
           <div class="modal-body" style="background-color: black;">
             <div class="py-3 text-center">
-				<table class="table table-flush" id="datatable-basic">
+				<table class="table table-flush scrollable" id="datatable-basic">
                 <thead class="thead-light">
                   <tr>
 				    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-9 ps-2">Description</th>
