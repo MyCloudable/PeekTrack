@@ -85,7 +85,8 @@ class UserAdminController extends Controller
         $validated = $request->validate([
             'name'                  => ['required','string','max:255'],
             'role_id'               => ['required','integer'],
-            'location'     => ['nullable','regex:/^\d{2}$/'], // exactly 2 digits
+            // 'location'     => ['nullable','regex:/^\d{2}$/'], // exactly 2 digits
+            'location' => ['nullable', 'regex:/^\d{1,4}$/'], // up to 4 digits
             'class'        => ['nullable','regex:/^\d{2}$/'], // exactly 2 digits
             'pay_rate'     => ['nullable','in:0,1'],          // 0/1
             'new_password'          => ['nullable','string','min:8','confirmed'],

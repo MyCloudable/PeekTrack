@@ -36,9 +36,9 @@
 
                     <div class="row">
                         <div class="col-4 mb-2">
-                            <label class="form-label">Location (2 digits)</label>
+                            <label class="form-label">Location (up to 4 digits)</label>
                             <input class="form-control bg-white" v-model="editForm.location" inputmode="numeric"
-                                pattern="\\d{2}" maxlength="2" placeholder="e.g. 02" />
+                                pattern="\\d{1,4}" maxlength="4" placeholder="e.g. 02 or 1234" />
                         </div>
                         <div class="col-4 mb-2">
                             <label class="form-label">Class (2 digits)</label>

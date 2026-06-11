@@ -17,7 +17,7 @@ class Timesheet extends Model
     protected $fillable = ['crew_id', 'crew_type_id', 'user_id', 'clockin_time', 'clockout_time',
     'job_id', 'time_type_id', 'created_by', 'modified_by', 
     'weekend_out', 'reviewer_approval', 'reviewer_approval_by', 'reviewer_approval_at', 'payroll_approval', 'crew_member_approval',
-    'per_diem'
+    'per_diem', 'entry_source'
     ];
 
 

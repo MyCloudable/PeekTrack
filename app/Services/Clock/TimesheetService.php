@@ -244,6 +244,7 @@ class TimesheetService {
                     'time_type_id' => $selectedTimeTypeId,
                     'created_by' => auth()->id(),
                     'modified_by' => auth()->id(),
+                    'entry_source' => 'time_clock',
                 ]);
                 
             }
@@ -389,6 +390,7 @@ class TimesheetService {
                 'time_type_id' => TimeType::where('name', 'Shop')->first()->id,
                 'created_by' => auth()->id(),
                 'modified_by' => auth()->id(),
+                'entry_source' => 'time_clock',
             ]);
         }
 
@@ -519,6 +521,7 @@ class TimesheetService {
                             'time_type_id' => $travelTime->time_type_id,
                             'created_by' => auth()->id(),
                             'modified_by' => auth()->id(),
+                            'entry_source' => 'time_clock',
                         ]);
 
                     }
@@ -538,6 +541,7 @@ class TimesheetService {
                             'time_type_id' => ($travelTime->type == 'depart_for_office') ? TimeType::where('name', 'Shop')->first()->id : NULL,
                             'created_by' => auth()->id(),
                             'modified_by' => auth()->id(),
+                            'entry_source' => 'time_clock',
                         ]);
 
                         $newlyCreatedTimesheetIds[] = $timesheet->id;
@@ -591,6 +595,7 @@ class TimesheetService {
                     'time_type_id' => TimeType::where('name', 'Weather')->first()->id,
                     'created_by' => auth()->id(),
                     'modified_by' => auth()->id(),
+                    'entry_source' => 'time_clock',
                 ]);
                 
             }
@@ -746,6 +751,7 @@ class TimesheetService {
                 'created_by' => auth()->id(),
                 'modified_by' => auth()->id(),
                 'per_diem' => TimesheetService::checkIfPreviousEntriesOfTheDayHavePd($entry->user_id, $entry->clockin_time),
+                'entry_source' => $entry->entry_source,
             ]);
         } else {
             // If it doesn't cross midnight, just update the existing clockout_time
@@ -873,6 +879,7 @@ class TimesheetService {
                         $entry->user_id,
                         $switchAt->toDateTimeString()
                     ),
+                    'entry_source' => $entry->entry_source,
                 ]);
             }
         });

@@ -642,8 +642,13 @@ $overflowItems = DB::table('overflow_items')
             }
         }
 
+        // return redirect()
+        //     ->route("jobs.jobcard", ["id" => $uuid])
+        //     ->with("success", "Job entry saved successfully");
+
+        // redirect to Dashboard after submission
         return redirect()
-            ->route("jobs.jobcard", ["id" => $uuid])
+            ->route("dashboard")
             ->with("success", "Job entry saved successfully");
     }
 

@@ -82,6 +82,16 @@ tr:hover {
 </div>
 
         <div class="container-fluid py-4">
+
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible text-white fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
             <div class="col-sm-12">
 
         <div class="container-fluid py-4">

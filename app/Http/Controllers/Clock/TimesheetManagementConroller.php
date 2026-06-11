@@ -568,6 +568,7 @@ public function summary()
             $data['crew_id'] = Crew::where('superintendentId', $data['superintendentId'])->value('id'); //get crew id from superintendent id
             $data['created_by'] = Auth::user()->id;
             $data['modified_by'] = Auth::user()->id;
+            $data['entry_source'] = 'manual';
 
             $userIds = $data['user_id']; // assuming user_id is an array
 
