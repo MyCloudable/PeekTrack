@@ -74,7 +74,7 @@ class ScoreRecent extends Command
         ->chunkById(200, function ($chunk) use ($maker, $bar, &$bandCounts, &$errors) {
             foreach ($chunk as $feature) {
                 try {
-                    $decision = $maker->decide($feature);
+                    $decision = $maker->decide($feature, false);
                     $bandCounts[$decision['band']]++;
                 } catch (\Throwable $e) {
                     $errors++;

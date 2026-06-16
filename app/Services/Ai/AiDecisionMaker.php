@@ -65,7 +65,7 @@ class AiDecisionMaker
      *   shadow: bool
      * }
      */
-    public function decide(JobCardAiFeature $feature): array
+    public function decide(JobCardAiFeature $feature, bool $writeJobReview = true): array
     {
         $start = microtime(true);
 
@@ -100,12 +100,14 @@ class AiDecisionMaker
             shadow: $shadow
         );
 
-        $this->writeJobReview(
-            feature: $feature,
-            band: $band,
-            summary: $summary,
-            shadow: $shadow
-        );
+        if ($writeJobReview) {
+            $this->writeJobReview(
+                feature: $feature,
+                band: $band,
+                summary: $summary,
+                shadow: $shadow
+            );
+        }
 
         // Live-mode action dispatch (Sprint 4).
         // Shadow mode skips this entirely — only logs the decision.

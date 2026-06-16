@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Jobentry;
+use App\Observers\JobEntryApprovalObserver;
 use App\Observers\JobEntrySubmitObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -30,5 +31,6 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         Jobentry::observe(JobEntrySubmitObserver::class);
+        Jobentry::observe(JobEntryApprovalObserver::class);
     }
 }

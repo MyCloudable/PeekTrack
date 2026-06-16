@@ -33,6 +33,8 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->onOneServer()  // if you ever run multiple app servers
             ->appendOutputTo(storage_path('logs/ai-escalate.log'));
+
+        $schedule->command('ai:capture-rejections')->everyFifteenMinutes();
     }
 
     /**
