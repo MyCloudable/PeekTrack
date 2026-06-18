@@ -59,7 +59,6 @@ class SyncProdToAiTest extends Command
      * - Lookup-ish tables first: crew_types, crews
      * - Main parent cards next: jobentries
      * - Related/detail tables after that
-     * - jobreviews last because AI scoring can also append to this table later
      */
     private array $sourceTables = [
         'crew_types',
@@ -69,7 +68,6 @@ class SyncProdToAiTest extends Command
         'production',
         'material',
         'equipment',
-        'jobreviews',
     ];
 
     /**
