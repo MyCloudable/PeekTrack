@@ -59,6 +59,15 @@ class TimesheetController extends Controller
         return response()->json($this->timesheetService->readyForVerification($request->all()), 200);
     }
 
+    public function resetCrewVerification(Request $request)
+    {
+        $validated = $request->validate([
+            'crewId' => 'required|integer|exists:crews,id',
+        ]);
+
+        return response()->json($this->timesheetService->resetCrewVerification($validated), 200);
+    }
+
     public function weatherEntry(Request $request)
     {
         return response()->json($this->timesheetService->weatherEntry($request->all()), 200);

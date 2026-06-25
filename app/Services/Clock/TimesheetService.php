@@ -450,6 +450,37 @@ class TimesheetService {
 
     }
 
+    public function resetCrewVerification($data)
+    {
+        $crew = Crew::where('id', $data['crewId'])
+            ->where('superintendentId', auth()->id())
+            ->firstOrFail();
+
+        if (!$crew->last_verified_date) {
+            throw ValidationException::withMessages([
+                'error' => 'Crew is not currently verified.',
+            ]);
+        }
+
+        $hasTimesheetsAfterVerification = Timesheet::where('crew_id', $crew->id)
+            ->where('created_at', '>=', $crew->last_verified_date)
+            ->exists();
+
+        if ($hasTimesheetsAfterVerification) {
+            throw ValidationException::withMessages([
+                'error' => 'Cannot reset verification because this crew has already started time activity.',
+            ]);
+        }
+
+        $crew->update([
+            'last_verified_date' => null,
+            'is_ready_for_verification' => 0,
+            'modified_by' => auth()->id(),
+        ]);
+
+        return true;
+    }
+
     // save all depart entries for every crew member in timesheets table. so we can export csv's
     private function saveAllDepartEntries($crew, $crewcrewMembersArray)
     {

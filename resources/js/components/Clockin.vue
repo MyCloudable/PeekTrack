@@ -466,10 +466,17 @@
                     </button>
 
                     <template v-else-if="isAlreadyVerified && !isAlreadyClockedin && !isAlreadyClockedout">
+
+                        <button class="clk-btn clk-btn--ghost" @click="resetCrewVerification" :disabled="isBusy">
+                            <i class="fas fa-undo"></i>
+                            <span>Reset</span>
+                        </button>
+
                         <button class="clk-btn clk-btn--ghost" @click="weatherEntry" :disabled="isBusy">
                             <i class="fas fa-cloud-sun"></i>
                             <span>Weather</span>
                         </button>
+
                         <button class="clk-btn clk-btn--success clk-btn--hero" @click="clockinout('clockin')"
                             :disabled="isBusy">
                             <i class="fas fa-play"></i>
@@ -851,6 +858,31 @@ const readyForVerification = () => {
     axios.post('/ready-for-verification', { crewId: crewId.value })
         .then(() => setLocalStorageFlag())
         .catch(err => console.error(err))
+        .finally(() => setLoading(false))
+}
+
+const resetCrewVerification = () => {
+    if (isBusy.value) return
+
+    if (!confirm('Are you sure you want to reset crew verification?')) return
+
+    setLoading(true)
+
+    axios.post('/reset-crew-verification', {
+        crewId: crewId.value,
+    })
+        .then(() => {
+            toast.success('Crew verification reset')
+            setLocalStorageFlag()
+        })
+        .catch(error => {
+            const msg =
+                error?.response?.data?.message ||
+                error?.response?.data?.errors?.error?.[0] ||
+                'Something went wrong'
+
+            toast.error(msg)
+        })
         .finally(() => setLoading(false))
 }
 
@@ -1296,9 +1328,9 @@ const switchTimeType = () => {
     border-radius: var(--clk-radius-sm);
     color: var(--clk-text);
     font-size: 16px;
-}쀀䁲恸䖺ɼεŤ
+}
 
-.clk-datepicker :deep(.dp__input:hover),
+쀀䁲恸䖺ɼεŤ .clk-datepicker :deep(.dp__input:hover),
 .clk-datepicker :deep(.dp__input:focus) {
     border-color: var(--clk-primary);
 }

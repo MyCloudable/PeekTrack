@@ -462,6 +462,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('delete-crew-members', [TimesheetController::class, 'deleteCrewMember']);
 	Route::post('hf-per-diem', [TimesheetController::class, 'hfPerDiem']);
 	Route::post('ready-for-verification', [TimesheetController::class, 'readyForVerification']);
+	Route::post('reset-crew-verification', [TimesheetController::class, 'resetCrewVerification'])->name('resetCrewVerification');
 	Route::post('wather-entry', [TimesheetController::class, 'weatherEntry']);
 
 	Route::get('time-types', [TimesheetController::class, 'getTimeTypes']); // to get all time types for crew entry
