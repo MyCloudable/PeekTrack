@@ -146,7 +146,25 @@ class BackfillAiFeatures extends Command
 
     private function buildCardQuery()
     {
-        $query = DB::table('jobentries')->where('submitted', 1);
+        // Eligibility: any card that has entered review, not just submitted=1.
+        //
+        // `submitted = 1` alone misses same-day kickbacks: prod reviews happen
+        // within hours, so by the nightly sync a rejected card is already back
+        // at submitted=0 / approved=2 and would never get a feature row (and
+        // therefore never a score). Confirmed 2026-07-10: 0 of the rejections
+        // captured after the metric window opened had ever been scored.
+        //
+        // Rejected cards are also frequently hard-deleted in prod (delete-and-
+        // reenter is the dominant crew response to a kickback — link never
+        // changes for the life of a row, so a vanished link means deletion).
+        // Scoring on first sight snapshots the rejected content before it can
+        // be destroyed — feeding both the prospective agreement metric and the
+        // ML training labels.
+        $query = DB::table('jobentries')->where(function ($q) {
+            $q->where('submitted', 1)
+              ->orWhere('approved', 2)
+              ->orWhereNotNull('kicked_back_at');
+        });
 
         if ($this->option('link')) {
             return $query->where('link', $this->option('link'));
