@@ -681,7 +681,7 @@ window.addEventListener('popstate', function (event)
 			+ 
 			'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="text" name="mark_mill[]" placeholder="Mark Mill" value="NA"></td>' 
 			+ 
-			'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="checkbox" name="phase_item_complete[]" placeholder="Phase Complete"></td>' 
+			'<td><input type="hidden" name="new_phase_item_complete[]" value="0"><input class="form-control-sm" type="checkbox" onchange="this.previousElementSibling.value = this.checked ? 1 : 0;" placeholder="Phase Complete"></td>' 
 			+ 
 			'<td></td>' 
 			+ 
@@ -742,7 +742,7 @@ window.addEventListener('popstate', function (event)
 				+ 
 				'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="text" name="mark_mill[]" placeholder="Notes"></td>' 
 				+ 
-				'<td><input class="form-control-sm" type="checkbox" name="phase_item_complete[]" placeholder="Phase Complete"></td>' 
+				'<td><input type="hidden" name="new_phase_item_complete[]" value="0"><input class="form-control-sm" type="checkbox" onchange="this.previousElementSibling.value = this.checked ? 1 : 0;" placeholder="Phase Complete"></td>' 
 				+ 
 				'<td></td>' 
 				+

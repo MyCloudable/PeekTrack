@@ -62,6 +62,7 @@ class SchedulingController extends Controller
             'Spartanburg' => range(70, 75),
             'Richmond_Hill' => range(80, 85),
             'Conway' => range(90, 96),
+			'Jacksonville' => range(6604, 6605),
 
         ];
 

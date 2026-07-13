@@ -594,7 +594,7 @@ $overflowItems = DB::table('overflow_items')
                     $prod->unit_of_measure = $request->unit_of_measure[$i];
                     $prod->mark_mill = $request->mark_mill[$i];
                     $prod->road_name = $request->road_name[$i];
-                    if (isset($request->phase_item_complete[$i])) {
+                    if (!empty($request->phase_item_complete[$i])) {
                         $prod->phase_item_complete = 1;
                     } else {
                         $prod->phase_item_complete = 0;
@@ -648,7 +648,7 @@ $overflowItems = DB::table('overflow_items')
 
         // redirect to Dashboard after submission
         return redirect()
-            ->route("dashboard")
+            ->route("jobs.jobcard", ["id" => $uuid])
             ->with("success", "Job entry saved successfully");
     }
 
@@ -679,7 +679,7 @@ $overflowItems = DB::table('overflow_items')
         }
         
         if (!empty($request->phase)) {
-			
+			$newProdIndex = 0;
             for ($i = 0; $i < count($request->phase); $i++) {
 				if (isset($request->qty[$i]) && isset($request->pid[$i])) {
 					
@@ -731,13 +731,14 @@ $overflowItems = DB::table('overflow_items')
 						$prod->unit_of_measure = $request->unit_of_measure[$i];
 						$prod->mark_mill = $request->mark_mill[$i];
 						$prod->road_name = $request->road_name[$i];
-                        if (isset($request->phase_item_complete[$i])) {
+                        if (!empty($request->input("new_phase_item_complete.$newProdIndex"))) {
                             $complete = 1;
                         } 
                         else {
                             $complete = 0;
                         }                   
                         $prod->phase_item_complete = $complete;
+						$newProdIndex++;
 						$prod->surface_type = $request->surface_type[$i];
 						$prod->save();
 						}
@@ -875,7 +876,7 @@ if (isset($request->mqty[$i])){
         $JobNote->note = "Jobcard submitted.";
         $JobNote->save();
 		return redirect()
-            ->route("jobs")
+            ->route("dashboard")
             ->with("successentry", "Job card submitted successfully");
 		}
     }

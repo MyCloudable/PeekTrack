@@ -25452,7 +25452,7 @@ var _hoisted_17 = {
 };
 var _hoisted_18 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "class": "form-label"
-}, "Location (2 digits)", -1 /* HOISTED */);
+}, "Location (up to 4 digits)", -1 /* HOISTED */);
 var _hoisted_19 = {
   "class": "col-4 mb-2"
 };
@@ -25524,9 +25524,9 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return $setup.editForm.location = $event;
     }),
     inputmode: "numeric",
-    pattern: "\\\\d{2}",
-    maxlength: "2",
-    placeholder: "e.g. 02"
+    pattern: "\\\\d{1,4}",
+    maxlength: "4",
+    placeholder: "e.g. 02 or 1234"
   }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.editForm.location]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_19, [_hoisted_20, (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     "class": "form-control bg-white",
     "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {

@@ -110,7 +110,7 @@
 											<option value="Current">Current</>
 											</select></td>
 											<td><input class="form-control-sm" type="text" name="mark_mill[]" placeholder="Notes"></td>
-											<td><input class="form-control-sm" type="checkbox" name="phase_item_complete[]" placeholder="Phase Complete"></td>
+											<td><input class="form-control-sm" type="checkbox" name="phase_item_complete[]" placeholder="Phase Complete"><input type="hidden" name="phase_item_complete[]" value="0"><input class="form-control-sm" type="checkbox" onchange="this.previousElementSibling.value = this.checked ? 1 : 0;" placeholder="Phase Complete"></td>
                                             <td>Unsaved</td>
 											<td><input type="button" class="btn btn-danger" value="Delete Row" onclick="SomeDeleteRowFunction(this)"></td>
                                         </tr> @endforeach
@@ -337,7 +337,7 @@ window.addEventListener('popstate', function (event)
 			+ 
 			'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="text" name="mark_mill[]" placeholder="Mark Mill" value="NA"></td>' 
 			+ 
-			'<td><input class="form-control-sm" style="background-color: white;color: black !important;" type="checkbox" name="phase_item_complete[]" placeholder="Phase Complete"></td>' 
+			'<td><input type="hidden" name="phase_item_complete[]" value="0"><input class="form-control-sm" type="checkbox" onchange="this.previousElementSibling.value = this.checked ? 1 : 0;" placeholder="Phase Complete"></td>' 
 			+ 
 			'<td>unsaved</td>' 
 			+ 
@@ -400,7 +400,7 @@ window.addEventListener('popstate', function (event)
 				+ 
 				'<td><input class="form-control-sm" style="background-color: white;width: 100%;vertical-align: top;border-color: #f0f2f5;" type="checkbox" name="po[]" placeholder="Purchase Order"></td>' 
 				+ 
-				'<td><input class="form-control-sm" type="checkbox" name="phase_item_complete[]" placeholder="Phase Complete"></td>' 
+				'<td><input type="hidden" name="phase_item_complete[]" value="0"><input class="form-control-sm" type="checkbox" onchange="this.previousElementSibling.value = this.checked ? 1 : 0;" placeholder="Phase Complete"></td>' 
 				+
 				'<td><input type="button" class="btn btn-danger" value="Delete Row" onclick="SomeDeleteRowFunction(this)"></td>';
                 // Append the new row to the table
