@@ -37,7 +37,16 @@ class Kernel extends ConsoleKernel
         // $schedule->command('ai:capture-rejections')->everyFifteenMinutes();
 
         $schedule->exec(
-            'php -d memory_limit=2048M artisan ai:sync-prod-to-ai-test --fresh --reset-ai-output'
+            // No --reset-ai-output here: nightly truncation of jobcard_ai_features /
+            // ai_scoring_audit destroyed all verdict history — every card carried
+            // only "last night's verdict on current content", so a corrected card's
+            // original verdict was erased and cards deleted in prod lost their
+            // verdicts entirely. Without the flag, score-recent's skip-if-scored
+            // preserves each card's first verdict permanently (the prospective
+            // metric's core premise) and feature/audit rows survive prod deletions
+            // as ML training snapshots. --reset-ai-output remains available for
+            // manual calibration resets (truncate + full re-score after tuning).
+            'php -d memory_limit=2048M artisan ai:sync-prod-to-ai-test --fresh'
             . ' && php -d memory_limit=2048M artisan ai:backfill-features --since=2000-01-01 --force-rebuild'
             . ' && php -d memory_limit=2048M artisan ai:score-recent --since=2000-01-01 --limit=100000'
             . ' && php -d memory_limit=2048M artisan ai:capture-rejections'
