@@ -75,6 +75,7 @@ class AiSettingsSeeder extends Seeder
             ['ai.score_weight.R7_MATERIAL_RATIO_OUT_OF_BAND','30',   'int',    'Sprint 3 scoring weight for material ratio band violations.'],
             ['ai.score_weight.R7_EQUIPMENT_RATIO_OUT_OF_BAND','30',  'int',    'Sprint 3 scoring weight for equipment ratio band violations.'],
             ['ai.score_weight.R8_UNESTIMATED_ITEMS',         '20',   'int',    'Sprint 3 scoring weight for unestimated item findings.'],
+            ['ai.score_weight.R9_EQUIPMENT_ONLY_NO_REASON',  '30',   'int',    'Scoring weight for equipment-only cards with no production, material, or equipment-only reason.'],
 
             // ═══════════════ Ratio thresholds (global fallback) ═══════════════
             ['ai.ratio_mat_lower',                          '0.5',   'float',  'Global floor: material_per_production, multiple of median.'],

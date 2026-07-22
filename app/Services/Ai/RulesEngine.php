@@ -3,7 +3,6 @@
 namespace App\Services\Ai;
 
 use App\Models\JobCardAiFeature;
-use App\Services\Ai\Rules\Rule;
 use App\Services\Ai\Rules\R1MaterialWithoutProduction;
 use App\Services\Ai\Rules\R2ProductionWithoutEquipment;
 use App\Services\Ai\Rules\R3EmptyCard;
@@ -11,7 +10,9 @@ use App\Services\Ai\Rules\R4QuantityExceedsCeiling;
 use App\Services\Ai\Rules\R5PairMismatch;
 use App\Services\Ai\Rules\R7RatioBandViolation;
 use App\Services\Ai\Rules\R8UnestimatedItems;
+use App\Services\Ai\Rules\Rule;
 use App\Services\Ai\ValueObjects\RuleFinding;
+use R9EquipmentOnlyWithoutReason;
 
 /**
  * Layer 1: runs all hard rules and returns aggregated findings.
@@ -80,6 +81,7 @@ class RulesEngine
             new R5PairMismatch(),
             new R7RatioBandViolation(),
             new R8UnestimatedItems(),
+            new R9EquipmentOnlyWithoutReason(),
         ];
     }
 }

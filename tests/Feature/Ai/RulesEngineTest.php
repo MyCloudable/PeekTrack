@@ -7,6 +7,7 @@ use App\Services\Ai\Rules\R1MaterialWithoutProduction;
 use App\Services\Ai\Rules\R2ProductionWithoutEquipment;
 use App\Services\Ai\Rules\R3EmptyCard;
 use App\Services\Ai\Rules\R8UnestimatedItems;
+use App\Services\Ai\Rules\R9EquipmentOnlyWithoutReason;
 use App\Services\Ai\RulesEngine;
 use App\Services\Ai\ValueObjects\RuleFinding;
 use Tests\TestCase;
@@ -130,5 +131,111 @@ class RulesEngineTest extends TestCase
         $codes = array_map(fn ($f) => $f->code, $findings);
         $this->assertContains('R1_MATERIAL_NO_PRODUCTION', $codes);
         $this->assertContains('R8_UNESTIMATED_ITEMS', $codes);
+    }
+
+    public function test_r9_fires_for_equipment_only_card_without_reason(): void
+    {
+        $engine = new RulesEngine([
+            new R9EquipmentOnlyWithoutReason(
+                severity: RuleFinding::SEVERITY_MED
+            ),
+        ]);
+
+        $findings = $engine->evaluate($this->feature([
+            'equipment_line_count'     => 2,
+            'production_line_count'    => 0,
+            'material_line_count'      => 0,
+            'equipment_only_reason'    => null,
+            'production_total_qty'     => 0,
+            'material_total_qty'       => 0,
+            'equipment_total_hours'    => 4,
+        ]));
+
+        $this->assertCount(1, $findings);
+        $this->assertEquals(
+            'R9_EQUIPMENT_ONLY_NO_REASON',
+            $findings[0]->code
+        );
+        $this->assertEquals('R9', $findings[0]->ruleId);
+        $this->assertEquals(
+            RuleFinding::SEVERITY_MED,
+            $findings[0]->severity
+        );
+        $this->assertFalse($engine->hasHardTrigger($findings));
+    }
+
+    public function test_r9_skips_when_equipment_only_reason_exists(): void
+    {
+        $engine = new RulesEngine([
+            new R9EquipmentOnlyWithoutReason(
+                severity: RuleFinding::SEVERITY_MED
+            ),
+        ]);
+
+        $findings = $engine->evaluate($this->feature([
+            'equipment_line_count'     => 1,
+            'production_line_count'    => 0,
+            'material_line_count'      => 0,
+            'equipment_only_reason'    => 'rain',
+            'production_total_qty'     => 0,
+            'material_total_qty'       => 0,
+            'equipment_total_hours'    => 4,
+        ]));
+
+        $this->assertEmpty($findings);
+    }
+
+    public function test_r9_skips_when_production_line_exists(): void
+    {
+        $engine = new RulesEngine([
+            new R9EquipmentOnlyWithoutReason(
+                severity: RuleFinding::SEVERITY_MED
+            ),
+        ]);
+
+        $findings = $engine->evaluate($this->feature([
+            'equipment_line_count'  => 1,
+            'production_line_count' => 1,
+            'material_line_count'   => 0,
+            'equipment_only_reason' => null,
+        ]));
+
+        $this->assertEmpty($findings);
+    }
+
+    public function test_r9_skips_when_material_line_exists(): void
+    {
+        $engine = new RulesEngine([
+            new R9EquipmentOnlyWithoutReason(
+                severity: RuleFinding::SEVERITY_MED
+            ),
+        ]);
+
+        $findings = $engine->evaluate($this->feature([
+            'equipment_line_count'  => 1,
+            'production_line_count' => 0,
+            'material_line_count'   => 1,
+            'equipment_only_reason' => null,
+        ]));
+
+        $this->assertEmpty($findings);
+    }
+
+    public function test_r9_skips_when_no_equipment_lines_exist(): void
+    {
+        $engine = new RulesEngine([
+            new R9EquipmentOnlyWithoutReason(
+                severity: RuleFinding::SEVERITY_MED
+            ),
+        ]);
+
+        $findings = $engine->evaluate($this->feature([
+            'equipment_line_count'  => 0,
+            'production_line_count' => 0,
+            'material_line_count'   => 0,
+            'equipment_only_reason' => null,
+        ]));
+
+        $this->assertEmpty($findings);
     }
 }

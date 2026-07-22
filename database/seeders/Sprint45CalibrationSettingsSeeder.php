@@ -71,6 +71,13 @@ class Sprint45CalibrationSettingsSeeder extends Seeder
                 'value_type' => 'string',
                 'notes'      => 'R3 finding severity. One of: hard | high | medium | low.',
             ],
+            // R9 — equipment-only without reason
+            [
+                'key_name'   => 'ai.rule.R9.severity',
+                'value'      => 'medium',
+                'value_type' => 'string',
+                'notes'      => 'R9 finding severity. One of: hard | high | medium | low. Default medium so the rule contributes to Yellow scoring.',
+            ],
         ];
 
         foreach ($rows as $r) {
