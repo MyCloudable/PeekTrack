@@ -35,8 +35,14 @@ class JobsController extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-            $jobs = Job::where('status', '=', 'In progress')
-            ->get();
+
+            $jobs = Job::query();
+
+            // Default: only show jobs that are currently in progress.
+            // When the checkbox is selected, show jobs of every status.
+            if (!$request->boolean('show_all_jobs')) {
+                $jobs->where('status', 'In progress');
+            }
 
             return DataTables::of($jobs)
             

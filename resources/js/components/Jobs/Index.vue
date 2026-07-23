@@ -4,7 +4,14 @@
     <div class="card card-frame">
         <div class="card-body">
             <div class="card-title">Advance Filter</div>
-            
+
+            <div class="form-check mb-3">
+                <input id="show-all-jobs" v-model="showAllJobs" class="form-check-input" type="checkbox">
+                <label class="form-check-label" for="show-all-jobs">
+                    Show all jobs
+                </label>
+            </div>
+
             <button class="btn btn-info" @click="showFilter = true" v-show="!showFilter">Show Filter</button>
             <div v-show="showFilter">
                 <div id="custom-filters" class="custom-filters"></div>
@@ -25,7 +32,7 @@
                 <th>County</th>
                 <th>Contractor</th>
                 <th>Branch</th>
-				<th>Est. Comp</th>
+                <th>Est. Comp</th>
             </tr>
         </thead>
 
@@ -49,6 +56,7 @@ const dataTableRef = ref(null)
 const filterInputs = ref([]); // Store references to input fields
 
 let showFilter = ref(false)
+const showAllJobs = ref(false)
 
 const tableOptions = ref({
     processing: true,
@@ -57,6 +65,7 @@ const tableOptions = ref({
         url: '/jobs',
         data: function (params) {
             // Merge DataTables parameters with custom parameters
+            params.show_all_jobs = showAllJobs.value ? 1 : 0
 
         },
         type: 'GET',
@@ -80,7 +89,7 @@ const tableOptions = ref({
         { data: 'county', title: 'County' },
         { data: 'contractor', title: 'Contractor' },
         { data: 'branch', title: 'Branch' },
-		{ data: 'completion_date', title: 'Est. Comp' },
+        { data: 'completion_date', title: 'Est. Comp' },
     ],
 
     initComplete: function () {
@@ -143,6 +152,14 @@ const tableOptions = ref({
             });
     }
 
+})
+
+watch(showAllJobs, () => {
+    const table = dataTableRef.value?.dt
+
+    if (table) {
+        table.ajax.reload()
+    }
 })
 
 
